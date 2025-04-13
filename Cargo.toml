@@ -9,7 +9,19 @@ readme = "README.md"
 homepage = "https://timescape-viewer.org"
 repository = "https://github.com/JannikP/Timescape-Viewer"
 license = "GPL-3.0"
-publish = false
+publish = false # Do not publish to crates.io
+
+[package.metadata.dist]
+dist = true # But publish to Github releases
+
+[package.metadata.wix]
+upgrade-guid = "C4D985AF-84EB-40B6-82F5-CB3D80AB1F69"
+path-guid = "63A8C0C7-AE8A-4473-8D6C-5B18C3F23DE2"
+license = "LICENSE"
+eula = false
+dialog = "wix/dialog.bmp"
+banner = "wix/banner.bmp"
+product-icon = "assets/app_icon.ico"
 
 [dependencies]
 # GUI framework
@@ -22,3 +34,8 @@ winres = "0.1"
 [dev-dependencies]
 #  Tests the application in headless mode.
 iced_test = { git = "https://github.com/iced-rs/iced" }
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
