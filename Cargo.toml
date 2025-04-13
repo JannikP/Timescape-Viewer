@@ -1,0 +1,18 @@
+[package]
+name = "timescape-viewer"
+version = "0.1.0"
+authors = ["Jannik Peters <19486794+JannikP@users.noreply.github.com>"]
+edition = "2024"
+rust-version = "1.85"
+description = "A desktop application of viewing and converting timeseries data from all kind of sources."
+readme = "README.md"
+homepage = "https://timescape-viewer.org"
+repository = "https://github.com/JannikP/Timescape-Viewer"
+license = "GPL-3.0"
+publish = false
+
+[dependencies]
+iced = { git = "https://github.com/iced-rs/iced", features = ["wgpu", "debug", "system", "fira-sans"] }
+
+[dev-dependencies]
+iced_test = { git = "https://github.com/iced-rs/iced" }
