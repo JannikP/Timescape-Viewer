@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 use iced::Center;
 use iced::widget::{Column, button, column, text};
 

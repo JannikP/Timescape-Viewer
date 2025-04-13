@@ -12,7 +12,13 @@ license = "GPL-3.0"
 publish = false
 
 [dependencies]
+# GUI framework
 iced = { git = "https://github.com/iced-rs/iced", features = ["wgpu", "debug", "system", "fira-sans"] }
 
+[target.'cfg(windows)'.build-dependencies]
+# Adding meta information and icons to windows executable.
+winres = "0.1"
+
 [dev-dependencies]
+#  Tests the application in headless mode.
 iced_test = { git = "https://github.com/iced-rs/iced" }
