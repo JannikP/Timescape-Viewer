@@ -14,6 +14,12 @@ publish = false # Do not publish to crates.io
 [package.metadata.dist]
 dist = true # But publish to Github releases
 
+[package.metadata.winres]
+FileDescription = "A desktop application of viewing and converting timeseries data from all kind of sources."
+ProductName = "Timescape-Viewer"
+OriginalFilename = "timescape-viewer.exe"
+LegalCopyright = "Copyright © 2025 Jannik Peters"
+
 [package.metadata.wix]
 upgrade-guid = "C4D985AF-84EB-40B6-82F5-CB3D80AB1F69"
 path-guid = "63A8C0C7-AE8A-4473-8D6C-5B18C3F23DE2"
@@ -24,8 +30,14 @@ banner = "wix/banner.bmp"
 product-icon = "assets/app_icon.ico"
 
 [dependencies]
+# Data structure to hold the grid of plots
+grid = "0.16.2"
+
 # GUI framework
 iced = { git = "https://github.com/iced-rs/iced", features = ["wgpu", "debug", "system", "fira-sans"] }
+
+# Embed mermaid diagrams in RustDoc.
+simple-mermaid = "0.2.0"
 
 [target.'cfg(windows)'.build-dependencies]
 # Adding meta information and icons to windows executable.

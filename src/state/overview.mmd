@@ -1,0 +1,60 @@
+---
+title: "Timescape Viewer"
+---
+erDiagram
+    Timescape["Timescape Viewer"] {
+        string title
+    }
+
+    Source {
+        String name
+    }
+
+    ScopeLegend {
+    }
+
+    ScopePlotter {
+    }
+
+    Window {
+        Timestamp begin
+        Timestamp end
+        LiveMode live
+    }
+
+    Timescape ||--o{ Source: sources
+    Timescape ||--o{ ScopeLegend: n
+    Timescape ||--o{ ScopePlotter: "n*m"
+    Timescape ||--o{ Window: m
+
+    Signal {
+        String name
+        String description
+        String unit
+    }
+
+    ScopePlotter }o..o{ Signal: "shows"
+    Source ||..|{ Signal: "owns"
+
+    Run {
+        String title
+    }
+
+    Source ||..|{ Run: "consists of"
+    Window }o..|| Run: "shows"
+
+    Track {
+        dummy value
+    }
+
+    Run ||--|{ Track: "has"
+    Track ||..|{ Signal: "has"
+
+    Block {
+        Date begin
+        Date end
+        double[] timestamps
+        double[][] values
+    }
+
+    Track ||--o{ Block: "has"
