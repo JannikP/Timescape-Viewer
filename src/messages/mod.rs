@@ -1,7 +1,8 @@
+use crate::state::Stage;
+
 #[derive(Debug, Clone, Copy)]
 pub enum Message {
-    Increment,
-    Decrement,
+    GoTo(Stage),
 }
 
 #[cfg(test)]

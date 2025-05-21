@@ -15,6 +15,13 @@ use trail_chart::{TrailChartLegend, TrailChartPlotter};
 
 pub const BLOCK_SIZE: usize = 65536;
 
+#[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]
+pub enum Stage {
+    Backstage,
+    #[default]
+    Timescape,
+}
+
 pub enum ScopeLegend {
     LineChart(LineChartLegend),
     Spectrogram(SpectrogramLegend),
