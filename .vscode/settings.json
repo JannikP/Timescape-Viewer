@@ -5,6 +5,8 @@
         "wix": "dist"
     },
     "cSpell.words": [
+        "antialiasing",
+        "Fira",
         "repr",
         "timescape",
         "wgpu"

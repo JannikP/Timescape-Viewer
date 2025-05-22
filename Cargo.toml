@@ -31,10 +31,10 @@ product-icon = "assets/app_icon.ico"
 
 [dependencies]
 # Data structure to hold the grid of plots
-grid = "0.16.2"
+grid = "0.17.0"
 
 # GUI framework
-iced = { git = "https://github.com/iced-rs/iced", features = ["wgpu", "debug", "system", "fira-sans"] }
+iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["wgpu", "debug", "system", "auto-detect-theme", "thread-pool"] }
 
 # Embed mermaid diagrams in RustDoc.
 simple-mermaid = "0.2.0"

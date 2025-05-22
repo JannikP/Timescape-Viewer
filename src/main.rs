@@ -1,12 +1,14 @@
 #![windows_subsystem = "windows"]
 mod commands;
+mod constants;
 mod messages;
 mod state;
 mod theme;
 mod views;
 
 use grid::Grid;
-use iced::{Element, Task, Theme};
+use iced::{Element, Font, Settings, Task, Theme};
+use iced::widget::center;
 
 use messages::Message;
 use state::{ScopeLegend, ScopePlotter, Stage, Window};
@@ -18,6 +20,15 @@ pub fn main() -> iced::Result {
         TimescapeViewer::update,
         TimescapeViewer::view
     )
+    .settings(Settings {
+        id: Some("org.timescape-viewer.application".into()),
+        fonts: vec![
+            include_bytes!("../assets/fonts/FiraSansCondensed-Regular-Expanded.ttf").into(),
+        ],
+        default_font: Font::with_name("Fira Sans Condensed"),
+        default_text_size: 14.into(),
+        antialiasing: true,
+    })
     .theme(TimescapeViewer::theme)
     .run()
 }
@@ -52,10 +63,11 @@ impl TimescapeViewer {
     }
 
     fn view(&self) -> Element<'_, Message> {
-        match self.stage {
+        let content = match self.stage {
             Stage::Backstage => view_backstage(self),
             Stage::Timescape => view_timescape(self),
-        }
+        };
+        center(content).into()
     }
 }
 
