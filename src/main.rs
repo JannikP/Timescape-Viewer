@@ -1,6 +1,8 @@
-#![windows_subsystem = "windows"]
+// Hide console window in release builds.
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod commands;
 mod constants;
+mod logging;
 mod messages;
 mod state;
 mod theme;
@@ -8,13 +10,17 @@ mod views;
 
 use grid::Grid;
 use iced::{Element, Font, Settings, Task, Theme};
+use iced::font::{Family, Weight, Stretch, Style};
 use iced::widget::center;
+use log::info;
 
+use logging::setup_logger;
 use messages::Message;
 use state::{ScopeLegend, ScopePlotter, Stage, Window};
 use views::{view_backstage, view_timescape};
 
 pub fn main() -> iced::Result {
+    setup_logger();
     iced::application::application(
         TimescapeViewer::new,
         TimescapeViewer::update,
@@ -25,8 +31,13 @@ pub fn main() -> iced::Result {
         fonts: vec![
             include_bytes!("../assets/fonts/FiraSansCondensed-Regular-Expanded.ttf").into(),
         ],
-        default_font: Font::with_name("Fira Sans Condensed"),
-        default_text_size: 14.into(),
+        default_font: Font {
+            family: Family::Name("Fira Sans Condensed"),
+            weight: Weight::Normal,
+            stretch: Stretch::Condensed,
+            style: Style::Normal,
+        },
+        default_text_size: 16.into(),
         antialiasing: true,
     })
     .theme(TimescapeViewer::theme)
@@ -56,6 +67,7 @@ impl TimescapeViewer {
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::GoTo(stage) => {
+                info!("Going to {:?}", stage);
                 self.stage = stage;
                 Task::none()
             },

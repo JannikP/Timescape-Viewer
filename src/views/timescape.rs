@@ -1,4 +1,4 @@
-use iced::{Element, Font, Length};
+use iced::{Element, Length};
 use iced::widget::{button, column, row, scrollable, text, Space};
 
 use crate::constants::icons::MENU_ICON;
@@ -33,15 +33,7 @@ fn content(_app: &TimescapeViewer) -> Element<'_, Message> {
 
 fn footer(_app: &TimescapeViewer) -> Element<'_, Message> {
     row![
-        text("\u{2326} Hello, this is the timescape!"),
-        text("\u{E000} Hello, this is the timescape!")
-            .font(Font::with_name("FiraSansCondensed-Regular-Expanded")),
-        text("\u{E000} Hello, this is the timescape!")
-            .font(Font::with_name("Fira Sans Condensed")),
-        text("\u{0E000} Hello, this is the timescape!")
-            .font(Font::with_name("Fira Sans Condensed Regular")),
-        text("\u{E000} Hello, this is the timescape!")
-            .font(Font::with_name("Overpass Mono")),
+        text("\u{2326} \u{E000} This is the footer."),
     ]
     .spacing(PANEL_GAP)
     .width(Length::Fill)

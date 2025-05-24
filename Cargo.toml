@@ -30,11 +30,17 @@ banner = "wix/banner.bmp"
 product-icon = "assets/app_icon.ico"
 
 [dependencies]
+# Logger implementation
+flexi_logger = "0.30"
+
 # Data structure to hold the grid of plots
 grid = "0.17.0"
 
 # GUI framework
 iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["wgpu", "debug", "system", "auto-detect-theme", "thread-pool"] }
+
+# Logging infrastructure
+log = "0.4"
 
 # Embed mermaid diagrams in RustDoc.
 simple-mermaid = "0.2.0"
@@ -46,6 +52,18 @@ winres = "0.1"
 [dev-dependencies]
 #  Tests the application in headless mode.
 iced_test = { git = "https://github.com/iced-rs/iced" }
+
+[profile.release]
+opt-level = 3
+debug = false
+strip = "debuginfo"
+debug-assertions = false
+overflow-checks = false
+lto = "thin"
+panic = "unwind"
+incremental = false
+codegen-units = 16
+rpath = false
 
 # The profile that 'dist' will build with
 [profile.dist]
