@@ -1,30 +1,26 @@
+use iced::widget::{Space, button, column, row, scrollable, text};
 use iced::{Element, Length};
-use iced::widget::{button, column, row, scrollable, text, Space};
 
+use crate::TimescapeViewer;
 use crate::constants::icons::MENU_ICON;
 use crate::constants::layout::PANEL_GAP;
 use crate::messages::Message;
 use crate::state::Stage;
-use crate::TimescapeViewer;
 
 pub fn view_timescape(app: &TimescapeViewer) -> Element<'_, Message> {
-    column![
-        header(app),
-        scrollable(content(app)),
-        footer(app),
-    ]
-    .spacing(PANEL_GAP)
-    .height(Length::Fill)
-    .into()
+    column![header(app), scrollable(content(app)), footer(app),]
+        .spacing(PANEL_GAP)
+        .height(Length::Fill)
+        .into()
 }
 
 fn header(_app: &TimescapeViewer) -> Element<'_, Message> {
     row![
-        button(MENU_ICON)
-            .on_press(Message::GoTo(Stage::Backstage)),
+        button(MENU_ICON).on_press(Message::GoTo(Stage::Backstage)),
         Space::with_width(Length::Fill),
         Space::with_width(12),
-    ].into()
+    ]
+    .into()
 }
 
 fn content(_app: &TimescapeViewer) -> Element<'_, Message> {
@@ -32,10 +28,8 @@ fn content(_app: &TimescapeViewer) -> Element<'_, Message> {
 }
 
 fn footer(_app: &TimescapeViewer) -> Element<'_, Message> {
-    row![
-        text("\u{2326} \u{E000} This is the footer."),
-    ]
-    .spacing(PANEL_GAP)
-    .width(Length::Fill)
-    .into()
+    row![text("\u{2326} \u{E000} This is the footer."),]
+        .spacing(PANEL_GAP)
+        .width(Length::Fill)
+        .into()
 }

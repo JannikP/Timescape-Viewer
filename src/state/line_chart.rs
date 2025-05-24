@@ -15,6 +15,4 @@ pub struct LineChartPlotter {
     signals: Vec<Line>,
 }
 
-pub struct Line {
-
-}
+pub struct Line {}

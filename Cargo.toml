@@ -42,6 +42,9 @@ iced = { git = "https://github.com/iced-rs/iced", default-features = false, feat
 # Logging infrastructure
 log = "0.4"
 
+# Display file choosers and message boxes.
+native-dialog = { version = "0.9.0", features = ["async"] }
+
 # Embed mermaid diagrams in RustDoc.
 simple-mermaid = "0.2.0"
 

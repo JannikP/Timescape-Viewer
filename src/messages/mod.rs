@@ -1,8 +1,12 @@
+use crate::origins::Origin;
 use crate::state::Stage;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Message {
+    None,
     GoTo(Stage),
+    ChooseFile,
+    Open(Origin),
 }
 
 #[cfg(test)]

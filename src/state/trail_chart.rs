@@ -6,6 +6,4 @@ pub struct TrailChartPlotter {
     tracks: Vec<Trail>,
 }
 
-pub struct Trail {
-
-}
+pub struct Trail {}

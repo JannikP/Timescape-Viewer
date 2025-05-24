@@ -4,16 +4,18 @@ mod commands;
 mod constants;
 mod logging;
 mod messages;
+mod origins;
 mod state;
 mod theme;
 mod views;
 
 use grid::Grid;
-use iced::{Element, Font, Settings, Task, Theme};
-use iced::font::{Family, Weight, Stretch, Style};
+use iced::font::{Family, Stretch, Style, Weight};
 use iced::widget::center;
-use log::info;
+use iced::{Element, Font, Settings, Task, Theme};
+use log::{debug, info};
 
+use commands::choose_file::choose_file;
 use logging::setup_logger;
 use messages::Message;
 use state::{ScopeLegend, ScopePlotter, Stage, Window};
@@ -24,7 +26,7 @@ pub fn main() -> iced::Result {
     iced::application::application(
         TimescapeViewer::new,
         TimescapeViewer::update,
-        TimescapeViewer::view
+        TimescapeViewer::view,
     )
     .settings(Settings {
         id: Some("org.timescape-viewer.application".into()),
@@ -54,10 +56,7 @@ struct TimescapeViewer {
 
 impl TimescapeViewer {
     pub fn new() -> (Self, Task<Message>) {
-        (
-            Self::default(),
-            Task::none(),
-        )
+        (Self::default(), Task::none())
     }
 
     pub fn theme(&self) -> Theme {
@@ -70,7 +69,21 @@ impl TimescapeViewer {
                 info!("Going to {:?}", stage);
                 self.stage = stage;
                 Task::none()
-            },
+            }
+            Message::ChooseFile => {
+                Task::perform(choose_file(), |maybe_origin| match maybe_origin {
+                    Some(origin) => Message::Open(origin),
+                    None => Message::None,
+                })
+            }
+            Message::Open(origin) => {
+                info!("Opening {:?}", origin);
+                Task::none()
+            }
+            Message::None => {
+                debug!("Do nothing.");
+                Task::none()
+            }
         }
     }
 
@@ -84,5 +97,4 @@ impl TimescapeViewer {
 }
 
 #[cfg(test)]
-mod tests {
-}
+mod tests {}

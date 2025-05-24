@@ -1,12 +1,14 @@
 {
     "material-icon-theme.folders.associations": {
         "benches": "benchmark",
+        "origins": "download",
         "state": "context",
         "wix": "dist"
     },
     "cSpell.words": [
         "antialiasing",
         "Fira",
+        "flexi",
         "repr",
         "timescape",
         "wgpu"

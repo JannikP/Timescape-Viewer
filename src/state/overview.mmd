@@ -6,7 +6,7 @@ erDiagram
         string title
     }
 
-    Source {
+    Origin {
         String name
     }
 
@@ -22,7 +22,7 @@ erDiagram
         LiveMode live
     }
 
-    Timescape ||--o{ Source: sources
+    Timescape ||--o{ Origin: origins
     Timescape ||--o{ ScopeLegend: n
     Timescape ||--o{ ScopePlotter: "n*m"
     Timescape ||--o{ Window: m
@@ -34,13 +34,13 @@ erDiagram
     }
 
     ScopePlotter }o..o{ Signal: "shows"
-    Source ||..|{ Signal: "owns"
+    Origin ||..|{ Signal: "owns"
 
     Run {
         String title
     }
 
-    Source ||..|{ Run: "consists of"
+    Origin ||..|{ Run: "consists of"
     Window }o..|| Run: "shows"
 
     Track {
