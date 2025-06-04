@@ -12,5 +12,10 @@
         "repr",
         "timescape",
         "wgpu"
+    ],
+    "i18n-ally.localesPaths": [
+        "src/messages",
+        "assets/i18n",
+        "../../../../../../Users/Jannik/Documents/Timescape-Viewer/Timescape-Viewer/assets/i18n"
     ]
 }

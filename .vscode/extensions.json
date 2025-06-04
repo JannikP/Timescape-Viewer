@@ -7,6 +7,7 @@
         "polymeilex.wgsl",
         "rust-lang.rust-analyzer",
         "streetsidesoftware.code-spell-checker",
-        "yzhang.markdown-all-in-one"
+        "yzhang.markdown-all-in-one",
+        "lokalise.i18n-ally"
     ]
 }

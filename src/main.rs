@@ -14,12 +14,16 @@ use iced::font::{Family, Stretch, Style, Weight};
 use iced::widget::center;
 use iced::{Element, Font, Settings, Task, Theme};
 use log::{debug, info};
+use rust_i18n::{i18n, t};
 
 use commands::choose_file::choose_file;
 use logging::setup_logger;
 use messages::Message;
 use state::{ScopeLegend, ScopePlotter, Stage, Window};
 use views::{view_backstage, view_timescape};
+
+// Load translations with configuration from `[package.metadata.i18n]` section in `Cargo.toml`.
+i18n!("assets/i18n");
 
 pub fn main() -> iced::Result {
     setup_logger();
@@ -43,6 +47,7 @@ pub fn main() -> iced::Result {
         antialiasing: true,
     })
     .theme(TimescapeViewer::theme)
+    .title(TimescapeViewer::title)
     .run()
 }
 
@@ -93,6 +98,10 @@ impl TimescapeViewer {
             Stage::Timescape => view_timescape(self),
         };
         center(content).into()
+    }
+
+    fn title(&self) -> String {
+        t!("title").to_string()
     }
 }
 

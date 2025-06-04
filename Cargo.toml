@@ -14,6 +14,13 @@ publish = false # Do not publish to crates.io
 [package.metadata.dist]
 dist = true # But publish to Github releases
 
+[package.metadata.i18n]
+available-locales = ["en", "de"]
+default-locale = "en"
+# Path for your translations YAML file
+# This config for let `cargo i18n` command line tool know where to find the translations.
+load-path = "assets/i18n"
+
 [package.metadata.winres]
 FileDescription = "A desktop application of viewing and converting timeseries data from all kind of sources."
 ProductName = "Timescape-Viewer"
@@ -44,6 +51,9 @@ log = "0.4"
 
 # Display file choosers and message boxes.
 native-dialog = { version = "0.9.0", features = ["async"] }
+
+# Internationalization support
+rust-i18n = "3.1.5"
 
 # Embed mermaid diagrams in RustDoc.
 simple-mermaid = "0.2.0"
