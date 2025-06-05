@@ -1,0 +1,9 @@
+_version: 1
+title: Timescape Viewer
+timescape:
+    no_origin:
+        caption: Keine Quelle
+        message: Keine Datei oder echtzeit-Quelle geöffnet
+    no_scope:
+        caption: Keine Diagramme
+        message: Es sind keine Diagramme geöffnet. Fügen Sie eine der verfügbaren Visualisierungen hinzu.

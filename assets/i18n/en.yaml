@@ -1,0 +1,10 @@
+_version: 1
+title: Timescape Viewer
+timescape:
+    no_origin:
+        caption: No source
+        message: No file or realtime source open.
+    no_scope:
+        caption: No scopes
+        message: There are no scopes to view. Add one of the available visualizers.
+

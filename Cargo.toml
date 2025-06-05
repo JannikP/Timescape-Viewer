@@ -37,6 +37,9 @@ banner = "wix/banner.bmp"
 product-icon = "assets/app_icon.ico"
 
 [dependencies]
+# Transform trait objects into concrete compound types
+enum_dispatch = "0.3.13"
+
 # Logger implementation
 flexi_logger = "0.30"
 
