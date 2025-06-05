@@ -54,8 +54,8 @@ pub fn main() -> iced::Result {
 #[derive(Default)]
 struct TimescapeViewer {
     stage: Stage,
-    _scopes: Vec<ScopeLegend>,
-    _windows: Vec<Window>,
+    scopes: Vec<ScopeLegend>,
+    windows: Vec<Window>,
     _plotters: Grid<ScopePlotter>,
 }
 

@@ -8,6 +8,7 @@ pub mod trail_chart;
 
 use std::rc::Rc;
 
+use enum_dispatch::enum_dispatch;
 use line_chart::{LineChartLegend, LineChartPlotter};
 use signal::Signal;
 use spectrogram::{SpectrogramLegend, SpectrogramPlotter};
@@ -22,6 +23,12 @@ pub enum Stage {
     Timescape,
 }
 
+#[enum_dispatch(ScopeLegend)]
+pub trait Scope {
+    fn height(&self) -> f32;
+}
+
+#[enum_dispatch]
 pub enum ScopeLegend {
     LineChart(LineChartLegend),
     Spectrogram(SpectrogramLegend),
