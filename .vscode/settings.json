@@ -5,6 +5,26 @@
         "state": "context",
         "wix": "dist"
     },
+    "material-icon-theme.files.customClones": [
+        {
+            "name": "rust-mod",
+            "base": "rust",
+            "color": "blue-400",
+            "fileNames": [
+                "mod.rs"
+            ]
+        },
+        {
+            "name": "rust-lib",
+            "base": "rust",
+            "color": "light-green-300",
+            "lightColor": "light-green-600",
+            "fileNames": [
+                "lib.rs",
+                "main.rs"
+            ]
+        }
+    ],
     "cSpell.words": [
         "antialiasing",
         "Fira",

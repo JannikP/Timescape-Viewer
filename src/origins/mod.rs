@@ -1,6 +1,10 @@
+pub mod csv;
+
 use std::path::PathBuf;
+
+use csv::CsvOptions;
 
 #[derive(Debug, Clone)]
 pub enum Origin {
-    File(PathBuf),
+    CsvFile(PathBuf, Box<CsvOptions>),
 }

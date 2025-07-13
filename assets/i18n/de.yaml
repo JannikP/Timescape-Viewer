@@ -1,5 +1,7 @@
 _version: 1
 title: Timescape Viewer
+backstage:
+    open_file: Datei öffnen
 timescape:
     no_origin:
         caption: Keine Quelle

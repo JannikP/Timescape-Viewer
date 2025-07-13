@@ -1,6 +1,6 @@
 use native_dialog::DialogBuilder;
 
-use crate::origins::Origin;
+use crate::origins::{Origin, csv::CsvOptions};
 
 pub async fn choose_file() -> Option<Origin> {
     DialogBuilder::file()
@@ -10,5 +10,5 @@ pub async fn choose_file() -> Option<Origin> {
         .spawn()
         .await
         .unwrap()
-        .map(|path| Origin::File(path))
+        .map(|path| Origin::CsvFile(path, Box::new(CsvOptions::default())))
 }

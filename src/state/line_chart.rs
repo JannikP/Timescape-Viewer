@@ -13,6 +13,12 @@ impl Scope for LineChartLegend {
     fn height(&self) -> f32 {
         self.height
     }
+
+    fn create_plotter(&self) -> super::ScopePlotter {
+        super::ScopePlotter::LineChart(LineChartPlotter {
+            signals: Vec::new(),
+        })
+    }
 }
 
 pub struct LineChartLegendEntry {

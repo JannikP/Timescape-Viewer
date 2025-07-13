@@ -47,7 +47,7 @@ flexi_logger = "0.30"
 grid = "0.17.0"
 
 # GUI framework
-iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["wgpu", "debug", "system", "auto-detect-theme", "thread-pool"] }
+iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["advanced", "wgpu", "debug", "system", "auto-detect-theme", "thread-pool"] }
 
 # Logging infrastructure
 log = "0.4"

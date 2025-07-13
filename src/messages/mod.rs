@@ -4,8 +4,10 @@ use crate::state::Stage;
 #[derive(Debug, Clone)]
 pub enum Message {
     None,
-    GoTo(Stage),
+    AbortModal,
     ChooseFile,
+    GoTo(Stage),
+    Hint(String),
     Open(Origin),
 }
 
@@ -15,6 +17,10 @@ mod tests {
 
     #[test]
     fn message_size_small() {
-        assert!(std::mem::size_of::<Message>() <= 32);
+        assert!(
+            std::mem::size_of::<Message>() <= 64,
+            "The message should be less than or equal to 64 bytes in size. Box larger content!\nThe actual size is {} bytes.",
+            std::mem::size_of::<Message>(),
+        );
     }
 }
