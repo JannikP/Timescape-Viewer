@@ -1,4 +1,5 @@
 pub mod csv;
+pub mod tia;
 
 use std::path::PathBuf;
 

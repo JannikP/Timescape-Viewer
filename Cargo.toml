@@ -49,6 +49,9 @@ grid = "0.17.0"
 # GUI framework
 iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["advanced", "wgpu", "debug", "system", "auto-detect-theme", "thread-pool"] }
 
+# Timezone-aware date time and calender arithmetic.
+jiff = { version = "0.2.15", features = ["serde"] }
+
 # Logging infrastructure
 log = "0.4"
 
@@ -57,9 +60,17 @@ native-dialog = { version = "0.9.0", features = ["async"] }
 
 # Internationalization support
 rust-i18n = "3.1.5"
+serde = "1.0.219"
+
+# `xml-rs` based serializer and deserializer for Serde
+serde-xml-rs = "0.8.1"
 
 # Embed mermaid diagrams in RustDoc.
 simple-mermaid = "0.2.0"
+
+# Reading and writing .zip archives.
+# Some formats such as TIA's .ttrecx trace files are actually just renamed .zip files.
+zip = "4.3.0"
 
 [target.'cfg(windows)'.build-dependencies]
 # Adding meta information and icons to windows executable.
