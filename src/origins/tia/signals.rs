@@ -58,7 +58,7 @@ struct ConfigurationSignal {
 
     /// Internal ID of this signal. Usually a monotonic increasing number.
     #[serde(rename = "@signalId")]
-    signal_id: i64,
+    signal_id: i32,
 
     /// Full path of the signal's variable in the PLC program.
     /// E. g. "My Kinematic".StatusPath.Acceleration
