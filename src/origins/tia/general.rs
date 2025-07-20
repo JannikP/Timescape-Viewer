@@ -1,8 +1,10 @@
+//! This module contains data structures to decode the `General` section of a
+//! TIA trace.
 use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct General {
+pub struct General {
     /// Version of this general information structure. Should be "1.0".
     #[serde(rename = "@version")]
     version: String,
@@ -127,7 +129,6 @@ struct Device {
     firmware_version: String,
 }
 
-
 #[cfg(test)]
 mod tests {
     use jiff::civil::date;
@@ -176,10 +177,10 @@ mod tests {
         assert_eq!(
             result.modification_time,
             date(2025, 7, 15)
-            .at(6, 14, 49, 63792400)
-            .in_tz("UTC")
-            .unwrap()
-            .timestamp(),
+                .at(6, 14, 49, 63792400)
+                .in_tz("UTC")
+                .unwrap()
+                .timestamp(),
             "ModificationTime mismatch."
         );
         // TODO: Many more field to check...

@@ -1,7 +1,9 @@
+//! This module contains data structures to decode the `Signals` section of
+//! a TIA trace.
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Signals {
+pub struct Signals {
     /// Version of this signals definition structure. Should be "1.0".
     #[serde(rename = "@version")]
     version: String,
@@ -49,13 +51,12 @@ struct RecordSignal {
     visualization: Visualization,
 
     /// Physical unit of the recoded signal. E. g. "mm/s".
-    #[serde(rename = "Unit")]
-    unit: String,
+    #[serde(rename = "Unit", default)]
+    unit: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 struct ConfigurationSignal {
-
     /// Internal ID of this signal. Usually a monotonic increasing number.
     #[serde(rename = "@signalId")]
     signal_id: i32,
@@ -205,7 +206,7 @@ mod tests {
         assert_eq!(result.display_format, "Float", "Display format mismatch.");
         // Configuration signal has its own unit test. Not checked here.
         // Visualization has its own unit test. Not check here.
-        assert_eq!(result.unit, "mm/s", "Unit mismatch.");
+        assert_eq!(result.unit, Some("mm/s".into()), "Unit mismatch.");
     }
 
     #[test]
@@ -225,7 +226,10 @@ mod tests {
         let result: ConfigurationSignal = from_str(src).expect("Failed to parse XML snippet.");
         // Assert
         assert_eq!(result.signal_id, 0, "Signal id mismatch.");
-        assert_eq!(result.name, "\"My Kinematic\".StatusPath.Velocity", "Name mismatch.");
+        assert_eq!(
+            result.name, "\"My Kinematic\".StatusPath.Velocity",
+            "Name mismatch."
+        );
         assert_eq!(result.comment, "", "Comment mismatch.");
         assert_eq!(result.label, 0, "Label mismatch.");
         // Visualization has its own unit test. Not checked here.
@@ -238,8 +242,14 @@ mod tests {
         // Act
         let result: Visualization = from_str(src).expect("Failed to parse XML snippet.");
         // Assert
-        assert_eq!(result.display_color, "255,255,37,87", "Display color mismatch.");
-        assert_eq!(result.address_information, None, "Address information should be none.");
+        assert_eq!(
+            result.display_color, "255,255,37,87",
+            "Display color mismatch."
+        );
+        assert_eq!(
+            result.address_information, None,
+            "Address information should be none."
+        );
     }
 
     #[test]
@@ -253,8 +263,14 @@ mod tests {
         // Act
         let result: Visualization = from_str(src).expect("Failed to parse XML snippet.");
         // Assert
-        assert_eq!(result.display_color, "255,255,37,87", "Display color mismatch.");
-        assert!(matches!(result.address_information, Some(_)), "This snippet does contain address information.");
+        assert_eq!(
+            result.display_color, "255,255,37,87",
+            "Display color mismatch."
+        );
+        assert!(
+            matches!(result.address_information, Some(_)),
+            "This snippet does contain address information."
+        );
     }
 
     #[test]
@@ -270,7 +286,10 @@ mod tests {
         assert_eq!(result.data_type_code, "Double", "Data type code mismatch.");
         assert_eq!(result.bit_size, 64, "Bit size mismatch.");
         assert_eq!(result.bit_offset, 0, "Bit offset mismatch.");
-        assert_eq!(result.display_format_preset, "Float", "Display format preset mismatch.");
+        assert_eq!(
+            result.display_format_preset, "Float",
+            "Display format preset mismatch."
+        );
         assert_eq!(result.icon_type, "DB", "Icon type mismatch.");
     }
 }

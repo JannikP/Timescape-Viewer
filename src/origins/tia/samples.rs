@@ -1,7 +1,9 @@
+//! This module contains data structures to decode the `Samples` section of a
+//! TIA trace.
 use binrw::BinRead;
 
 #[derive(BinRead, Debug)]
-struct Samples {
+pub struct Samples {
     /// Header.
     header: Header,
 
@@ -60,7 +62,7 @@ struct Header {
     /// Block type IDs for all signals. Compare with the magic patterns of
     /// [SampleBlockF64] and [SampleBlockI32].
     #[br(count = block_type_count)]
-    block_types: Vec<i32>
+    block_types: Vec<i32>,
 }
 
 #[derive(BinRead, Debug)]
@@ -124,9 +126,9 @@ struct SampleBlockI32 {
 mod tests {
     use std::{fs::File, io::Cursor, path::PathBuf};
 
-    use binrw::{io::BufReader, BinRead};
+    use binrw::{BinRead, io::BufReader};
 
-    use super::{Header, Samples, SampleBlockF64, SampleBlockI32, TimestampsBlock};
+    use super::{Header, SampleBlockF64, SampleBlockI32, Samples, TimestampsBlock};
 
     #[test]
     fn read_samples_dat() {
@@ -135,8 +137,10 @@ mod tests {
             "assets",
             "examples",
             "tia",
-            "samples.dat"
-        ].iter().collect();
+            "samples.dat",
+        ]
+        .iter()
+        .collect();
         // As proposed here: https://stackoverflow.com/a/61107861
         if file.exists() {
             // Write the tests in a way that they also pass when the assets are
@@ -159,15 +163,14 @@ mod tests {
         let data: &[u8; 293] = b"\x07\x54\x53\x50\x3a\x31\x2e\x30\x01\x9f\x6c\x48\x00\x1b\xf2\xf0\x8d\x70\x3a\x52\x18\xf4\x01\x00\x00\xf4\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1e\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x04\x00\x00\x00\x05\x00\x00\x00\x06\x00\x00\x00\x07\x00\x00\x00\x08\x00\x00\x00\x09\x00\x00\x00\x0a\x00\x00\x00\x0b\x00\x00\x00\x0c\x00\x00\x00\x0d\x00\x00\x00\x0e\x00\x00\x00\x0f\x00\x00\x00\x10\x00\x00\x00\x11\x00\x00\x00\x12\x00\x00\x00\x13\x00\x00\x00\x14\x00\x00\x00\x15\x00\x00\x00\x16\x00\x00\x00\x17\x00\x00\x00\x18\x00\x00\x00\x19\x00\x00\x00\x1a\x00\x00\x00\x1b\x00\x00\x00\x1c\x00\x00\x00\x3d\x00\x00\x00\x1e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x0e\x00\x00\x00\x09\x00\x00\x00\x09\x00\x00\x00";
         let mut cursor = Cursor::new(data);
         // Act
-        let result = Header::read_le(&mut cursor)
-            .expect("Failed to read header. Check parser declaration.");
+        let result =
+            Header::read_le(&mut cursor).expect("Failed to read header. Check parser declaration.");
         // Assert
         assert_eq!(result.count_1, 500, "First number of samples is wrong.");
         assert_eq!(result.count_2, 500, "Second number of samples is wrong.");
         assert_eq!(result.signal_count, 30, "Number of signals is wrong.");
         assert_eq!(result.signal_ids[29], 61, "Last signal ID is wrong.");
     }
-
 
     #[test]
     fn parse_timestamps_block() {
@@ -178,9 +181,18 @@ mod tests {
         let result = TimestampsBlock::read_le(&mut cursor)
             .expect("Failed to read timestamps block. Check parser declaration.");
         // Assert
-        assert_eq!(result.sample_count_1, 500, "Number of 32 bit entries is wrong.");
-        assert_eq!(result.sample_count_2, 500, "Number of 64 bit timestamps is wrong.");
-        assert_eq!(result.timestamps[0], 1752527459092670491, "First 64 bit timestamp is wrong");
+        assert_eq!(
+            result.sample_count_1, 500,
+            "Number of 32 bit entries is wrong."
+        );
+        assert_eq!(
+            result.sample_count_2, 500,
+            "Number of 64 bit timestamps is wrong."
+        );
+        assert_eq!(
+            result.timestamps[0], 1752527459092670491,
+            "First 64 bit timestamp is wrong"
+        );
     }
 
     #[test]
@@ -208,5 +220,4 @@ mod tests {
         assert_eq!(result.sample_count, 500, "Number of entries is wrong.");
         assert_eq!(result.data[0], 5, "First sample is wrong");
     }
-
 }

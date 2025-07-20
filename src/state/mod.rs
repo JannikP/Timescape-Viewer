@@ -72,9 +72,7 @@ pub struct Source {
 impl Source {
     pub fn new_example_sines() -> Self {
         Self {
-            runs: vec![
-                Rc::new(Run::new_example_sines()),
-            ]
+            runs: vec![Rc::new(Run::new_example_sines())],
         }
     }
 }
@@ -90,25 +88,23 @@ impl Run {
     pub fn new_example_sines() -> Self {
         Run {
             title: "Example sines".to_string(),
-            tracks: vec![
-                Track {
-                    signals: vec![
-                        Signal::new("440 Hz sine")
-                            .with_description("A sine wave at 440 Hz")
-                            .without_unit()
-                            .reference_counted(),
-                        Signal::new("Mains voltage")
-                            .with_description("The european main voltage (50 Hz, 230 V AC)")
-                            .with_unit("V")
-                            .reference_counted(),
-                    ],
-                    time: Timeline::fixed_sample_rate(10000.0, 100_000),
-                    values: vec![
-                        demo_sine(10000.0, 100_000, 440.0, 1.0),
-                        demo_sine(10000.0, 100_000,  50.0, 325.2691193),
-                    ],
-                }
-            ],
+            tracks: vec![Track {
+                signals: vec![
+                    Signal::new("440 Hz sine")
+                        .with_description("A sine wave at 440 Hz")
+                        .without_unit()
+                        .reference_counted(),
+                    Signal::new("Mains voltage")
+                        .with_description("The european main voltage (50 Hz, 230 V AC)")
+                        .with_unit("V")
+                        .reference_counted(),
+                ],
+                time: Timeline::fixed_sample_rate(10000.0, 100_000),
+                values: vec![
+                    demo_sine(10000.0, 100_000, 440.0, 1.0),
+                    demo_sine(10000.0, 100_000, 50.0, 325.2691193),
+                ],
+            }],
         }
     }
 }
@@ -139,11 +135,7 @@ pub enum Timeline {
     },
 
     #[allow(dead_code)]
-    ExplicitTime {
-        timestamps: Vec<f64>,
-    }
-
-    // TODO: VariableTimeSteps { time_steps: Vec<f64> },
+    ExplicitTime { timestamps: Vec<f64> }, // TODO: VariableTimeSteps { time_steps: Vec<f64> },
 }
 
 impl Timeline {
@@ -154,5 +146,3 @@ impl Timeline {
         }
     }
 }
-
-
