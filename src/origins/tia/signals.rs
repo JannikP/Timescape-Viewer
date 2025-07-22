@@ -6,131 +6,141 @@ use serde::{Deserialize, Serialize};
 pub struct Signals {
     /// Version of this signals definition structure. Should be "1.0".
     #[serde(rename = "@version")]
-    version: String,
+    pub version: String,
 
     /// Id of the next signal if the user would add one more.
     /// So far of no use for the Timescape-Viewer, as it does not write altered
     /// TIA trace configurations.
     #[serde(rename = "@nextSignalId")]
-    next_signal_id: i64,
+    pub next_signal_id: i64,
 
     /// All defined signals in this TIA trace configuration.
     #[serde(rename = "RecordSignal")]
-    signals: Vec<RecordSignal>,
+    pub signals: Vec<RecordSignal>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct RecordSignal {
+pub struct RecordSignal {
     /// Internal ID of this signal. Usually a monotonic increasing number.
     #[serde(rename = "@signalId")]
-    signal_id: i64,
+    pub signal_id: i32,
 
     /// ?
     #[serde(rename = "@isSelected")]
-    is_selected: bool,
+    pub is_selected: bool,
 
     /// Highest visible y value.
     #[serde(rename = "@maxVisibleY")]
-    max_visible_y: f64,
+    pub max_visible_y: f64,
 
     /// Lowest visible y value.
     #[serde(rename = "@minVisibleY")]
-    min_visible_y: f64,
+    pub min_visible_y: f64,
 
     /// Display format such as "Float"
     #[serde(rename = "@displayFormat")]
-    display_format: String,
+    pub display_format: String,
 
     /// ?
     #[serde(rename = "ConfigurationSignal")]
-    configuration: ConfigurationSignal,
+    pub configuration: ConfigurationSignal,
 
     /// Color of this trace in TIA Portal's own trace viewer.
     /// Yes, they use British english.
     #[serde(rename = "Visualisation")]
-    visualization: Visualization,
+    pub visualization: Visualization,
 
     /// Physical unit of the recoded signal. E. g. "mm/s".
     #[serde(rename = "Unit", default)]
-    unit: Option<String>,
+    pub unit: Option<String>,
+}
+
+impl From<&RecordSignal> for crate::state::signal::Signal {
+    fn from(value: &RecordSignal) -> Self {
+        Self {
+            name: value.configuration.name.clone(),
+            description: Some(value.configuration.comment.clone()),
+            unit: value.unit.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct ConfigurationSignal {
+pub struct ConfigurationSignal {
     /// Internal ID of this signal. Usually a monotonic increasing number.
     #[serde(rename = "@signalId")]
-    signal_id: i32,
+    pub signal_id: i32,
 
     /// Full path of the signal's variable in the PLC program.
     /// E. g. "My Kinematic".StatusPath.Acceleration
     #[serde(rename = "Name")]
-    name: String,
+    pub name: String,
 
     /// Optional comment of the signal's variable in the PLC program.
     /// If there is no comment, this is parsed as empty string.
     #[serde(rename = "Comment")]
-    comment: String,
+    pub comment: String,
 
     /// Number of this signal in the trace configuration.
     /// Monotonic increasing sequence starting from one.
     #[serde(rename = "Label")]
-    label: i64,
+    pub label: i64,
 
     /// Visualization and address information.
     /// Yes, they use British english and mix visualization and address information.
     #[serde(rename = "Visualisation")]
-    visualization: Visualization,
+    pub visualization: Visualization,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Visualization {
+pub struct Visualization {
     /// Display color of the trace in TIA Portal's own trace viewer.
     /// Most likely RGBA values. The individual components are in decimal
     /// notation between 0 and 255, separated by a comma.
     /// E. g. "255,0,0,255".
     #[serde(rename = "@displayColor")]
-    display_color: String,
+    pub display_color: String,
 
     /// The visualization structure inside of the configuration signal
     /// has additional address information, while the visualization
     /// structure directly under the record signal does not.
     #[serde(rename = "AddressInformation")]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    address_information: Option<AddressInformation>,
+    pub address_information: Option<AddressInformation>,
 }
 
 /// Information about the recorded variable on the PLC.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct AddressInformation {
+pub struct AddressInformation {
     /// Data type on the PLC, such as "LReal".
     /// TODO: This should be an `enum` once we figured out all possible options.
     #[serde(rename = "@dataType")]
-    data_type: String,
+    pub data_type: String,
 
     /// Data type in C#, such as "Double".
     /// TODO: This should be an `enum` once we figured out all possible options.
     #[serde(rename = "@dataTypeCode")]
-    data_type_code: String,
+    pub data_type_code: String,
 
     /// Size of the data type in bits. For example 64 for LReal/Double.
     #[serde(rename = "@bitSize")]
-    bit_size: i32,
+    pub bit_size: i32,
 
     /// ?
     /// Zero for LReal.
     #[serde(rename = "@bitOffset")]
-    bit_offset: i32,
+    pub bit_offset: i32,
 
     /// How to display the value to the user.
     /// Observed options are "Float".
     #[serde(rename = "@displayFormatPreset")]
-    display_format_preset: String,
+    pub display_format_preset: String,
 
     /// Icon of this signal inside TIA's trace viewer.
     /// Observed options are "DB".
     /// No use for the Timescape-Viewer.
     #[serde(rename = "@iconType")]
-    icon_type: String,
+    pub icon_type: String,
 }
 
 #[cfg(test)]

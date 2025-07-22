@@ -7,126 +7,126 @@ use serde::{Deserialize, Serialize};
 pub struct General {
     /// Version of this general information structure. Should be "1.0".
     #[serde(rename = "@version")]
-    version: String,
+    pub version: String,
 
     /// Creation time and date of this trace in ISO 8601 format.
     /// For example: "2025-07-15T06:14:51.0023134Z"
     #[serde(rename = "CreationTime")]
-    creation_time: Timestamp,
+    pub creation_time: Timestamp,
 
     /// modification time and date of this trace in ISO 8601 format.
     /// For example: "2025-07-15T06:14:49.0637924Z"
     #[serde(rename = "ModificationTime")]
-    modification_time: Timestamp,
+    pub modification_time: Timestamp,
 
     /// Type and firmware information of the recording PLC.
     #[serde(rename = "Device")]
-    device: Device,
+    pub device: Device,
 
     /// Unknown. Something like "Siemens.TechTrace.Device.Plc.S71500.TraceDeviceStrategy"
     #[serde(rename = "StrategyName")]
-    strategy_name: String,
+    pub strategy_name: String,
 
     /// Title of this trace configuration.
     #[serde(rename = "ConfigurationName")]
-    configuration_name: String,
+    pub configuration_name: String,
 
     /// The configuration's author's name, if given.
     #[serde(rename = "ConfigurationAuthor")]
-    configuration_author: Option<String>,
+    pub configuration_author: Option<String>,
 
     /// UUID of this configuration such as "93cb2eb3-0f8f-45f7-8bf1-28b2a5a082f8".
     /// The Timescape-Viewer doesn't care about it, so we don't parse it into a `uuid::Uuid`.
     #[serde(rename = "ConfigurationId")]
-    configuration_id: String,
+    pub configuration_id: String,
 
     /// Unknown. Something like "Siemens.TechTrace.Editor.20180FD9-9F1D-49C6-902A-C1E033689203".
     #[serde(rename = "TraceClientId")]
-    trace_client_id: String,
+    pub trace_client_id: String,
 
     /// Exact date and time when a triggered trace was triggered.
     /// For example: "2025-07-15T06:14:49.0637924Z"
     #[serde(rename = "TriggerTime")]
-    trigger_time: Option<Timestamp>,
+    pub trigger_time: Option<Timestamp>,
 
     /// Unknown. Usually "RecordingCompleted" when we get it.
     #[serde(rename = "JobState")]
-    job_state: String,
+    pub job_state: String,
 
     /// Title of this trace recording.
     #[serde(rename = "RecordName")]
-    record_name: String,
+    pub record_name: String,
 
     /// The configuration's author's name, if given.
     #[serde(rename = "RecordAuthor")]
-    record_author: Option<String>,
+    pub record_author: Option<String>,
 
     /// Timestamp of when this recording was started.
     /// This might be hours or even days before the trigger happened.
     /// For example: "2025-07-14T15:54:34.4926704Z"
     #[serde(rename = "ActivationTime")]
-    activation_time: Timestamp,
+    pub activation_time: Timestamp,
 
     /// Timestamp of the very first sample in this recording.
     /// For example: "2025-07-14T21:10:59.0926704Z"
     #[serde(rename = "FirstSampleTime")]
-    first_sample_time: Timestamp,
+    pub first_sample_time: Timestamp,
 
     /// Timestamp of the very last recording.
     /// Should be equal to `first_sample_time` +
     /// For example: "2025-07-14T21:11:01.0886704Z"
     #[serde(rename = "LastSampleTime")]
-    last_sample_time: Timestamp,
+    pub last_sample_time: Timestamp,
 
     /// Duration of the recording. Time between `first_sample_time` and `last_sample_time`.
     /// TODO: Unknown unit.
     #[serde(rename = "RecordingDuration")]
-    recording_duration: i64,
+    pub recording_duration: i64,
 
     /// Number of samples before the trigger event. Might be zero without pre-trigger.
     #[serde(rename = "SamplesBeforeTrigger")]
-    samples_before_trigger: i64,
+    pub samples_before_trigger: i64,
 
     /// Number of samples after the trigger event.
     #[serde(rename = "SamplesAfterTrigger")]
-    samples_after_trigger: i64,
+    pub samples_after_trigger: i64,
 
     /// Number of actually recorded samples.
     #[serde(rename = "ActualSamples")]
-    actual_samples: i64,
+    pub actual_samples: i64,
 
     /// Maximum number of samples that could be recorded.
     /// Maybe different from `actual_samples` if the user stops the recording
     /// before `maximum_samples` where collected? ¯\\_(ツ)_/¯
     #[serde(rename = "MaximumSamples")]
-    maximum_samples: i64,
+    pub maximum_samples: i64,
 
     /// Number of microseconds between two samples.
     #[serde(rename = "CycleTime")]
-    cycle_time: i64,
+    pub cycle_time: i64,
 
     /// Number of nanoseconds between two samples.
     #[serde(rename = "CycleTimeInNs")]
-    cycle_time_in_ns: i64,
+    pub cycle_time_in_ns: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Device {
+pub struct Device {
     /// Device category such as "PLC S71500"
     #[serde(rename = "@category")]
-    category: String,
+    pub category: String,
 
     /// Device type such as "CPU 1518TF-4 PN/DP"
     #[serde(rename = "@type")]
-    device_type: String,
+    pub device_type: String,
 
     /// Siemens order number (MLFB) such as "6ES7 518-4UP00-0AB0"
     #[serde(rename = "@orderNumber")]
-    order_number: String,
+    pub order_number: String,
 
     /// The PLC's firmware version such as "V3.1"
     #[serde(rename = "@FirmwareVersion")]
-    firmware_version: String,
+    pub firmware_version: String,
 }
 
 #[cfg(test)]

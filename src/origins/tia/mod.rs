@@ -2,16 +2,27 @@ mod general;
 mod samples;
 mod signals;
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use binrw::{BinRead, io::BufReader};
+use std::fs::File;
 use std::io::{Read, Seek};
+use std::path::PathBuf;
 use zip::ZipArchive;
 
+use crate::state::{Source, Timeline, Track, Run};
+use crate::state::signal::Signal;
+
 use general::General;
-use samples::Samples;
+use samples::{SampleBlock, Samples};
 use signals::Signals;
 
-pub fn read_tia_trace<R>(reader: R) -> Result<()>
+pub fn read_tia_trace_file(path: &PathBuf) -> Result<Source> {
+    File::open(path)
+        .context("Could not open TIA trace file")
+        .and_then(|file| read_tia_trace(BufReader::new(file)))
+}
+
+pub fn read_tia_trace<R>(reader: R) -> Result<Source>
 where
     R: Read + Seek,
 {
@@ -43,9 +54,27 @@ where
     let samples = Samples::read_le(&mut samples_reader)
         .context("Failed to parse 'Samples' section of a '.ttrecx' file.")?;
 
-    // TODO: Use `general`, `signals` and `samples` to populate Timescape-Viewer's `Run` data structure.
+    let track = Track {
+        signals: signals.signals.iter().map(|s| Signal::from(s).reference_counted()).collect(),
+        time: Timeline::ExplicitTime {
+            timestamps: samples.timestamps.timestamps.clone(),
+        },
+        values: signals
+            .signals
+            .iter()
+            .map(|s| samples
+                .find_by_signal_id(s.signal_id)
+                .map(SampleBlock::just_values)
+                .ok_or_else(|| anyhow!("Signal ID '{}' not found in 'Samples' section.", s.signal_id))
+            )
+            .collect::<Result<Vec<Vec<f64>>>>()
+            .context("Failed to collect samples for all signals.")?,
+    };
+    let run = Run::with_single_track(track)
+        .with_title(general.record_name);
+    let source = Source::with_single_run(run);
 
-    Ok(())
+    Ok(source)
 }
 
 #[cfg(test)]

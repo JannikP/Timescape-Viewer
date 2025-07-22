@@ -8,4 +8,5 @@ use csv::CsvOptions;
 #[derive(Debug, Clone)]
 pub enum Origin {
     CsvFile(PathBuf, Box<CsvOptions>),
+    TiaTraceFile(PathBuf),
 }

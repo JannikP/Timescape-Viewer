@@ -5,19 +5,30 @@ use binrw::BinRead;
 #[derive(BinRead, Debug)]
 pub struct Samples {
     /// Header.
-    header: Header,
+    pub header: Header,
 
     /// Timestamps, once per file it seams.
-    timestamps: TimestampsBlock,
+    pub timestamps: TimestampsBlock,
 
     /// Actual samples of the signals.
     #[br(count = header.signal_count)]
-    signals: Vec<SampleBlock>,
+    pub signals: Vec<SampleBlock>,
+}
+
+impl Samples {
+    pub fn find_by_signal_id(&self, id: i32) -> Option<&SampleBlock> {
+        for (index, ref_id) in self.header.signal_ids.iter().enumerate() {
+            if id == *ref_id {
+                return Some(&self.signals[index]);
+            }
+        }
+        None
+    }
 }
 
 #[derive(BinRead, Debug)]
 #[br(magic = b"\x07TSP:1.0")]
-struct Header {
+pub struct Header {
     /// Unknown purpose. Observed 0x01.
     _unknown_1: u8,
 
@@ -26,7 +37,7 @@ struct Header {
     _unknown_2: i32,
 
     /// 64 bit timestamp, measured in nanoseconds since 01.01.1970 00:00.
-    timestamp: u64,
+    pub timestamp: u64,
 
     /// Number of samples or timestamps. Observed 500 which equals number of
     /// entries in all blocks.
@@ -54,20 +65,20 @@ struct Header {
     /// Signal IDs of all signals in this trace.
     /// Compare with [crate::origins::tia::signals::Signals].
     #[br(count = signal_count)]
-    signal_ids: Vec<i32>,
+    pub signal_ids: Vec<i32>,
 
     /// Number of signal block types
-    block_type_count: u32,
+    pub block_type_count: u32,
 
     /// Block type IDs for all signals. Compare with the magic patterns of
     /// [SampleBlockF64] and [SampleBlockI32].
     #[br(count = block_type_count)]
-    block_types: Vec<i32>,
+    pub block_types: Vec<i32>,
 }
 
 #[derive(BinRead, Debug)]
 #[br(magic = b"\x01\0\0\0\x09TSSBL:1.0")] // 01 00 00 00 09 54 53 53 42 4c 3a 31 2e 30
-struct TimestampsBlock {
+pub struct TimestampsBlock {
     /// Number of 32 bit entries in this block. Must be identical to the trace wide
     /// sample count.
     sample_count_1: u32,
@@ -85,38 +96,47 @@ struct TimestampsBlock {
     ///
     /// E. g. `1b 28 56 52 70 3a 52 18` -> `1752527459096670491`
     #[br(count = sample_count_2)]
-    timestamps: Vec<u64>,
+    pub timestamps: Vec<i64>,
 
     /// Field with unknown meaning. Observed value 1e 00 00 00
     _unknown: u32,
 }
 
 #[derive(BinRead, Debug)]
-enum SampleBlock {
+pub enum SampleBlock {
     F64(SampleBlockF64),
     I32(SampleBlockI32),
 }
 
+impl SampleBlock {
+    pub fn just_values(&self) -> Vec<f64> {
+        match self {
+            Self::F64(block) => block.data.clone(),
+            Self::I32(block) => block.data.iter().map(|v| *v as f64).collect(),
+        }
+    }
+}
+
 #[derive(BinRead, Debug)]
 #[br(magic = b"\x0e\0\0\0\x08TSSG:1.0")] // 0e 00 00 00	08 54 53 53 47 3a 31 2e 30
-struct SampleBlockF64 {
+pub struct SampleBlockF64 {
     _unknown: u32,
 
     sample_count: u32,
 
     #[br(count = sample_count)]
-    data: Vec<f64>,
+    pub data: Vec<f64>,
 }
 
 #[derive(BinRead, Debug)]
 #[br(magic = b"\x09\0\0\0\x08TSSG:1.0")] // 09 00 00 00	08 54 53 53 47 3a 31 2e 30
-struct SampleBlockI32 {
+pub struct SampleBlockI32 {
     _unknown: u32,
 
     sample_count: u32,
 
     #[br(count = sample_count)]
-    data: Vec<i32>,
+    pub data: Vec<i32>,
 }
 
 // File header 07 'T' 'S' 'P' ':' '1' '.' '0' (8 Bytes)
