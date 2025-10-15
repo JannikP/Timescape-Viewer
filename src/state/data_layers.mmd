@@ -1,0 +1,18 @@
+flowchart TD
+    A@{ shape: manual-input, label: "File type A"}
+    B@{ shape: manual-input, label: "File type B"}
+    C@{ shape: manual-input, label: "Realtime source"}
+
+    tsink[(tsink Database)]
+    A--File import-->tsink
+    B--File import-->tsink
+    C--Continuously-->tsink
+
+    aggregate[Aggregate Representation]
+    tsink--On viewport change-->aggregate
+
+    texture[Texture on GPU for rendering]
+    aggregate--"Iced view()"-->texture
+
+    screen[Screen]
+    texture--Shader-->screen
