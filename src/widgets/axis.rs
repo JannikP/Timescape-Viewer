@@ -26,7 +26,7 @@ where
     }
 
     fn layout(
-        &self,
+        &mut self,
         _tree: &mut widget::Tree,
         _renderer: &Renderer,
         _limits: &layout::Limits,
@@ -39,13 +39,13 @@ where
 
     fn draw(
         &self,
-        tree: &widget::Tree,
-        renderer: &mut Renderer,
-        theme: &Theme,
-        style: &iced::advanced::renderer::Style,
-        layout: Layout<'_>,
-        cursor: iced::advanced::mouse::Cursor,
-        viewport: &Rectangle,
+        _tree: &widget::Tree,
+        _renderer: &mut Renderer,
+        _theme: &Theme,
+        _style: &iced::advanced::renderer::Style,
+        _layout: Layout<'_>,
+        _cursor: iced::advanced::mouse::Cursor,
+        _viewport: &Rectangle,
     ) {
         todo!()
     }

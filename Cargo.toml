@@ -3,7 +3,7 @@ name = "timescape-viewer"
 version = "0.1.0"
 authors = ["Jannik Peters <19486794+JannikP@users.noreply.github.com>"]
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.91"
 description = "A desktop application of viewing and converting timeseries data from all kind of sources."
 readme = "README.md"
 homepage = "https://timescape-viewer.org"
@@ -48,7 +48,7 @@ flexi_logger = "0.30"
 grid = "0.17.0"
 
 # GUI framework
-iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["advanced", "wgpu", "debug", "system", "auto-detect-theme", "thread-pool"] }
+iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["advanced", "wgpu", "debug", "hot", "crisp", "thread-pool"] }
 
 # Logging infrastructure
 log = "0.4"

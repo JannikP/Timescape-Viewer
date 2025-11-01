@@ -38,8 +38,8 @@ pub fn view_timescape(app: &TimescapeViewer) -> Element<'_, Message> {
 fn header(_app: &TimescapeViewer) -> Element<'_, Message> {
     row![
         button(MENU_ICON).on_press(Message::GoTo(Stage::Backstage)),
-        Space::with_width(Length::Fill),
-        Space::with_width(12), // TODO: Replace this with a button to add more windows
+        Space::new().width(Length::Fill),
+        Space::new().width(12), // TODO: Replace this with a button to add more windows
     ]
     .spacing(PANEL_GAP)
     .width(Length::Fill)
