@@ -10,6 +10,7 @@ homepage = "https://timescape-viewer.org"
 repository = "https://github.com/JannikP/Timescape-Viewer"
 license = "GPL-3.0"
 publish = false # Do not publish to crates.io
+default-run = "timescape-viewer"
 
 [package.metadata.dist]
 dist = true # But publish to Github releases
