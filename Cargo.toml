@@ -74,6 +74,9 @@ serde-xml-rs = "0.8.1"
 # Embed mermaid diagrams in RustDoc.
 simple-mermaid = "0.2.0"
 
+# high-performance embedded time-series database as common data layer
+tsink = "0.4"
+
 # Reading and writing .zip archives.
 # Some formats such as TIA's .ttrecx trace files are actually just renamed .zip files.
 zip = "4.3.0"
@@ -83,8 +86,14 @@ zip = "4.3.0"
 winres = "0.1"
 
 [dev-dependencies]
-#  Tests the application in headless mode.
+# Statistics-driven micro-benchmarking
+criterion = "0.7.0"
+
+# Tests the application in headless mode.
 iced_test = { git = "https://github.com/iced-rs/iced" }
+
+# Temporary files, used by tsink benchmark
+tempfile = "3.23.0"
 
 [profile.release]
 opt-level = 3
@@ -102,3 +111,7 @@ rpath = false
 [profile.dist]
 inherits = "release"
 lto = "thin"
+
+[[bench]]
+name = "storage_benchmarks"
+harness = false
