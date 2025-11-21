@@ -16,8 +16,8 @@ pub struct Window {
 impl Window {
     pub fn new(run: Rc<Run>) -> Self {
         Self {
-            begin: Timestamp(0.0),
-            end: Timestamp(0.0),
+            begin: Timestamp(0),
+            end: Timestamp(4000),
             live: LiveMode::Off,
             hover: None,
             first_cursor: None,

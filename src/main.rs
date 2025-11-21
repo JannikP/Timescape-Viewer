@@ -16,7 +16,7 @@ use grid::Grid;
 use iced::font::{Family, Stretch, Style, Weight};
 use iced::widget::{center, text};
 use iced::{Element, Font, Settings, Task, Theme};
-use log::{debug, info};
+use log::{debug, error, info};
 use rust_i18n::{i18n, t};
 
 use commands::choose_file::choose_file;
@@ -102,6 +102,19 @@ impl TimescapeViewer {
                 info!("Opening {:?} with options {:?}", file, options);
                 self.stage = Stage::Timescape;
                 self.modal = Modal::InterpretCsv(**options);
+                Task::none()
+            }
+            Message::Open(ref _origin @ Origin::TiaTraceFile(ref path)) => {
+                info!("Opening TIA trace {:?}", path);
+                self.stage = Stage::Timescape;
+                self.modal = Modal::None;
+                match crate::origins::tia::read_tia_trace_file(path) {
+                    Ok(source) => { self.sources.push(source); }
+                    Err(err) => {
+                        error!("Failed to open TIA trace file: {}", err);
+                    }
+                }
+
                 Task::none()
             }
             Message::None => {

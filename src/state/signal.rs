@@ -2,9 +2,9 @@ use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Signal {
-    name: String,
-    description: Option<String>,
-    unit: Option<String>,
+    pub name: String,
+    pub description: Option<String>,
+    pub unit: Option<String>,
 }
 
 impl Signal {

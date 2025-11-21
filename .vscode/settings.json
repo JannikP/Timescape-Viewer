@@ -30,6 +30,7 @@
         "Fira",
         "flexi",
         "repr",
+        "serde",
         "timescape",
         "tsink",
         "wgpu"
