@@ -1,7 +1,8 @@
 use super::Scope;
 
+#[derive(Debug, Default, Clone)]
 pub struct TrailChartLegend {
-    signals: Vec<String>,
+    pub signals: Vec<String>,
 }
 
 impl Scope for TrailChartLegend {

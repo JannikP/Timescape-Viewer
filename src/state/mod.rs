@@ -47,6 +47,25 @@ pub enum ScopeLegend {
     TrailChart(TrailChartLegend),
 }
 
+impl ScopeLegend {
+    pub fn line_chart<S: Into<String>>(first_signal: S) -> Self {
+        let mut inner = LineChartLegend::default();
+        inner.push_signal(first_signal);
+        Self::LineChart(inner)
+    }
+
+    pub fn spectrogram<S: Into<String>>(_signal: S) -> Self {
+        let inner = SpectrogramLegend {};
+        Self::Spectrogram(inner)
+    }
+
+    pub fn trail_chart<S: Into<String>>(first_signal: S) -> Self {
+        let mut inner = TrailChartLegend::default();
+        inner.signals.push(first_signal.into());
+        Self::TrailChart(inner)
+    }
+}
+
 pub enum ScopePlotter {
     LineChart(LineChartPlotter),
     Spectrogram(SpectrogramPlotter),
@@ -76,6 +95,10 @@ impl Source {
                 Rc::new(Run::new_example_sines()),
             ]
         }
+    }
+
+    pub fn first_run(&self) -> Option<Rc<Run>> {
+        self.runs.first().cloned()
     }
 }
 

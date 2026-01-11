@@ -132,17 +132,29 @@ impl TimescapeViewer {
         t!("title").to_string()
     }
 
+    /// Adds a new source to the app. If there is no window yet, open one with
+    /// the full duration of the source's first run.
+    fn push_source(&mut self, source: Source) {
+        let first_run = source.first_run();
+        self.sources.push(source);
+        if self.windows.is_empty() && first_run.is_some() {
+            self.push_window(first_run.unwrap()); // Checked above.
+        }
+    }
+
     /// Adds a new window for the given [Run]. The window will be last one in
     /// the list, meaning it will be displayed on the right. The user can
     /// reorder them afterwards if desired.
     fn push_window(&mut self, run: Rc<Run>) {
         let window = Window::new(run);
-        let plotters = self
+        let plotters: Vec<ScopePlotter> = self
             .scopes
             .iter()
             .map(|scope| scope.create_plotter())
             .collect();
-        self.plotters.push_col(plotters);
+        if !plotters.is_empty() {
+            self.plotters.push_col(plotters);
+        }
         self.windows.push(window);
     }
 
@@ -154,12 +166,14 @@ impl TimescapeViewer {
     /// scrollable. It might be necessary to automatically scroll there to avoid
     /// confusion.
     fn push_scope(&mut self, scope: ScopeLegend) {
-        let plotters = self
+        let plotters: Vec<ScopePlotter> = self
             .windows
             .iter()
             .map(|_| scope.create_plotter())
             .collect();
-        self.plotters.push_row(plotters);
+        if !plotters.is_empty() {
+            self.plotters.push_row(plotters);
+        }
         self.scopes.push(scope);
     }
 
@@ -174,36 +188,40 @@ impl TimescapeViewer {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
-
-    use crate::state::{Run, Source};
+    use crate::state::{ScopeLegend, Source};
 
     use super::TimescapeViewer;
 
     fn app_with_one_run() -> TimescapeViewer {
-        let mut viewer = TimescapeViewer::default();
-        viewer.sources.push(Source::new_example_sines());
-        viewer
+        let mut app = TimescapeViewer::default();
+        app.push_source(Source::new_example_sines());
+        app.push_scope(ScopeLegend::line_chart("440 Hz sine"));
+        app
     }
 
     #[test]
     fn test_push_window() {
         // Arrange
-        let mut viewer = app_with_one_run();
-        let run = Rc::new(Run::new_example_sines());
+        let mut app = app_with_one_run();
+        let run = app
+            .sources
+            .first()
+            .map(Source::first_run)
+            .flatten()
+            .expect("There should be one run added by `app_with_one_run`.");
 
         // Act
-        viewer.push_window(run);
+        app.push_window(run);
 
         // Assert
         assert_eq!(
-            viewer.windows.len(),
+            app.windows.len(),
             2,
             "Expected two windows, the old and the newly added one.",
         );
         assert_eq!(
-            viewer.plotters.cols(),
-            1,
+            app.plotters.cols(),
+            2,
             "Expected two column of plotters, one per window.",
         );
     }
