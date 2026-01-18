@@ -18,6 +18,10 @@ impl LineChartLegend {
         };
         self.signals.push(entry);
     }
+
+    pub fn iter_signals(&self) -> impl Iterator<Item = &LineChartLegendEntry> {
+        self.signals.iter()
+    }
 }
 
 impl Scope for LineChartLegend {
@@ -38,15 +42,15 @@ impl Default for LineChartLegend {
             signals: Vec::new(),
             minimum: 0.0,
             maximum: 1.0,
-            height: 32.0,
+            height: 100.0,
         }
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct LineChartLegendEntry {
-    signal: String,
-    color: Color,
+    pub signal: String,
+    pub color: Color,
 }
 
 #[derive(Debug, Clone)]

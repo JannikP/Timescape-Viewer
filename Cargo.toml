@@ -48,7 +48,12 @@ flexi_logger = "0.30"
 grid = "0.17.0"
 
 # GUI framework
-iced = { git = "https://github.com/iced-rs/iced", default-features = false, features = ["advanced", "wgpu", "debug", "hot", "crisp", "thread-pool"] }
+iced = { version = "0.14.0", default-features = false, features = ["advanced", "wgpu", "debug", "hot", "crisp", "thread-pool", "image"] }
+iced_aw = { version = "0.13.0", features = ["full"] }
+
+# Read image files.
+# So far used only to specify the image format of the app icon.
+image = "0.25.9"
 
 # Logging infrastructure
 log = "0.4"

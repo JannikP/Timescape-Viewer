@@ -1,5 +1,7 @@
 use std::rc::Rc;
 
+use iced::Length;
+
 use super::{LiveMode, Run, Timestamp};
 
 #[derive(Debug, Clone)]
@@ -11,6 +13,11 @@ pub struct Window {
     first_cursor: Option<Timestamp>,
     second_cursor: Option<Timestamp>,
     run: Rc<Run>,
+
+    /// The window fills a portion of the remaining space relative to other
+    /// windows.
+    /// See [`iced::Length`].
+    pub size: u16,
 }
 
 impl Window {
@@ -23,6 +30,7 @@ impl Window {
             first_cursor: None,
             second_cursor: None,
             run,
+            size: 1,
         }
     }
 }

@@ -22,7 +22,7 @@ OS2Version: 4
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1476947922
-ModificationTime: 1747940807
+ModificationTime: 1768730865
 PfmFamily: 17
 TTFWeight: 400
 TTFWidth: 3
@@ -5976,12 +5976,12 @@ NameList: AGL For New Fonts
 DisplaySize: -48
 AntiAlias: 1
 FitToEm: 0
-WinInfo: 56916 51 14
+WinInfo: 56865 51 14
 BeginPrivate: 0
 EndPrivate
 TeXData: 1 0 0 246415 123207 82138 551551 1048576 82138 783286 444596 497025 792723 393216 433062 380633 303038 157286 324010 404750 52429 2506097 1059062 262144
 AnchorClass2: "Anker-0" "'mark' Akzent-Positionierung Nachschlagetabelle 3 Subtabelle" "Anker-1" "'mark' Akzent-Positionierung Nachschlagetabelle 3 Subtabelle" "Anker-2" "'mark' Akzent-Positionierung Nachschlagetabelle 3 Subtabelle" "Anker-3" "'mark' Akzent-Positionierung Nachschlagetabelle 3 Subtabelle" "Anker-4" "'mark' Akzent-Positionierung Nachschlagetabelle 4 Subtabelle" "Anker-5" "'mark' Akzent-Positionierung Nachschlagetabelle 4 Subtabelle" "Anker-6" "'mark' Akzent-Positionierung Nachschlagetabelle 4 Subtabelle" "Anker-7" "'mark' Akzent-Positionierung Nachschlagetabelle 4 Subtabelle" "Anker-8" "'mark' Akzent-Positionierung Nachschlagetabelle 4 Subtabelle" "Anker-9" "'mark' Akzent-Positionierung Nachschlagetabelle 5 Subtabelle" "Anker-10" "'mark' Akzent-Positionierung Nachschlagetabelle 5 Subtabelle" "Anker-11" "'mark' Akzent-Positionierung Nachschlagetabelle 5 Subtabelle" "Anker-12" "'mark' Akzent-Positionierung Nachschlagetabelle 5 Subtabelle" "Anker-13" "'mark' Akzent-Positionierung Nachschlagetabelle 5 Subtabelle" "Anker-14" "'mark' Akzent-Positionierung Nachschlagetabelle 6 Subtabelle" "Anker-15" "'mark' Akzent-Positionierung Nachschlagetabelle 6 Subtabelle" "Anker-16" "'mark' Akzent-Positionierung Nachschlagetabelle 6 Subtabelle" "Anker-17" "'mark' Akzent-Positionierung Nachschlagetabelle 6 Subtabelle" "Anker-18" "'mark' Akzent-Positionierung Nachschlagetabelle 6 Subtabelle" "Anker-19" "'mkmk' Akzent-zu-Akzent Nachschlagetabelle 7 Subtabelle" "Anker-20" "'mkmk' Akzent-zu-Akzent Nachschlagetabelle 8 Subtabelle" "Anker-21" "'mkmk' Akzent-zu-Akzent Nachschlagetabelle 9 Subtabelle" "Anker-22" "'mkmk' Akzent-zu-Akzent Nachschlagetabelle 10 Subtabelle" "Anker-23" "'mkmk' Akzent-zu-Akzent Nachschlagetabelle 11 Subtabelle"
-BeginChars: 66527 2678
+BeginChars: 66527 2680
 
 StartChar: .notdef
 Encoding: 65536 -1 0
@@ -168401,6 +168401,57 @@ SplineSet
 EndSplineSet
 Validated: 1
 Comment: "Icon +ACIA-menu+ACIA from https://remixicon.com/"
+EndChar
+
+StartChar: uniE001
+Encoding: 57345 57345 2678
+Width: 1000
+LayerCount: 2
+Fore
+SplineSet
+208.333007812 675 m 1,0,-1
+ 208.333007812 8.3330078125 l 1,1,-1
+ 875 8.3330078125 l 1,2,-1
+ 875 -75 l 1,3,-1
+ 125 -75 l 1,4,-1
+ 125 675 l 1,5,-1
+ 208.333007812 675 l 1,0,-1
+845.537109375 537.795898438 m 1,6,-1
+ 904.462890625 478.870117188 l 1,7,-1
+ 666.666992188 241.075195312 l 1,8,-1
+ 541.666992188 366.041992188 l 1,9,-1
+ 362.795898438 187.204101562 l 1,10,-1
+ 303.870117188 246.12890625 l 1,11,-1
+ 541.666992188 483.92578125 l 1,12,-1
+ 666.666992188 358.958007812 l 1,13,-1
+ 845.537109375 537.795898438 l 1,6,-1
+EndSplineSet
+Comment: "Icon +ACIA-line-chart-line+ACIA from https://remixicon.com/"
+EndChar
+
+StartChar: uniE002
+Encoding: 57346 57346 2679
+Width: 1000
+LayerCount: 2
+Fore
+SplineSet
+125 300 m 1,0,-1
+ 291.666992188 300 l 1,1,-1
+ 291.666992188 -75 l 1,2,-1
+ 125 -75 l 1,3,-1
+ 125 300 l 1,0,-1
+708.333007812 466.666992188 m 1,4,-1
+ 875 466.666992188 l 1,5,-1
+ 875 -75 l 1,6,-1
+ 708.333007812 -75 l 1,7,-1
+ 708.333007812 466.666992188 l 1,4,-1
+416.666992188 716.666992188 m 1,8,-1
+ 583.333007812 716.666992188 l 1,9,-1
+ 583.333007812 -75 l 1,10,-1
+ 416.666992188 -75 l 1,11,-1
+ 416.666992188 716.666992188 l 1,8,-1
+EndSplineSet
+Comment: "Icon +ACIA-bar-chart-fill+ACIA from https://remixicon.com/"
 EndChar
 EndChars
 EndSplineFont

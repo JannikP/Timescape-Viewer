@@ -9,6 +9,9 @@ pub enum Message {
     GoTo(Stage),
     Hint(String),
     Open(Origin),
+    AddLineChart,
+    AddSpectrogram,
+    AddTrailChart,
 }
 
 #[cfg(test)]

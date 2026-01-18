@@ -9,4 +9,6 @@ timescape:
     no_scope:
         caption: No scopes
         message: There are no scopes to view. Add one of the available visualizers.
-
+        add_line_chart: Add line chart
+        add_spectrogram: Add spectrogram
+        add_trail_chart: Add trail chart

@@ -1,5 +1,6 @@
 mod backstage;
 mod csv_import_modal;
+mod line_chart;
 mod modal;
 mod timescape;
 

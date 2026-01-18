@@ -9,3 +9,6 @@ timescape:
     no_scope:
         caption: Keine Diagramme
         message: Es sind keine Diagramme geöffnet. Fügen Sie eine der verfügbaren Visualisierungen hinzu.
+        add_line_chart: Liniendiagramm hinzufügen
+        add_spectrogram: Spectrogramm hinzufügen
+        add_trail_chart: Bitspuren hinzufügen

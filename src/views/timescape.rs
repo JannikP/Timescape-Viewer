@@ -1,15 +1,16 @@
 use std::iter::StepBy;
 
 use iced::alignment::Horizontal;
-use iced::widget::{Column, Row, Space, button, center, column, row, text};
+use iced::widget::{Column, Row, Space, button, center, column, container, row, space, text};
 use iced::{Element, Length};
 use rust_i18n::t;
 
 use crate::TimescapeViewer;
-use crate::constants::icons::MENU_ICON;
+use crate::constants::icons::{LINE_CHART_ICON, MENU_ICON, SPECTROGRAM_ICON};
 use crate::constants::layout::PANEL_GAP;
 use crate::messages::Message;
 use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
+use crate::views::line_chart::line_chart_legend;
 
 /// The main view of the app where users actually view the timeseries data using
 /// A list of scopes.
@@ -67,9 +68,28 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message> {
                 text(t!("timescape.no_scope.caption")).size(32),
                 text(t!("timescape.no_scope.message")),
                 row![
-                    button("Add line chart"),
-                    button("Add spectrogram"),
-                    button("Add trail chart"),
+                    button(text(
+                        [
+                            LINE_CHART_ICON,
+                            " ",
+                            t!("timescape.no_scope.add_line_chart").as_ref()
+                        ]
+                        .concat()
+                    ))
+                    .on_press(Message::AddLineChart),
+                    button(text(
+                        [
+                            SPECTROGRAM_ICON,
+                            " ",
+                            t!("timescape.no_scope.add_spectrogram").as_ref()
+                        ]
+                        .concat()
+                    ))
+                    .on_press(Message::AddSpectrogram),
+                    button(text(
+                        ["+", " ", t!("timescape.no_scope.add_trail_chart").as_ref()].concat()
+                    ))
+                    .on_press(Message::AddTrailChart),
                 ]
                 .spacing(20)
             ]
@@ -84,37 +104,65 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message> {
             .extend(app.scopes.iter().enumerate().map(|(index, legend)| {
                 scope(legend, app.windows.as_slice(), app.plotters.iter_row(index))
             }))
+            .push(space::vertical())
+            .spacing(PANEL_GAP)
             .width(Length::Fill)
+            .height(Length::Fill)
             .into()
     }
 }
 
 fn scope<'a, 'b>(
-    legend: &'a ScopeLegend,
+    scope: &'a ScopeLegend,
     windows: &'a [Window],
     plotters: StepBy<std::slice::Iter<ScopePlotter>>,
-) -> Element<'b, Message> {
+) -> Element<'b, Message>
+where
+    'a: 'b,
+{
     Row::new()
-        .push(match legend {
-            ScopeLegend::LineChart(_) => text("Line chart"),
-            ScopeLegend::Spectrogram(_) => text("Spectrogram"),
-            ScopeLegend::TrailChart(_) => text("Trail chart"),
-        })
+        .push(legend(scope))
         .extend(windows.iter().zip(plotters).map(plotter))
-        .height(legend.height())
+        .width(Length::Fill)
+        .height(scope.height())
         .into()
 }
 
-fn plotter<'a, 'b>((_window, _plotter): (&'a Window, &'a ScopePlotter)) -> Element<'b, Message> {
-    text("Plotter")
-        //.width(window.width)
+fn legend<'a, 'b>(legend: &'a ScopeLegend) -> Element<'b, Message>
+where
+    'a: 'b,
+{
+    let content = match legend {
+        ScopeLegend::LineChart(line_chart) => line_chart_legend(line_chart),
+        ScopeLegend::Spectrogram(_) => text("Spectrogram").into(),
+        ScopeLegend::TrailChart(_) => text("Trail chart").into(),
+    };
+    container(content)
+        .padding(8)
+        .width(200)
+        .height(Length::Fill)
+        .style(container::rounded_box)
+        .into()
+}
+
+fn plotter<'a, 'b>((window, _plotter): (&'a Window, &'a ScopePlotter)) -> Element<'b, Message> {
+    container("Plotter")
+        .padding(8)
+        .width(Length::FillPortion(window.size))
+        .height(Length::Fill)
+        .style(container::rounded_box)
         .into()
 }
 
 fn footer(app: &TimescapeViewer) -> Element<'_, Message> {
-    row![button("+"), text(&app.hint)]
-        .spacing(PANEL_GAP)
-        .width(Length::Fill)
-        .height(Length::Shrink)
-        .into()
+    row![
+        button(LINE_CHART_ICON).on_press(Message::AddLineChart),
+        button(SPECTROGRAM_ICON).on_press(Message::AddSpectrogram),
+        button("+").on_press(Message::AddTrailChart),
+        text(&app.hint),
+    ]
+    .spacing(PANEL_GAP)
+    .width(Length::Fill)
+    .height(Length::Shrink)
+    .into()
 }

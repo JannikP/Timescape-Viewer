@@ -15,16 +15,18 @@ use std::rc::Rc;
 use grid::Grid;
 use iced::font::{Family, Stretch, Style, Weight};
 use iced::widget::{center, text};
+use iced::window::settings::Settings as WindowSettings;
 use iced::{Element, Font, Settings, Task, Theme};
 use log::{debug, info};
 use rust_i18n::{i18n, t};
 
-use commands::choose_file::choose_file;
+// use commands::choose_file::choose_file;
 use logging::setup_logger;
 use messages::Message;
 use state::{Modal, ScopeLegend, ScopePlotter, Stage, Window};
 use views::{modal, view_backstage, view_timescape};
 
+use crate::constants::icons::app_icon;
 use crate::origins::Origin;
 use crate::state::{Run, Scope, Source};
 
@@ -51,6 +53,11 @@ pub fn main() -> iced::Result {
         },
         default_text_size: 16.into(),
         antialiasing: true,
+        vsync: false,
+    })
+    .window(WindowSettings {
+        icon: app_icon(),
+        ..Default::default()
     })
     .theme(TimescapeViewer::theme)
     .title(TimescapeViewer::title)
@@ -84,10 +91,14 @@ impl TimescapeViewer {
                 Task::none()
             }
             Message::ChooseFile => {
-                Task::perform(choose_file(), |maybe_origin| match maybe_origin {
-                    Some(origin) => Message::Open(origin),
-                    None => Message::None,
-                })
+                // Task::perform(choose_file(), |maybe_origin| match maybe_origin {
+                //     Some(origin) => Message::Open(origin),
+                //     None => Message::None,
+                // })
+
+                // TODO: Open a dummy source while developing the UI. Remove later.
+                self.push_source(Source::new_example_sines());
+                Task::none()
             }
             Message::GoTo(stage) => {
                 info!("Going to {:?}", stage);
@@ -102,6 +113,18 @@ impl TimescapeViewer {
                 info!("Opening {:?} with options {:?}", file, options);
                 self.stage = Stage::Timescape;
                 self.modal = Modal::InterpretCsv(**options);
+                Task::none()
+            }
+            Message::AddLineChart => {
+                self.push_scope(ScopeLegend::line_chart("440 Hz sine"));
+                Task::none()
+            }
+            Message::AddSpectrogram => {
+                self.push_scope(ScopeLegend::spectrogram("440 Hz sine"));
+                Task::none()
+            }
+            Message::AddTrailChart => {
+                self.push_scope(ScopeLegend::trail_chart("440 Hz sine"));
                 Task::none()
             }
             Message::None => {
@@ -181,7 +204,15 @@ impl TimescapeViewer {
 
     // TODO: reorder scopes
 
-    // TODO: close window
+    /// Closes the window at the given index, removing it from the list of
+    /// windows and all plotters that belong to it.
+    fn close_window(&mut self, index: usize) {
+        if index < 1 || index >= self.windows.len() {
+            return;
+        }
+        self.windows.remove(index);
+        self.plotters.remove_col(index);
+    }
 
     // TODO: close scope
 }
@@ -223,6 +254,76 @@ mod tests {
             app.plotters.cols(),
             2,
             "Expected two column of plotters, one per window.",
+        );
+    }
+
+    #[test]
+    fn test_push_scope() {
+        // Arrange
+        let mut app = app_with_one_run();
+
+        // Act
+        app.push_scope(ScopeLegend::line_chart("440 Hz sine"));
+
+        // Assert
+        assert_eq!(
+            app.scopes.len(),
+            2,
+            "Expected two scopes, the old and the newly added one.",
+        );
+        assert_eq!(
+            app.plotters.rows(),
+            2,
+            "Expected two row of plotters, one per scope.",
+        )
+    }
+
+    #[test]
+    fn test_close_second_window() {
+        // Arrange
+        let mut app = app_with_one_run();
+        let run = app
+            .sources
+            .first()
+            .map(Source::first_run)
+            .flatten()
+            .expect("There should be one run added by `app_with_one_run`.");
+        app.push_window(run);
+
+        // Act
+        app.close_window(1); // Second window
+
+        // Assert
+        assert_eq!(
+            app.windows.len(),
+            1,
+            "Expected one window, the newly added one should be closed.",
+        );
+        assert_eq!(
+            app.plotters.cols(),
+            1,
+            "Expected one column of plotters, one for the remaining window.",
+        );
+    }
+
+    #[test]
+    fn test_close_only_window() {
+        // Arrange
+        let mut app = app_with_one_run();
+
+        // Act
+        app.close_window(0); // Only window
+
+        // Assert
+        assert_eq!(
+            app.windows.len(),
+            1,
+            "Expected one window, the only window can't be closed.",
+        );
+        assert_eq!(
+            app.plotters.cols(),
+            1,
+            "Expected one column of plotters, one for the remaining window.",
         );
     }
 }
