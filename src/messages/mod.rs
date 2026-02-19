@@ -1,3 +1,6 @@
+pub mod line_chart;
+
+use crate::messages::line_chart::LineChartMessage;
 use crate::origins::Origin;
 use crate::state::Stage;
 
@@ -12,6 +15,8 @@ pub enum Message {
     AddLineChart,
     AddSpectrogram,
     AddTrailChart,
+    RemoveScope(usize),
+    LineChartMessage(usize, LineChartMessage),
 }
 
 #[cfg(test)]

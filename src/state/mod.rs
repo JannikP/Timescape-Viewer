@@ -38,6 +38,10 @@ pub trait Scope {
     fn height(&self) -> f32;
 
     fn create_plotter(&self) -> ScopePlotter;
+
+    fn index(&self) -> usize;
+
+    fn set_index(&mut self, index: usize);
 }
 
 #[enum_dispatch]
@@ -55,7 +59,7 @@ impl ScopeLegend {
     }
 
     pub fn spectrogram<S: Into<String>>(_signal: S) -> Self {
-        let inner = SpectrogramLegend {};
+        let inner = SpectrogramLegend::default();
         Self::Spectrogram(inner)
     }
 

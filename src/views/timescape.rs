@@ -6,11 +6,13 @@ use iced::{Element, Length};
 use rust_i18n::t;
 
 use crate::TimescapeViewer;
-use crate::constants::icons::{LINE_CHART_ICON, MENU_ICON, SPECTROGRAM_ICON};
+use crate::constants::icons::{LINE_CHART_ICON, MENU_ICON, SPECTROGRAM_ICON, TRAIL_CHART_ICON};
 use crate::constants::layout::PANEL_GAP;
 use crate::messages::Message;
 use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
 use crate::views::line_chart::line_chart_legend;
+use crate::views::spectrogram::spectrogram_legend;
+use crate::views::trail_chart::trail_chart_legend;
 
 /// The main view of the app where users actually view the timeseries data using
 /// A list of scopes.
@@ -87,7 +89,11 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message> {
                     ))
                     .on_press(Message::AddSpectrogram),
                     button(text(
-                        ["+", " ", t!("timescape.no_scope.add_trail_chart").as_ref()].concat()
+                        [
+                            TRAIL_CHART_ICON,
+                            " ",
+                            t!("timescape.no_scope.add_trail_chart").as_ref(),
+                        ].concat()
                     ))
                     .on_press(Message::AddTrailChart),
                 ]
@@ -134,8 +140,8 @@ where
 {
     let content = match legend {
         ScopeLegend::LineChart(line_chart) => line_chart_legend(line_chart),
-        ScopeLegend::Spectrogram(_) => text("Spectrogram").into(),
-        ScopeLegend::TrailChart(_) => text("Trail chart").into(),
+        ScopeLegend::Spectrogram(spectrogram) => spectrogram_legend(spectrogram),
+        ScopeLegend::TrailChart(trail_chart) => trail_chart_legend(trail_chart),
     };
     container(content)
         .padding(8)
@@ -158,7 +164,7 @@ fn footer(app: &TimescapeViewer) -> Element<'_, Message> {
     row![
         button(LINE_CHART_ICON).on_press(Message::AddLineChart),
         button(SPECTROGRAM_ICON).on_press(Message::AddSpectrogram),
-        button("+").on_press(Message::AddTrailChart),
+        button(TRAIL_CHART_ICON).on_press(Message::AddTrailChart),
         text(&app.hint),
     ]
     .spacing(PANEL_GAP)

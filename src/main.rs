@@ -88,50 +88,50 @@ impl TimescapeViewer {
         match message {
             Message::AbortModal => {
                 self.modal = Modal::None;
-                Task::none()
             }
             Message::ChooseFile => {
-                // Task::perform(choose_file(), |maybe_origin| match maybe_origin {
+                // return Task::perform(choose_file(), |maybe_origin| match maybe_origin {
                 //     Some(origin) => Message::Open(origin),
                 //     None => Message::None,
-                // })
+                // });
 
                 // TODO: Open a dummy source while developing the UI. Remove later.
                 self.push_source(Source::new_example_sines());
-                Task::none()
             }
             Message::GoTo(stage) => {
                 info!("Going to {:?}", stage);
                 self.stage = stage;
-                Task::none()
             }
             Message::Hint(hint) => {
                 self.hint = hint;
-                Task::none()
             }
             Message::Open(ref _origin @ Origin::CsvFile(ref file, ref options)) => {
                 info!("Opening {:?} with options {:?}", file, options);
                 self.stage = Stage::Timescape;
                 self.modal = Modal::InterpretCsv(**options);
-                Task::none()
             }
             Message::AddLineChart => {
                 self.push_scope(ScopeLegend::line_chart("440 Hz sine"));
-                Task::none()
             }
             Message::AddSpectrogram => {
                 self.push_scope(ScopeLegend::spectrogram("440 Hz sine"));
-                Task::none()
             }
             Message::AddTrailChart => {
                 self.push_scope(ScopeLegend::trail_chart("440 Hz sine"));
-                Task::none()
             }
+            Message::RemoveScope(index) => {
+                self.remove_scope(index);
+            }
+            Message::LineChartMessage(index, inner_message) => {
+                if let Some(ScopeLegend::LineChart(chart)) = self.scopes.get_mut(index) {
+                    return chart.update(inner_message);
+                }
+            },
             Message::None => {
                 debug!("Do nothing.");
-                Task::none()
             }
-        }
+        };
+        Task::none()
     }
 
     fn view(&self) -> Element<'_, Message> {
@@ -188,7 +188,9 @@ impl TimescapeViewer {
     /// Note: The scope might appear outside of the visible area of the main
     /// scrollable. It might be necessary to automatically scroll there to avoid
     /// confusion.
-    fn push_scope(&mut self, scope: ScopeLegend) {
+    fn push_scope(&mut self, mut scope: ScopeLegend) {
+        let index = self.scopes.len();
+        scope.set_index(index);
         let plotters: Vec<ScopePlotter> = self
             .windows
             .iter()
@@ -206,6 +208,10 @@ impl TimescapeViewer {
 
     /// Closes the window at the given index, removing it from the list of
     /// windows and all plotters that belong to it.
+    ///
+    /// The first window can't be closed. If called with the index == 0 or out
+    /// of bounds of the existing windows nothing happens and this function
+    /// returns without altering the state.
     fn close_window(&mut self, index: usize) {
         if index < 1 || index >= self.windows.len() {
             return;
@@ -214,12 +220,26 @@ impl TimescapeViewer {
         self.plotters.remove_col(index);
     }
 
-    // TODO: close scope
+    /// Removes the scope at the given index, removing it from the list of
+    /// scopes and all plotters that belong to it.
+    ///
+    /// If called with an invalid index nothing happens and this function
+    /// returns without altering the state.
+    fn remove_scope(&mut self, index: usize) {
+        if index >= self.scopes.len() {
+            return;
+        }
+        self.scopes.remove(index);
+        self.plotters.remove_row(index);
+        for (index, scope) in self.scopes.iter_mut().enumerate() {
+            scope.set_index(index);
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::state::{ScopeLegend, Source};
+    use crate::state::{Scope, ScopeLegend, Source};
 
     use super::TimescapeViewer;
 
@@ -275,6 +295,11 @@ mod tests {
             app.plotters.rows(),
             2,
             "Expected two row of plotters, one per scope.",
+        );
+        assert_eq!(
+            app.scopes[1].index(),
+            1,
+            "The index of the new scope should match its index in the vector.",
         )
     }
 
@@ -326,4 +351,24 @@ mod tests {
             "Expected one column of plotters, one for the remaining window.",
         );
     }
+
+    #[test]
+    fn test_remove_scope() {
+        // Arrange
+        // Contains exactly one line chart.
+        let mut app = app_with_one_run();
+
+        // Act
+        app.remove_scope(0);
+
+        // Assert
+        assert_eq!(app.scopes.len(), 0, "Expected no scopes.",);
+        assert_eq!(
+            app.plotters.rows(),
+            0,
+            "Expected no plotters as there are no scopes left.",
+        )
+    }
+
+    // TODO: Add test if the index of a scope is correct when a scope before it is removed.
 }
