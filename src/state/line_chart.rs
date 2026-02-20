@@ -1,4 +1,5 @@
 use iced::{Color, Task};
+use log::info;
 
 use crate::messages::{Message, line_chart::LineChartMessage};
 
@@ -11,6 +12,7 @@ pub struct LineChartLegend {
     minimum: f64,
     maximum: f64,
     height: f32,
+    signal_input: String,
 }
 
 impl LineChartLegend {
@@ -25,6 +27,13 @@ impl LineChartLegend {
         self.signals.push(entry);
     }
 
+    pub fn remove_signal(&mut self, index: usize) {
+        self.signals.remove(index);
+        for (index, signal) in self.signals.iter_mut().enumerate() {
+            signal.index = index
+        }
+    }
+
     pub fn iter_signals(&self) -> impl Iterator<Item = &LineChartLegendEntry> {
         self.signals.iter()
     }
@@ -37,8 +46,37 @@ impl LineChartLegend {
                     signal.visible = visible;
                 }
             }
+            LineChartMessage::RemoveSignal(index) => {
+                self.remove_signal(index);
+            }
+            LineChartMessage::SignalInputChanged(input) => {
+                self.signal_input = input;
+            }
+            LineChartMessage::SignalInputSubmit => {
+                info!(
+                    "Adding signal '{:}' to scope no. {:}",
+                    self.signal_input.as_str(),
+                    self.index
+                );
+                self.push_signal(self.signal_input.clone());
+                self.signal_input = String::new();
+            }
         }
         Task::none()
+    }
+
+    pub fn signal_input(&self) -> &str {
+        self.signal_input.as_str()
+    }
+
+    pub fn on_signal_input<'a>(&'a self) -> impl Fn(String) -> Message + 'a {
+        |input: String| {
+            Message::LineChartMessage(self.index, LineChartMessage::SignalInputChanged(input))
+        }
+    }
+
+    pub fn on_signal_input_submit(&self) -> Message {
+        Message::LineChartMessage(self.index, LineChartMessage::SignalInputSubmit)
     }
 }
 
@@ -57,7 +95,7 @@ impl Scope for LineChartLegend {
         self.index
     }
 
-    fn set_index(&mut self, index:usize) {
+    fn set_index(&mut self, index: usize) {
         self.index = index;
     }
 }
@@ -69,7 +107,8 @@ impl Default for LineChartLegend {
             signals: Vec::new(),
             minimum: 0.0,
             maximum: 1.0,
-            height: 100.0,
+            height: 150.0,
+            signal_input: String::new(),
         }
     }
 }
@@ -84,10 +123,17 @@ pub struct LineChartLegendEntry {
 
 impl LineChartLegendEntry {
     pub fn toggle_visibility_message(&self, scope: &LineChartLegend) -> Message {
-        Message::LineChartMessage(scope.index(), LineChartMessage::ToggleVisibility {
-            signal: self.index,
-            visible: !self.visible,
-        })
+        Message::LineChartMessage(
+            scope.index(),
+            LineChartMessage::ToggleVisibility {
+                signal: self.index,
+                visible: !self.visible,
+            },
+        )
+    }
+
+    pub fn delete_message(&self, scope: &LineChartLegend) -> Message {
+        Message::LineChartMessage(scope.index(), LineChartMessage::RemoveSignal(self.index))
     }
 }
 

@@ -1,6 +1,6 @@
 use std::iter::StepBy;
 
-use iced::alignment::Horizontal;
+use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{Column, Row, Space, button, center, column, container, row, space, text};
 use iced::{Element, Length};
 use rust_i18n::t;
@@ -93,7 +93,8 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message> {
                             TRAIL_CHART_ICON,
                             " ",
                             t!("timescape.no_scope.add_trail_chart").as_ref(),
-                        ].concat()
+                        ]
+                        .concat()
                     ))
                     .on_press(Message::AddTrailChart),
                 ]
@@ -145,7 +146,7 @@ where
     };
     container(content)
         .padding(8)
-        .width(200)
+        .width(350)
         .height(Length::Fill)
         .style(container::rounded_box)
         .into()
@@ -167,6 +168,7 @@ fn footer(app: &TimescapeViewer) -> Element<'_, Message> {
         button(TRAIL_CHART_ICON).on_press(Message::AddTrailChart),
         text(&app.hint),
     ]
+    .align_y(Vertical::Center)
     .spacing(PANEL_GAP)
     .width(Length::Fill)
     .height(Length::Shrink)

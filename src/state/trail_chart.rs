@@ -6,9 +6,7 @@ pub struct TrailChartLegend {
     pub signals: Vec<String>,
 }
 
-impl TrailChartLegend {
-
-}
+impl TrailChartLegend {}
 
 impl Scope for TrailChartLegend {
     fn height(&self) -> f32 {
@@ -23,7 +21,7 @@ impl Scope for TrailChartLegend {
         self.index
     }
 
-    fn set_index(&mut self, index:usize) {
+    fn set_index(&mut self, index: usize) {
         self.index = index;
     }
 }

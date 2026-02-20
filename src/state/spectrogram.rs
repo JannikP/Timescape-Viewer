@@ -18,7 +18,7 @@ impl Scope for SpectrogramLegend {
         self.index
     }
 
-    fn set_index(&mut self, index:usize) {
+    fn set_index(&mut self, index: usize) {
         self.index = index;
     }
 }

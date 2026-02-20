@@ -126,7 +126,7 @@ impl TimescapeViewer {
                 if let Some(ScopeLegend::LineChart(chart)) = self.scopes.get_mut(index) {
                     return chart.update(inner_message);
                 }
-            },
+            }
             Message::None => {
                 debug!("Do nothing.");
             }
