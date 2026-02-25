@@ -12,6 +12,9 @@ timescape:
         add_line_chart: Liniendiagramm hinzufügen
         add_spectrogram: Spectrogramm hinzufügen
         add_trail_chart: Bitspuren hinzufügen
+    add_line_chart_hint: Liniendiagramm erstellen
+    add_spectrogram_hint: Spectrogramm erstellen
+    add_trail_chart_hint: Bitspuren erstellen
 line_chart:
     visibility_hint: Schaltet die Sichtbarkeit des Signals um.
     delete_hint: Löscht dieses Signal.

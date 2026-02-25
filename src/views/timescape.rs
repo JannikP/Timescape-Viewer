@@ -1,7 +1,9 @@
 use std::iter::StepBy;
 
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{Column, Row, Space, button, center, column, container, row, space, text};
+use iced::widget::{
+    Column, Row, Space, button, center, column, container, row, scrollable, space, text,
+};
 use iced::{Element, Length};
 use rust_i18n::t;
 
@@ -13,6 +15,7 @@ use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
 use crate::views::line_chart::line_chart_legend;
 use crate::views::spectrogram::spectrogram_legend;
 use crate::views::trail_chart::trail_chart_legend;
+use crate::widgets::Hint;
 
 /// The main view of the app where users actually view the timeseries data using
 /// A list of scopes.
@@ -107,15 +110,20 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message> {
         .height(Length::Fill)
         .into()
     } else {
-        Column::new()
-            .extend(app.scopes.iter().enumerate().map(|(index, legend)| {
-                scope(legend, app.windows.as_slice(), app.plotters.iter_row(index))
-            }))
-            .push(space::vertical())
-            .spacing(PANEL_GAP)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .into()
+        scrollable(
+            Column::new()
+                .extend(app.scopes.iter().enumerate().map(|(index, legend)| {
+                    scope(legend, app.windows.as_slice(), app.plotters.iter_row(index))
+                }))
+                .push(space::vertical())
+                .spacing(PANEL_GAP)
+                .width(Length::Fill)
+                .height(Length::Fill),
+        )
+        .spacing(2)
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .into()
     }
 }
 
@@ -163,9 +171,15 @@ fn plotter<'a, 'b>((window, _plotter): (&'a Window, &'a ScopePlotter)) -> Elemen
 
 fn footer(app: &TimescapeViewer) -> Element<'_, Message> {
     row![
-        button(LINE_CHART_ICON).on_press(Message::AddLineChart),
-        button(SPECTROGRAM_ICON).on_press(Message::AddSpectrogram),
-        button(TRAIL_CHART_ICON).on_press(Message::AddTrailChart),
+        button(LINE_CHART_ICON)
+            .on_press(Message::AddLineChart)
+            .hint(t!("timescape.add_line_chart_hint")),
+        button(SPECTROGRAM_ICON)
+            .on_press(Message::AddSpectrogram)
+            .hint(t!("timescape.add_spectrogram_hint")),
+        button(TRAIL_CHART_ICON)
+            .on_press(Message::AddTrailChart)
+            .hint(t!("timescape.add_trail_chart_hint")),
         text(&app.hint),
     ]
     .align_y(Vertical::Center)

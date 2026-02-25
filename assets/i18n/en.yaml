@@ -12,6 +12,9 @@ timescape:
         add_line_chart: Add line chart
         add_spectrogram: Add spectrogram
         add_trail_chart: Add trail chart
+    add_line_chart_hint: Add a line chart
+    add_spectrogram_hint: Add a spectrogram
+    add_trail_chart_hint: Add a trail chart
 line_chart:
     visibility_hint: Toggle the visibility of this signal.
     delete_hint: Delete this signal.
