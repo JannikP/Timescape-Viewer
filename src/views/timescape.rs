@@ -5,6 +5,7 @@ use iced::widget::{
     Column, Row, Space, button, center, column, container, row, scrollable, space, text,
 };
 use iced::{Element, Length};
+use itertools::Itertools;
 use rust_i18n::t;
 
 use crate::TimescapeViewer;
@@ -15,7 +16,7 @@ use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
 use crate::views::line_chart::line_chart_legend;
 use crate::views::spectrogram::spectrogram_legend;
 use crate::views::trail_chart::trail_chart_legend;
-use crate::widgets::Hint;
+use crate::widgets::{Hint, horizontal_divider, vertical_divider};
 
 /// The main view of the app where users actually view the timeseries data using
 /// A list of scopes.
@@ -53,6 +54,10 @@ fn header(_app: &TimescapeViewer) -> Element<'_, Message> {
     .into()
 }
 
+#[allow(
+    unstable_name_collisions,
+    reason = "Use std's intersperse_with once available."
+)]
 fn content(app: &TimescapeViewer) -> Element<'_, Message> {
     if app.windows.is_empty() {
         center(
@@ -112,11 +117,16 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message> {
     } else {
         scrollable(
             Column::new()
-                .extend(app.scopes.iter().enumerate().map(|(index, legend)| {
-                    scope(legend, app.windows.as_slice(), app.plotters.iter_row(index))
-                }))
+                .extend(
+                    app.scopes
+                        .iter()
+                        .enumerate()
+                        .map(|(index, legend)| {
+                            scope(legend, app.windows.as_slice(), app.plotters.iter_row(index))
+                        })
+                        .intersperse_with(|| horizontal_divider().height(PANEL_GAP).into()),
+                )
                 .push(space::vertical())
-                .spacing(PANEL_GAP)
                 .width(Length::Fill)
                 .height(Length::Fill),
         )
@@ -127,6 +137,10 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message> {
     }
 }
 
+#[allow(
+    unstable_name_collisions,
+    reason = "Use std's intersperse_with once available."
+)]
 fn scope<'a, 'b>(
     scope: &'a ScopeLegend,
     windows: &'a [Window],
@@ -137,7 +151,13 @@ where
 {
     Row::new()
         .push(legend(scope))
-        .extend(windows.iter().zip(plotters).map(plotter))
+        .extend(
+            windows
+                .iter()
+                .zip(plotters)
+                .map(plotter)
+                .intersperse_with(|| vertical_divider().width(PANEL_GAP).into()),
+        )
         .width(Length::Fill)
         .height(scope.height())
         .into()
