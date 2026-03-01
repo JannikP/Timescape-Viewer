@@ -150,8 +150,8 @@ where
             windows
                 .iter()
                 .zip(plotters)
-                .enumerate()
-                .flat_map(|(_index, window_plotter)| {
+                
+                .flat_map(|window_plotter| {
                     [
                         plotter(window_plotter),
                         Divider::vertical(0.5, |_| Message::None).into(),

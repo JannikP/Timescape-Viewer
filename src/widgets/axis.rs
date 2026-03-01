@@ -1,8 +1,6 @@
 use iced::advanced::layout::{self, Layout};
 use iced::advanced::widget::{self, Widget};
-use iced::border;
-use iced::mouse;
-use iced::{Color, Element, Length, Rectangle, Size};
+use iced::{Length, Rectangle, Size};
 
 pub enum Scaling {
     Linear,
