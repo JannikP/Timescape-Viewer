@@ -37,6 +37,8 @@ pub enum Modal {
 pub trait Scope {
     fn height(&self) -> f32;
 
+    fn resize(&mut self, height: f32);
+
     fn create_plotter(&self) -> ScopePlotter;
 
     fn index(&self) -> usize;

@@ -16,6 +16,7 @@ pub enum Message {
     AddSpectrogram,
     AddTrailChart,
     RemoveScope(usize),
+    ResizeScope(usize, f32),
     LineChartMessage(usize, LineChartMessage),
 }
 

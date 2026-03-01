@@ -1,6 +1,7 @@
 use iced::{Color, Task};
 use log::info;
 
+use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
 use crate::messages::{Message, line_chart::LineChartMessage};
 
 use super::Scope;
@@ -83,6 +84,10 @@ impl LineChartLegend {
 impl Scope for LineChartLegend {
     fn height(&self) -> f32 {
         self.height
+    }
+
+    fn resize(&mut self, height: f32) {
+        self.height = height.clamp(MINIMUM_SCOPE_HEIGHT, MAXIMUM_SCOPE_HEIGHT);
     }
 
     fn create_plotter(&self) -> super::ScopePlotter {

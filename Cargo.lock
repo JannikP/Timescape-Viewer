@@ -3593,7 +3593,6 @@ dependencies = [
  "iced_core 0.14.0",
  "iced_test",
  "image",
- "itertools 0.14.0",
  "log",
  "native-dialog",
  "rust-i18n",

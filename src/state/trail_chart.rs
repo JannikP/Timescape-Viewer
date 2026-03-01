@@ -13,6 +13,8 @@ impl Scope for TrailChartLegend {
         32.0
     }
 
+    fn resize(&mut self, _height: f32) {}
+
     fn create_plotter(&self) -> super::ScopePlotter {
         super::ScopePlotter::TrailChart(TrailChartPlotter { tracks: Vec::new() })
     }

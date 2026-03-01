@@ -122,6 +122,9 @@ impl TimescapeViewer {
             Message::RemoveScope(index) => {
                 self.remove_scope(index);
             }
+            Message::ResizeScope(index, height) => {
+                self.resize_scope(index, height);
+            }
             Message::LineChartMessage(index, inner_message) => {
                 if let Some(ScopeLegend::LineChart(chart)) = self.scopes.get_mut(index) {
                     return chart.update(inner_message);
@@ -205,6 +208,14 @@ impl TimescapeViewer {
     // TODO: reorder windows
 
     // TODO: reorder scopes
+
+    // TODO: resize windows
+
+    fn resize_scope(&mut self, index: usize, height: f32) {
+        if let Some(scope) = self.scopes.get_mut(index) {
+            scope.resize(height);
+        }
+    }
 
     /// Closes the window at the given index, removing it from the list of
     /// windows and all plotters that belong to it.
