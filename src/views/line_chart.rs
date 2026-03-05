@@ -8,7 +8,7 @@ use crate::messages::Message;
 use crate::state::Scope;
 use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry};
 use crate::views::common::scope_handle_bar;
-use crate::widgets::Hint;
+use crate::widgets::{Axis, Hint, Scaling};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message>
 where
@@ -27,7 +27,7 @@ where
             .spacing(4)
             .width(Length::Fill)
             .height(Length::Fill),
-        // TODO: Axis
+        Axis::new(Scaling::Linear, -5.0..=105.0),
     ]
     .width(Length::Fill)
     .height(Length::Fill)
