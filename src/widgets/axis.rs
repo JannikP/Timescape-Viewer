@@ -2,9 +2,11 @@ use std::ops::RangeInclusive;
 
 use iced::advanced::layout::{self, Layout};
 use iced::advanced::renderer;
+use iced::advanced::text;
 use iced::advanced::widget::{self, Widget};
-use iced::color;
+use iced::alignment::Vertical;
 use iced::{Element, Length, Rectangle, Size};
+use iced::{Point, color};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Scaling {
@@ -47,11 +49,16 @@ pub enum Significance {
     Extra,
 }
 
-pub struct Axis {
+pub struct Axis<Renderer>
+where
+    Renderer: text::Renderer,
+{
     range: RangeInclusive<f64>,
     scaling: Scaling,
     width: Length,
     height: Length,
+    shaping: text::Shaping,
+    font: Option<Renderer::Font>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -61,13 +68,18 @@ pub struct Tick {
     significance: Significance,
 }
 
-impl Axis {
+impl<Renderer> Axis<Renderer>
+where
+    Renderer: text::Renderer,
+{
     pub fn new(scaling: Scaling, range: RangeInclusive<f64>) -> Self {
         Self {
             range,
             scaling,
-            width: 100.into(),
+            width: 70.into(),
             height: Length::Fill,
+            shaping: Default::default(),
+            font: None,
         }
     }
 
@@ -82,11 +94,25 @@ impl Axis {
         self.height = height.into();
         self
     }
+
+    /// Sets the [`Font`] of the tick labels of this [`Axis`].
+    ///
+    /// [`Font`]: text::Renderer::Font
+    pub fn font(mut self, font: Renderer::Font) -> Self {
+        self.font = Some(font);
+        self
+    }
+
+    /// Sets the [`text::Shaping`] strategy of the [`Axis`]'s labels.
+    pub fn shaping(mut self, shaping: text::Shaping) -> Self {
+        self.shaping = shaping;
+        self
+    }
 }
 
-impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Axis
+impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Axis<Renderer>
 where
-    Renderer: iced::advanced::renderer::Renderer,
+    Renderer: text::Renderer,
 {
     fn size(&self) -> Size<Length> {
         Size {
@@ -112,13 +138,15 @@ where
         _style: &iced::advanced::renderer::Style,
         layout: Layout<'_>,
         _cursor: iced::advanced::mouse::Cursor,
-        _viewport: &Rectangle,
+        viewport: &Rectangle,
     ) {
         let bounds = layout.bounds();
         let ticks = self
             .scaling
             .ticks(bounds.height, 64.0, 16.0, &self.range, &[]);
         let to_pixels = |value: f64| value_to_pixels(value, &self.range, bounds.height);
+        let font = self.font.unwrap_or_else(|| renderer.default_font());
+        let label_size = 12.0;
 
         // Draw major ticks
         let major_x = (bounds.x + bounds.width - 8.0 - 1.0).max(bounds.x);
@@ -136,7 +164,7 @@ where
                                 width: minor_width,
                                 height: 1.0,
                             },
-                            snap: true,
+                            snap: false,
                             ..renderer::Quad::default()
                         },
                         color!(0xffffff),
@@ -156,7 +184,28 @@ where
                         },
                         color!(0xffffff),
                     );
-                    // TODO: Render tick label
+                    renderer.fill_text(
+                        text::Text {
+                            content: format!("{:}", tick.value),
+                            font,
+                            size: label_size.into(),
+                            line_height: Default::default(),
+                            bounds: Size {
+                                width: bounds.width - major_width - 2.0,
+                                height: label_size * 1.5,
+                            },
+                            align_x: text::Alignment::Right,
+                            align_y: Vertical::Center,
+                            shaping: self.shaping,
+                            wrapping: text::Wrapping::None,
+                        },
+                        Point {
+                            x: bounds.x + bounds.width - major_width - 2.0,
+                            y: bounds.y + tick.position,
+                        },
+                        color!(0xffffff),
+                        *viewport,
+                    );
                 }
             }
         }
@@ -178,12 +227,12 @@ where
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<Axis> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<Axis<Renderer>> for Element<'a, Message, Theme, Renderer>
 where
-    Renderer: iced_core::Renderer,
+    Renderer: text::Renderer + 'a,
     Message: 'a,
 {
-    fn from(axis: Axis) -> Element<'a, Message, Theme, Renderer> {
+    fn from(axis: Axis<Renderer>) -> Element<'a, Message, Theme, Renderer> {
         Element::new(axis)
     }
 }
@@ -223,7 +272,8 @@ fn distribute_linear_ticks(
     }
 
     // Distribute the minor ticks
-    let actual_major_tick_spacing =  ((value - range.start()) / (range.end() - range.start())) as f32 * size;
+    let actual_major_tick_spacing =
+        ((value - range.start()) / (range.end() - range.start())) as f32 * size;
     let minor_tick = nice_minor_ticks(nice_tick, actual_major_tick_spacing, minor_tick_spacing);
     let mut minor_ticks = Vec::new();
     let mut previous_major_value = bottom;
