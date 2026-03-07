@@ -42,15 +42,14 @@ product-icon = "assets/app_icon.ico"
 enum_dispatch = "0.3.13"
 
 # Logger implementation
-flexi_logger = "0.30"
+flexi_logger = "0.31.8"
 
 # Data structure to hold the grid of plots
 grid = "0.17.0"
 
 # GUI framework
-iced = { version = "0.14.0", default-features = false, features = ["advanced", "wgpu", "debug", "hot", "crisp", "thread-pool", "image"] }
+iced = { version = "0.14.0", default-features = false, features = ["advanced", "wgpu", "debug", "crisp", "thread-pool", "advanced-shaping", "image"] }
 iced_core = "0.14.0"
-iced_aw = { version = "0.13.0", features = ["full"] }
 
 # Read image files.
 # So far used only to specify the image format of the app icon.
@@ -63,7 +62,7 @@ itertools = "0.14.0"
 log = "0.4"
 
 # Display file choosers and message boxes.
-native-dialog = { version = "0.9.0", features = ["async"] }
+native-dialog = { version = "0.9.6", features = ["async"] }
 
 # Internationalization support
 rust-i18n = "3.1.5"

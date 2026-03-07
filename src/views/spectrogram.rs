@@ -4,9 +4,10 @@ use iced::{Element, Length};
 use crate::messages::Message;
 use crate::state::Scope;
 use crate::state::spectrogram::SpectrogramLegend;
+use crate::theme::MakoTheme;
 use crate::views::common::scope_handle_bar;
 
-pub fn spectrogram_legend<'a, 'b>(legend: &'a SpectrogramLegend) -> Element<'b, Message>
+pub fn spectrogram_legend<'a, 'b>(legend: &'a SpectrogramLegend) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
