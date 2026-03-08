@@ -4,8 +4,9 @@ use iced::{Element, Length};
 use crate::TimescapeViewer;
 use crate::messages::Message;
 use crate::state::Stage;
+use crate::theme::MakoTheme;
 
-pub fn view_backstage(app: &TimescapeViewer) -> Element<'_, Message> {
+pub fn view_backstage(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
     row![
         navigation(app),
         center(text("Hello, this is the backstage!")),
@@ -13,7 +14,7 @@ pub fn view_backstage(app: &TimescapeViewer) -> Element<'_, Message> {
     .into()
 }
 
-fn navigation(_app: &TimescapeViewer) -> Element<'_, Message> {
+fn navigation(_app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
     column![
         button(">").on_press(Message::GoTo(Stage::Timescape)),
         Space::new().height(Length::FillPortion(1)),

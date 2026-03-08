@@ -5,9 +5,10 @@ use rust_i18n::t;
 use crate::constants::icons::{CLOSE_ICON, COLLAPSE_VERTICAL_ICON, FULLSCREEN_ICON};
 use crate::constants::layout::HANDLE_BAR_WIDTH;
 use crate::messages::Message;
+use crate::theme::MakoTheme;
 use crate::widgets::Hint;
 
-pub fn scope_handle_bar<'b>(index: usize) -> Element<'b, Message> {
+pub fn scope_handle_bar<'b>(index: usize) -> Element<'b, Message, MakoTheme> {
     column![
         center(text(":")) // TODO: Drag area for rearranging scopes.
             .width(HANDLE_BAR_WIDTH)

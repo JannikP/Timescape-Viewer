@@ -7,10 +7,11 @@ use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON, SIGNA
 use crate::messages::Message;
 use crate::state::Scope;
 use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry};
+use crate::theme::MakoTheme;
 use crate::views::common::scope_handle_bar;
-use crate::widgets::Hint;
+use crate::widgets::{Axis, Hint, Scaling};
 
-pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message>
+pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
@@ -27,7 +28,7 @@ where
             .spacing(4)
             .width(Length::Fill)
             .height(Length::Fill),
-        // TODO: Axis
+        Axis::new(Scaling::Linear, -5.0..=105.0),
     ]
     .width(Length::Fill)
     .height(Length::Fill)
@@ -37,7 +38,7 @@ where
 fn signal_legend_entry<'a, 'b>(
     scope: &'a LineChartLegend,
     entry: &'a LineChartLegendEntry,
-) -> Element<'b, Message>
+) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
@@ -57,7 +58,7 @@ where
     .into()
 }
 
-fn signal_chooser_line<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message>
+fn signal_chooser_line<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {

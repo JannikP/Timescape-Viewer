@@ -16,7 +16,7 @@ use grid::Grid;
 use iced::font::{Family, Stretch, Style, Weight};
 use iced::widget::{center, text};
 use iced::window::settings::Settings as WindowSettings;
-use iced::{Element, Font, Settings, Task, Theme};
+use iced::{Element, Font, Settings, Task};
 use log::{debug, info};
 use rust_i18n::{i18n, t};
 
@@ -29,6 +29,7 @@ use views::{modal, view_backstage, view_timescape};
 use crate::constants::icons::app_icon;
 use crate::origins::Origin;
 use crate::state::{Run, Scope, Source};
+use crate::theme::MakoTheme;
 
 // Load translations with configuration from `[package.metadata.i18n]` section in `Cargo.toml`.
 i18n!("assets/i18n");
@@ -40,6 +41,8 @@ pub fn main() -> iced::Result {
         TimescapeViewer::update,
         TimescapeViewer::view,
     )
+    .title(TimescapeViewer::title)
+    .theme(TimescapeViewer::theme)
     .settings(Settings {
         id: Some("org.timescape-viewer.application".into()),
         fonts: vec![
@@ -59,8 +62,6 @@ pub fn main() -> iced::Result {
         icon: app_icon(),
         ..Default::default()
     })
-    .theme(TimescapeViewer::theme)
-    .title(TimescapeViewer::title)
     .run()
 }
 
@@ -80,8 +81,8 @@ impl TimescapeViewer {
         (Self::default(), Task::none())
     }
 
-    pub fn theme(&self) -> Theme {
-        Theme::TokyoNight
+    pub fn theme(&self) -> MakoTheme {
+        MakoTheme::Mako
     }
 
     fn update(&mut self, message: Message) -> Task<Message> {
@@ -137,7 +138,7 @@ impl TimescapeViewer {
         Task::none()
     }
 
-    fn view(&self) -> Element<'_, Message> {
+    fn view(&self) -> Element<'_, Message, MakoTheme> {
         let content = match self.stage {
             Stage::Backstage => view_backstage(self),
             Stage::Timescape => view_timescape(self),

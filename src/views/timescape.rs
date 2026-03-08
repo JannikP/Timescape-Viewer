@@ -12,6 +12,7 @@ use crate::constants::icons::{LINE_CHART_ICON, MENU_ICON, SPECTROGRAM_ICON, TRAI
 use crate::constants::layout::PANEL_GAP;
 use crate::messages::Message;
 use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
+use crate::theme::MakoTheme;
 use crate::views::line_chart::line_chart_legend;
 use crate::views::spectrogram::spectrogram_legend;
 use crate::views::trail_chart::trail_chart_legend;
@@ -33,7 +34,7 @@ use crate::widgets::{Divider, Hint};
 /// 3. The final row is the footer consisting of buttons to add scopes and a
 ///    text line displaying useful usage hints. This section is build by the
 ///    function [footer].
-pub fn view_timescape(app: &TimescapeViewer) -> Element<'_, Message> {
+pub fn view_timescape(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
     column![header(app), content(app), footer(app),]
         .spacing(PANEL_GAP)
         .width(Length::Fill)
@@ -41,7 +42,7 @@ pub fn view_timescape(app: &TimescapeViewer) -> Element<'_, Message> {
         .into()
 }
 
-fn header(_app: &TimescapeViewer) -> Element<'_, Message> {
+fn header(_app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
     row![
         button(MENU_ICON).on_press(Message::GoTo(Stage::Backstage)),
         Space::new().width(Length::Fill),
@@ -53,7 +54,7 @@ fn header(_app: &TimescapeViewer) -> Element<'_, Message> {
     .into()
 }
 
-fn content(app: &TimescapeViewer) -> Element<'_, Message> {
+fn content(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
     if app.windows.is_empty() {
         center(
             column![
@@ -140,7 +141,7 @@ fn scope<'a, 'b>(
     scope: &'a ScopeLegend,
     windows: &'a [Window],
     plotters: StepBy<std::slice::Iter<ScopePlotter>>,
-) -> Element<'b, Message>
+) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
@@ -150,7 +151,7 @@ where
             windows
                 .iter()
                 .zip(plotters)
-                
+
                 .flat_map(|window_plotter| {
                     [
                         plotter(window_plotter),
@@ -163,7 +164,7 @@ where
         .into()
 }
 
-fn legend<'a, 'b>(legend: &'a ScopeLegend) -> Element<'b, Message>
+fn legend<'a, 'b>(legend: &'a ScopeLegend) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
@@ -176,20 +177,20 @@ where
         .padding(8)
         .width(350)
         .height(Length::Fill)
-        .style(container::rounded_box)
+        //.style(container::rounded_box)
         .into()
 }
 
-fn plotter<'a, 'b>((window, _plotter): (&'a Window, &'a ScopePlotter)) -> Element<'b, Message> {
+fn plotter<'a, 'b>((window, _plotter): (&'a Window, &'a ScopePlotter)) -> Element<'b, Message, MakoTheme> {
     container("Plotter")
         .padding(8)
         .width(Length::FillPortion(window.size))
         .height(Length::Fill)
-        .style(container::rounded_box)
+        //.style(container::rounded_box)
         .into()
 }
 
-fn footer(app: &TimescapeViewer) -> Element<'_, Message> {
+fn footer(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
     row![
         button(LINE_CHART_ICON)
             .on_press(Message::AddLineChart)
