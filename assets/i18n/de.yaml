@@ -15,6 +15,9 @@ timescape:
     add_line_chart_hint: Liniendiagramm erstellen
     add_spectrogram_hint: Spectrogramm erstellen
     add_trail_chart_hint: Bitspuren erstellen
+    minimize_scope_hint: Diagramm auf die Höhe einer Textzeile minimieren
+    maximize_scope_hint: Diagramm auf die Größe des Fensters maximieren
+    remove_scope_hint: Diagramm schließen
 line_chart:
     visibility_hint: Schaltet die Sichtbarkeit des Signals um.
     delete_hint: Löscht dieses Signal.

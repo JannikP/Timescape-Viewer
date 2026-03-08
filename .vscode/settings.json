@@ -37,5 +37,6 @@
     "i18n-ally.localesPaths": [
         "./src/messages",
         "./assets/i18n",
-    ]
+    ],
+    "i18n-ally.keystyle": "nested"
 }

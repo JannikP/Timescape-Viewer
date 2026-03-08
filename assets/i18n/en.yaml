@@ -15,6 +15,9 @@ timescape:
     add_line_chart_hint: Add a line chart
     add_spectrogram_hint: Add a spectrogram
     add_trail_chart_hint: Add a trail chart
+    minimize_scope_hint: Minimize this scope to a single line of text
+    maximize_scope_hint: Maximize this scope to fill the entire window
+    remove_scope_hint: Remove this scope
 line_chart:
     visibility_hint: Toggle the visibility of this signal.
     delete_hint: Delete this signal.
