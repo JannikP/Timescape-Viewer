@@ -1,106 +1,110 @@
-use iced::widget::scrollable::{Catalog, Status, Style};
+use iced::{Color, Shadow, Vector};
+use iced::widget::container;
+use iced::widget::scrollable::{AutoScroll, Catalog, Rail, Scroller, Status, Style, StyleFn};
 
-use super::MakoTheme;
-
-#[derive(Default)]
-pub enum ScrollableClass {
-    #[default]
-    Standard,
-}
-
-impl ScrollableClass {
-    fn active(
-        &self,
-        style: &MakoTheme,
-        is_horizontal_scrollbar_disabled: bool,
-        is_vertical_scrollbar_disabled: bool,
-    ) -> Style {
-        let colors = style.colors();
-        Style {
-            container: todo!(),
-            vertical_rail: todo!(),
-            horizontal_rail: todo!(),
-            gap: None,
-            auto_scroll: todo!(),
-        }
-    }
-
-    fn hovered(
-        &self,
-        style: &MakoTheme,
-        is_horizontal_scrollbar_hovered: bool,
-        is_vertical_scrollbar_hovered: bool,
-        is_horizontal_scrollbar_disabled: bool,
-        is_vertical_scrollbar_disabled: bool,
-    ) -> Style {
-        let colors = style.colors();
-        let mut style = self.active(
-            style,
-            is_horizontal_scrollbar_disabled,
-            is_vertical_scrollbar_disabled,
-        );
-        style
-    }
-
-    fn dragged(
-        &self,
-        style: &MakoTheme,
-        is_horizontal_scrollbar_dragged: bool,
-        is_vertical_scrollbar_dragged: bool,
-        is_horizontal_scrollbar_disabled: bool,
-        is_vertical_scrollbar_disabled: bool,
-    ) -> Style {
-        let colors = style.colors();
-        let mut style = self.active(
-            style,
-            is_horizontal_scrollbar_disabled,
-            is_vertical_scrollbar_disabled,
-        );
-        style
-    }
-}
+use super::{MakoTheme, NO_BORDER};
 
 impl Catalog for MakoTheme {
-    type Class<'a> = ScrollableClass;
+    type Class<'a> = StyleFn<'a, Self>;
 
     fn default<'a>() -> Self::Class<'a> {
-        Self::Class::default()
+        Box::new(default)
     }
 
     fn style(&self, class: &Self::Class<'_>, status: Status) -> Style {
-        match status {
-            Status::Active {
-                is_horizontal_scrollbar_disabled,
-                is_vertical_scrollbar_disabled,
-            } => class.active(
-                self,
-                is_horizontal_scrollbar_disabled,
-                is_vertical_scrollbar_disabled,
-            ),
-            Status::Hovered {
-                is_horizontal_scrollbar_hovered,
-                is_vertical_scrollbar_hovered,
-                is_horizontal_scrollbar_disabled,
-                is_vertical_scrollbar_disabled,
-            } => class.hovered(
-                self,
-                is_horizontal_scrollbar_hovered,
-                is_vertical_scrollbar_hovered,
-                is_horizontal_scrollbar_disabled,
-                is_vertical_scrollbar_disabled,
-            ),
-            Status::Dragged {
-                is_horizontal_scrollbar_dragged,
-                is_vertical_scrollbar_dragged,
-                is_horizontal_scrollbar_disabled,
-                is_vertical_scrollbar_disabled,
-            } => class.dragged(
-                self,
-                is_horizontal_scrollbar_dragged,
-                is_vertical_scrollbar_dragged,
-                is_horizontal_scrollbar_disabled,
-                is_vertical_scrollbar_disabled,
-            ),
+        class(self, status)
+    }
+}
+
+/// The default style of a [`iced::widget::Scrollable`].
+pub fn default(theme: &MakoTheme, status: Status) -> Style {
+    let palette = theme.colors();
+
+    let scrollbar = Rail {
+        background: Some(palette.abyss.into()),
+        border: NO_BORDER,
+        scroller: Scroller {
+            background: palette.elevated.into(),
+            border: NO_BORDER,
+        },
+    };
+
+    let auto_scroll = AutoScroll {
+        background: palette.background.into(),
+        border: NO_BORDER,
+        shadow: Shadow {
+            color: Color::BLACK.scale_alpha(0.7),
+            offset: Vector::ZERO,
+            blur_radius: 2.0,
+        },
+        icon: palette.muted,
+    };
+
+    match status {
+        Status::Active { .. } => Style {
+            container: container::Style::default(),
+            vertical_rail: scrollbar,
+            horizontal_rail: scrollbar,
+            gap: None,
+            auto_scroll,
+        },
+        Status::Hovered {
+            is_horizontal_scrollbar_hovered,
+            is_vertical_scrollbar_hovered,
+            ..
+        } => {
+            let hovered_scrollbar = Rail {
+                scroller: Scroller {
+                    background: palette.highlight.into(),
+                    ..scrollbar.scroller
+                },
+                ..scrollbar
+            };
+
+            Style {
+                container: container::Style::default(),
+                vertical_rail: if is_vertical_scrollbar_hovered {
+                    hovered_scrollbar
+                } else {
+                    scrollbar
+                },
+                horizontal_rail: if is_horizontal_scrollbar_hovered {
+                    hovered_scrollbar
+                } else {
+                    scrollbar
+                },
+                gap: None,
+                auto_scroll,
+            }
+        }
+        Status::Dragged {
+            is_horizontal_scrollbar_dragged,
+            is_vertical_scrollbar_dragged,
+            ..
+        } => {
+            let dragged_scrollbar = Rail {
+                scroller: Scroller {
+                    background: palette.primary.into(),
+                    ..scrollbar.scroller
+                },
+                ..scrollbar
+            };
+
+            Style {
+                container: container::Style::default(),
+                vertical_rail: if is_vertical_scrollbar_dragged {
+                    dragged_scrollbar
+                } else {
+                    scrollbar
+                },
+                horizontal_rail: if is_horizontal_scrollbar_dragged {
+                    dragged_scrollbar
+                } else {
+                    scrollbar
+                },
+                gap: None,
+                auto_scroll,
+            }
         }
     }
 }
