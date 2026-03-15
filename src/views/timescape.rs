@@ -147,18 +147,12 @@ where
 {
     Row::new()
         .push(legend(scope))
-        .extend(
-            windows
-                .iter()
-                .zip(plotters)
-
-                .flat_map(|window_plotter| {
-                    [
-                        plotter(window_plotter),
-                        Divider::vertical(0.5, |_| Message::None).into(),
-                    ]
-                }),
-        )
+        .extend(windows.iter().zip(plotters).flat_map(|window_plotter| {
+            [
+                plotter(window_plotter),
+                Divider::vertical(0.5, |_| Message::None).into(),
+            ]
+        }))
         .width(Length::Fill)
         .height(scope.height())
         .into()
@@ -181,7 +175,9 @@ where
         .into()
 }
 
-fn plotter<'a, 'b>((window, _plotter): (&'a Window, &'a ScopePlotter)) -> Element<'b, Message, MakoTheme> {
+fn plotter<'a, 'b>(
+    (window, _plotter): (&'a Window, &'a ScopePlotter),
+) -> Element<'b, Message, MakoTheme> {
     container("Plotter")
         .padding(8)
         .width(Length::FillPortion(window.size))

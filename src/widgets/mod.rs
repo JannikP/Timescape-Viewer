@@ -1,7 +1,7 @@
-mod axis;
-mod chart;
-mod divider;
-mod hint;
+pub mod axis;
+pub mod chart;
+pub mod divider;
+pub mod hint;
 
 pub use axis::{Axis, Scaling};
 pub use divider::Divider;

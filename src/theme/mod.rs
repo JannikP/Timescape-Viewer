@@ -1,3 +1,4 @@
+mod axis;
 mod button;
 mod checkbox;
 mod combo_box;
@@ -11,9 +12,9 @@ mod radio;
 mod rule;
 mod scrollable;
 mod slider;
+mod text;
 mod text_editor;
 mod text_input;
-mod text;
 mod toggler;
 
 use iced::{
@@ -69,10 +70,6 @@ pub enum MakoTheme {
 }
 
 impl MakoTheme {
-    pub const fn all() -> &'static [Self] {
-        &[MakoTheme::Mako]
-    }
-
     pub fn colors(&self) -> Colors {
         match self {
             Self::Mako => Colors {
@@ -105,23 +102,25 @@ impl Base for MakoTheme {
     }
 
     fn base(&self) -> Style {
+        let colors = self.colors();
         match self {
             Self::Mako => Style {
-                background_color: color!(0x000d18),
-                text_color: color!(0xdef4e4),
+                background_color: colors.abyss,
+                text_color: colors.text,
             },
         }
     }
 
     fn palette(&self) -> Option<Palette> {
+        let colors = self.colors();
         match self {
             Self::Mako => Some(Palette {
-                background: color!(0x000d18),
-                text: color!(0xdef4e4),
-                primary: color!(0x49c1ad),
-                success: color!(0x96dcb5),
-                warning: color!(0xcca35d),
-                danger: color!(0xe38ca7),
+                background: colors.background,
+                text: colors.text,
+                primary: colors.primary,
+                success: colors.success,
+                warning: colors.warning,
+                danger: colors.danger,
             }),
         }
     }

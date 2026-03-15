@@ -5,8 +5,7 @@ use iced::advanced::renderer;
 use iced::advanced::text;
 use iced::advanced::widget::{self, Widget};
 use iced::alignment::Vertical;
-use iced::{Element, Length, Rectangle, Size};
-use iced::{Point, color};
+use iced::{Color, Element, Length, Point, Rectangle, Size};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Scaling {
@@ -49,9 +48,10 @@ pub enum Significance {
     Extra,
 }
 
-pub struct Axis<Renderer>
+pub struct Axis<'a, Theme, Renderer>
 where
     Renderer: text::Renderer,
+    Theme: Catalog,
 {
     range: RangeInclusive<f64>,
     scaling: Scaling,
@@ -59,6 +59,7 @@ where
     height: Length,
     shaping: text::Shaping,
     font: Option<Renderer::Font>,
+    class: Theme::Class<'a>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -68,10 +69,12 @@ pub struct Tick {
     significance: Significance,
 }
 
-impl<Renderer> Axis<Renderer>
+impl<'a, Theme, Renderer> Axis<'a, Theme, Renderer>
 where
     Renderer: text::Renderer,
+    Theme: Catalog,
 {
+    #[must_use]
     pub fn new(scaling: Scaling, range: RangeInclusive<f64>) -> Self {
         Self {
             range,
@@ -80,16 +83,19 @@ where
             height: Length::Fill,
             shaping: Default::default(),
             font: None,
+            class: Theme::default(),
         }
     }
 
     /// Sets the width of the [`Axis`].
+    #[must_use]
     pub fn width(mut self, width: impl Into<Length>) -> Self {
         self.width = width.into();
         self
     }
 
     /// Sets the height of the [`Axis`].
+    #[must_use]
     pub fn height(mut self, height: impl Into<Length>) -> Self {
         self.height = height.into();
         self
@@ -98,21 +104,34 @@ where
     /// Sets the [`Font`] of the tick labels of this [`Axis`].
     ///
     /// [`Font`]: text::Renderer::Font
+    #[must_use]
     pub fn font(mut self, font: Renderer::Font) -> Self {
         self.font = Some(font);
         self
     }
 
     /// Sets the [`text::Shaping`] strategy of the [`Axis`]'s labels.
+    #[must_use]
     pub fn shaping(mut self, shaping: text::Shaping) -> Self {
         self.shaping = shaping;
         self
     }
+
+    /// Sets the style of the [`Axis`].
+    #[must_use]
+    pub fn style(mut self, style: impl Fn(&Theme) -> Style + 'a) -> Self
+    where
+        Theme::Class<'a>: From<StyleFn<'a, Theme>>,
+    {
+        self.class = (Box::new(style) as StyleFn<'a, Theme>).into();
+        self
+    }
 }
 
-impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Axis<Renderer>
+impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Axis<'a, Theme, Renderer>
 where
     Renderer: text::Renderer,
+    Theme: Catalog,
 {
     fn size(&self) -> Size<Length> {
         Size {
@@ -134,13 +153,14 @@ where
         &self,
         _tree: &widget::Tree,
         renderer: &mut Renderer,
-        _theme: &Theme,
+        theme: &Theme,
         _style: &iced::advanced::renderer::Style,
         layout: Layout<'_>,
         _cursor: iced::advanced::mouse::Cursor,
         viewport: &Rectangle,
     ) {
         let bounds = layout.bounds();
+        let style = theme.style(&self.class);
         let ticks = self
             .scaling
             .ticks(bounds.height, 64.0, 16.0, &self.range, &[]);
@@ -167,7 +187,7 @@ where
                             snap: false,
                             ..renderer::Quad::default()
                         },
-                        color!(0xffffff),
+                        style.lines,
                     );
                 }
                 Significance::Major | Significance::Extra => {
@@ -182,7 +202,7 @@ where
                             snap: true,
                             ..renderer::Quad::default()
                         },
-                        color!(0xffffff),
+                        style.lines,
                     );
                     renderer.fill_text(
                         text::Text {
@@ -203,7 +223,7 @@ where
                             x: bounds.x + bounds.width - major_width - 2.0,
                             y: bounds.y + tick.position,
                         },
-                        color!(0xffffff),
+                        style.labels,
                         *viewport,
                     );
                 }
@@ -222,19 +242,82 @@ where
                 snap: true,
                 ..renderer::Quad::default()
             },
-            color!(0xffffff),
+            style.lines,
         );
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<Axis<Renderer>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<Axis<'a, Theme, Renderer>>
+    for Element<'a, Message, Theme, Renderer>
 where
-    Renderer: text::Renderer + 'a,
     Message: 'a,
+    Renderer: text::Renderer + 'a,
+    Theme: Catalog + 'a,
 {
-    fn from(axis: Axis<Renderer>) -> Element<'a, Message, Theme, Renderer> {
+    fn from(axis: Axis<'a, Theme, Renderer>) -> Element<'a, Message, Theme, Renderer> {
         Element::new(axis)
     }
+}
+
+/// The style of an axis.
+///
+/// If not specified with [`Axis::style`]
+/// the theme will provide the style.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Style {
+    /// The line [`iced::Color`] of the axis. Used for tick marks and the vertical line.
+    pub lines: Color,
+    /// The text [`iced::Color`] of the axis. Used for tick labels.
+    pub labels: Color,
+}
+
+/// A styling function for a [`Axis`].
+pub type StyleFn<'a, Theme> = Box<dyn Fn(&Theme) -> Style + 'a>;
+
+/// The theme catalog of an [`Axis`].
+///
+/// All themes that can be used with [`Axis`]
+/// must implement this trait.
+///
+/// # Example
+/// ```no_run
+/// use crate::widgets::axis::{Catalog, Style, StyleFn};
+///
+/// use super::MakoTheme;
+///
+/// impl Catalog for MakoTheme {
+///     type Class<'a> = StyleFn<'a, Self>;
+///
+///     fn default<'a>() -> Self::Class<'a> {
+///         Box::new(default)
+///     }
+///
+///     fn style(&self, class: &Self::Class<'_>) -> Style {
+///         class(self)
+///     }
+/// }
+///
+/// pub fn default(theme: &MakoTheme) -> Style {
+///     let colors = theme.colors();
+///     Style {
+///         lines: colors.faint,
+///         labels: colors.muted,
+///     }
+/// }
+/// ```
+///
+/// Although, in order to use [`Axis::style`]
+/// with `MyTheme`, [`Catalog::Class`] must implement
+/// `From<StyleFn<'_, MyTheme>>`.
+pub trait Catalog {
+    /// The item class of the [`Catalog`].
+    type Class<'a>;
+
+    /// The default class produced by the [`Catalog`].
+    fn default<'a>() -> Self::Class<'a>;
+
+    /// The [`Style`] of a class with the given status.
+    fn style(&self, class: &Self::Class<'_>) -> Style;
 }
 
 fn distribute_linear_ticks(

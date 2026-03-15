@@ -13,10 +13,7 @@ where
 {
     stack![
         base.into(),
-        opaque(
-            mouse_area(center(opaque(content)))
-            .on_press(on_blur)
-        )
+        opaque(mouse_area(center(opaque(content))).on_press(on_blur))
     ]
     .into()
 }
