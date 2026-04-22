@@ -13,7 +13,7 @@ use crate::constants::layout::PANEL_GAP;
 use crate::messages::Message;
 use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
 use crate::theme::{ContainerClass, MakoTheme};
-use crate::views::line_chart::line_chart_legend;
+use crate::views::line_chart::{line_chart_legend, line_chart_plotter};
 use crate::views::spectrogram::spectrogram_legend;
 use crate::views::trail_chart::trail_chart_legend;
 use crate::widgets::{Divider, Hint};
@@ -145,7 +145,7 @@ fn content(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
 fn scope<'a, 'b>(
     scope: &'a ScopeLegend,
     windows: &'a [Window],
-    plotters: StepBy<std::slice::Iter<ScopePlotter>>,
+    plotters: StepBy<std::slice::Iter<'a, ScopePlotter>>,
 ) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
@@ -181,10 +181,17 @@ where
 }
 
 fn plotter<'a, 'b>(
-    (window, _plotter): (&'a Window, &'a ScopePlotter),
-) -> Element<'b, Message, MakoTheme> {
-    container("Plotter")
-        .padding(8)
+    (window, plotter): (&'a Window, &'a ScopePlotter),
+) -> Element<'b, Message, MakoTheme>
+where
+    'a: 'b,
+{
+    let content = match plotter {
+        ScopePlotter::LineChart(line_chart) => line_chart_plotter(line_chart),
+        ScopePlotter::Spectrogram(_spectrogram) => text("TODO: Spectrogram").into(),
+        ScopePlotter::TrailChart(_trail_chart) => text("TODO: Trail Chart").into(),
+    };
+    container(content)
         .width(Length::FillPortion(window.size))
         .height(Length::Fill)
         .class(ContainerClass::Standard)

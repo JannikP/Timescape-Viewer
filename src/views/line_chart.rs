@@ -6,10 +6,10 @@ use rust_i18n::t;
 use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON, SIGNAL_ICON};
 use crate::messages::Message;
 use crate::state::Scope;
-use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry};
+use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartPlotter};
 use crate::theme::MakoTheme;
 use crate::views::common::scope_handle_bar;
-use crate::widgets::{Axis, Hint, Scaling};
+use crate::widgets::{Axis, Hint, Scaling, chart};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
@@ -75,4 +75,11 @@ where
     .align_y(Vertical::Center)
     .spacing(4)
     .into()
+}
+
+pub fn line_chart_plotter<'a, 'b>(_plotter: &'a LineChartPlotter) -> Element<'b, Message, MakoTheme>
+where
+    'a: 'b,
+{
+    chart().into()
 }
