@@ -12,7 +12,7 @@ use crate::constants::icons::{LINE_CHART_ICON, MENU_ICON, SPECTROGRAM_ICON, TRAI
 use crate::constants::layout::PANEL_GAP;
 use crate::messages::Message;
 use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
-use crate::theme::MakoTheme;
+use crate::theme::{ContainerClass, MakoTheme};
 use crate::views::line_chart::line_chart_legend;
 use crate::views::spectrogram::spectrogram_legend;
 use crate::views::trail_chart::trail_chart_legend;
@@ -35,11 +35,16 @@ use crate::widgets::{Divider, Hint};
 ///    text line displaying useful usage hints. This section is build by the
 ///    function [footer].
 pub fn view_timescape(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
-    column![header(app), content(app), footer(app),]
-        .spacing(PANEL_GAP)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .into()
+    container(
+        column![header(app), content(app), footer(app),]
+            .spacing(PANEL_GAP)
+            .width(Length::Fill)
+            .height(Length::Fill),
+    )
+    .width(Length::Fill)
+    .height(Length::Fill)
+    .class(ContainerClass::Abyss)
+    .into()
 }
 
 fn header(_app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
@@ -171,7 +176,7 @@ where
         .padding(8)
         .width(350)
         .height(Length::Fill)
-        //.style(container::rounded_box)
+        .class(ContainerClass::Standard)
         .into()
 }
 
@@ -182,26 +187,31 @@ fn plotter<'a, 'b>(
         .padding(8)
         .width(Length::FillPortion(window.size))
         .height(Length::Fill)
-        //.style(container::rounded_box)
+        .class(ContainerClass::Standard)
         .into()
 }
 
 fn footer(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
-    row![
-        button(LINE_CHART_ICON)
-            .on_press(Message::AddLineChart)
-            .hint(t!("timescape.add_line_chart_hint")),
-        button(SPECTROGRAM_ICON)
-            .on_press(Message::AddSpectrogram)
-            .hint(t!("timescape.add_spectrogram_hint")),
-        button(TRAIL_CHART_ICON)
-            .on_press(Message::AddTrailChart)
-            .hint(t!("timescape.add_trail_chart_hint")),
-        text(&app.hint),
-    ]
-    .align_y(Vertical::Center)
-    .spacing(PANEL_GAP)
+    container(
+        row![
+            button(LINE_CHART_ICON)
+                .on_press(Message::AddLineChart)
+                .hint(t!("timescape.add_line_chart_hint")),
+            button(SPECTROGRAM_ICON)
+                .on_press(Message::AddSpectrogram)
+                .hint(t!("timescape.add_spectrogram_hint")),
+            button(TRAIL_CHART_ICON)
+                .on_press(Message::AddTrailChart)
+                .hint(t!("timescape.add_trail_chart_hint")),
+            text(&app.hint),
+        ]
+        .align_y(Vertical::Center)
+        .spacing(PANEL_GAP)
+        .width(Length::Fill)
+        .height(Length::Shrink),
+    )
     .width(Length::Fill)
     .height(Length::Shrink)
+    .class(ContainerClass::Standard)
     .into()
 }

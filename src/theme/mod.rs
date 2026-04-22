@@ -17,6 +17,8 @@ mod text_editor;
 mod text_input;
 mod toggler;
 
+pub use container::ContainerClass;
+
 use iced::{
     Border, Color, Shadow, Vector,
     border::Radius,

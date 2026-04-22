@@ -6,13 +6,17 @@ use super::{MakoTheme, NO_BORDER, NO_SHADOW};
 pub enum ContainerClass {
     #[default]
     Standard,
+    Abyss,
 }
 
 impl ContainerClass {
     fn style(&self, style: &MakoTheme) -> Style {
         let colors = style.colors();
         Style {
-            background: Some(colors.background.into()),
+            background: match self {
+                ContainerClass::Standard => Some(colors.background.into()),
+                ContainerClass::Abyss => Some(colors.abyss.into()),
+            },
             text_color: Some(colors.text),
             border: NO_BORDER,
             shadow: NO_SHADOW,
