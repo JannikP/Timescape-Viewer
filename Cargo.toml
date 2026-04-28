@@ -61,6 +61,9 @@ log = "0.4"
 # Display file choosers and message boxes.
 native-dialog = { version = "0.9.6", features = ["async"] }
 
+# Random numbers for testing purposes. TODO: Remove if no longer needed.
+rand = "0.10.1"
+
 # Internationalization support
 rust-i18n = "3.1.5"
 
