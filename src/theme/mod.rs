@@ -17,6 +17,7 @@ mod text_editor;
 mod text_input;
 mod toggler;
 
+pub use button::ButtonClass;
 pub use container::ContainerClass;
 
 use iced::{
