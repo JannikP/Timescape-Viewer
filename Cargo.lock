@@ -670,9 +670,7 @@ checksum = "c469d952047f47f91b68d1cba3f10d63c11d73e4636f24f08daf0278abf01c4d"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
- "js-sys",
  "num-traits",
- "wasm-bindgen",
  "windows-link",
 ]
 
@@ -927,15 +925,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossbeam-channel"
-version = "0.5.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82b8f8f868b36967f9606790d1903570de9ceaf870a7bf9fbbd3016d636a2cb2"
-dependencies = [
- "crossbeam-utils",
-]
-
-[[package]]
 name = "crossbeam-deque"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1006,20 +995,6 @@ dependencies = [
  "objc2-foundation 0.2.2",
  "web-sys",
  "winreg",
-]
-
-[[package]]
-name = "dashmap"
-version = "6.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5041cc499144891f3790297212f32a74fb938e5136a14943f338ef9e0ae276cf"
-dependencies = [
- "cfg-if",
- "crossbeam-utils",
- "hashbrown 0.14.5",
- "lock_api",
- "once_cell",
- "parking_lot_core",
 ]
 
 [[package]]
@@ -1647,7 +1622,7 @@ checksum = "dcf29e94d6d243368b7a56caa16bc213e4f9f8ed38c4d9557069527b5d5281ca"
 dependencies = [
  "bitflags 2.9.1",
  "gpu-descriptor-types",
- "hashbrown 0.15.3",
+ "hashbrown",
 ]
 
 [[package]]
@@ -1684,12 +1659,6 @@ dependencies = [
  "cfg-if",
  "crunchy",
 ]
-
-[[package]]
-name = "hashbrown"
-version = "0.14.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
 name = "hashbrown"
@@ -2092,7 +2061,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e"
 dependencies = [
  "equivalent",
- "hashbrown 0.15.3",
+ "hashbrown",
 ]
 
 [[package]]
@@ -4064,7 +4033,6 @@ dependencies = [
  "serde-xml-rs",
  "simple-mermaid",
  "tempfile",
- "tsink",
  "winres",
  "zip",
 ]
@@ -4246,27 +4214,6 @@ dependencies = [
  "arc-swap",
  "serde",
  "stable_deref_trait",
-]
-
-[[package]]
-name = "tsink"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4154d7d562f02bb15df562bf975cf479eaee27609161761476b59161863c164"
-dependencies = [
- "bincode",
- "bytes",
- "chrono",
- "crossbeam-channel",
- "dashmap",
- "libc",
- "memmap2",
- "num_cpus",
- "parking_lot",
- "serde",
- "serde_json",
- "thiserror 2.0.12",
- "tracing",
 ]
 
 [[package]]
