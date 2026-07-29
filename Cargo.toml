@@ -38,6 +38,12 @@ banner = "wix/banner.bmp"
 product-icon = "assets/app_icon.ico"
 
 [dependencies]
+# Error handling
+anyhow = "1.0.98"
+
+# Decode binary data such as TIA's .ttrecx sample data.
+binrw = "0.15.0"
+
 # Transform trait objects into concrete compound types
 enum_dispatch = "0.3.13"
 
@@ -55,6 +61,9 @@ iced_core = "0.14.0"
 # So far used only to specify the image format of the app icon.
 image = "0.25.9"
 
+# Timezone-aware date time and calender arithmetic.
+jiff = { version = "0.2.15", features = ["serde"] }
+
 # Logging infrastructure
 log = "0.4"
 
@@ -66,9 +75,17 @@ rand = "0.10.1"
 
 # Internationalization support
 rust-i18n = "3.1.5"
+serde = "1.0.219"
+
+# `xml-rs` based serializer and deserializer for Serde
+serde-xml-rs = "0.8.1"
 
 # Embed mermaid diagrams in RustDoc.
 simple-mermaid = "0.2.0"
+
+# Reading and writing .zip archives.
+# Some formats such as TIA's .ttrecx trace files are actually just renamed .zip files.
+zip = "4.3.0"
 
 [target.'cfg(windows)'.build-dependencies]
 # Adding meta information and icons to windows executable.
@@ -78,8 +95,14 @@ winres = "0.1"
 # Comparing floating point numbers
 assert_float_eq = "1.2.0"
 
+#Statistics-driven micro-benchmarking
+criterion = "0.7.0"
+
 # Tests the application in headless mode.
 iced_test = { git = "https://github.com/iced-rs/iced" }
+
+# Temporary files, used by tsink benchmark
+tempfile = "3.23.0"
 
 [profile.release]
 opt-level = 3
@@ -97,3 +120,7 @@ rpath = false
 [profile.dist]
 inherits = "release"
 lto = "thin"
+
+[[bench]]
+name = "storage_benchmarks"
+harness = false

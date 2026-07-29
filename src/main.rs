@@ -17,7 +17,7 @@ use iced::font::{Family, Stretch, Style, Weight};
 use iced::widget::{center, text};
 use iced::window::settings::Settings as WindowSettings;
 use iced::{Element, Font, Settings, Task};
-use log::{debug, info};
+use log::{debug, error, info};
 use rust_i18n::{i18n, t};
 
 // use commands::choose_file::choose_file;
@@ -130,6 +130,19 @@ impl TimescapeViewer {
                 if let Some(ScopeLegend::LineChart(chart)) = self.scopes.get_mut(index) {
                     return chart.update(inner_message);
                 }
+            }
+            Message::Open(ref _origin @ Origin::TiaTraceFile(ref path)) => {
+                info!("Opening TIA trace {:?}", path);
+                self.stage = Stage::Timescape;
+                self.modal = Modal::None;
+                match crate::origins::tia::read_tia_trace_file(path) {
+                    Ok(source) => { self.sources.push(source); }
+                    Err(err) => {
+                        error!("Failed to open TIA trace file: {}", err);
+                    }
+                }
+
+                Task::none()
             }
             Message::None => {
                 debug!("Do nothing.");

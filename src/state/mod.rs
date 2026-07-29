@@ -80,7 +80,7 @@ pub enum ScopePlotter {
 
 #[repr(transparent)]
 #[derive(Debug, Default, PartialEq, Copy, Clone, PartialOrd)]
-pub struct Timestamp(f64);
+pub struct Timestamp(i64);
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]
 pub enum LiveMode {
@@ -91,12 +91,19 @@ pub enum LiveMode {
 }
 
 pub struct Source {
-    runs: Vec<Rc<Run>>,
+    pub runs: Vec<Rc<Run>>,
 }
 
 impl Source {
+    pub fn with_single_run(run: Run) -> Self {
+        Self {
+            runs: vec![Rc::new(run)],
+        }
+    }
+
     pub fn new_example_sines() -> Self {
         Self {
+            runs: vec![Rc::new(Run::new_example_sines())],
             runs: vec![Rc::new(Run::new_example_sines())],
         }
     }
@@ -108,15 +115,44 @@ impl Source {
 
 #[derive(Debug)]
 pub struct Run {
-    title: String,
-    tracks: Vec<Track>,
+    pub title: String,
+    pub tracks: Vec<Track>,
     // TODO: Add meta data
 }
 
 impl Run {
+    pub fn with_single_track(track: Track) -> Self {
+        Self {
+            title: String::new(),
+            tracks: vec![track],
+        }
+    }
+
+    pub fn with_title<T: Into<String>>(mut self, title: T) -> Self {
+        self.title = title.into();
+        self
+    }
+
     pub fn new_example_sines() -> Self {
         Run {
             title: "Example sines".to_string(),
+            tracks: vec![Track {
+                signals: vec![
+                    Signal::new("440 Hz sine")
+                        .with_description("A sine wave at 440 Hz")
+                        .without_unit()
+                        .reference_counted(),
+                    Signal::new("Mains voltage")
+                        .with_description("The european main voltage (50 Hz, 230 V AC)")
+                        .with_unit("V")
+                        .reference_counted(),
+                ],
+                time: Timeline::fixed_sample_rate(10000.0, 100_000),
+                values: vec![
+                    demo_sine(10000.0, 100_000, 440.0, 1.0),
+                    demo_sine(10000.0, 100_000, 50.0, 325.2691193),
+                ],
+            }],
             tracks: vec![Track {
                 signals: vec![
                     Signal::new("440 Hz sine")
@@ -150,16 +186,16 @@ fn demo_sine(sample_rate: f64, sample_count: usize, frequency: f64, amplitude: f
 
 #[derive(Debug)]
 pub struct Track {
-    signals: Vec<Rc<Signal>>,
-    time: Timeline,
-    values: Vec<Vec<f64>>,
+    pub signals: Vec<Rc<Signal>>,
+    pub time: Timeline,
+    pub values: Vec<Vec<f64>>,
     // TODO: Add optional absolute time offset (the time of the first sample)
 }
 
 #[derive(Debug)]
 pub enum Timeline {
     FixedSampleRate {
-        delta_time: f64,
+        delta_time: i64,
         sample_count: usize,
     },
 
@@ -170,7 +206,7 @@ pub enum Timeline {
 impl Timeline {
     pub fn fixed_sample_rate(sample_rate: f64, sample_count: usize) -> Self {
         Self::FixedSampleRate {
-            delta_time: 1.0 / sample_rate,
+            delta_time: (1_000_000_000.0 / sample_rate).round() as i64,
             sample_count,
         }
     }
