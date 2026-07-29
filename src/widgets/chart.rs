@@ -62,7 +62,8 @@ where
         let bounds = layout.bounds();
         let samples = bounds.width.div(2.0).floor() as usize;
         if samples != self.samples || self.line_mesh.is_none() || self.spread_mesh.is_none() {
-            let (min_values, avg_values, max_values) = generate_random_example_data(samples, 0.0, 100.0);
+            let (min_values, avg_values, max_values) =
+                generate_random_example_data(samples, 0.0, 100.0);
             let (spread_mesh, line_mesh) = build_mesh(
                 min_values.as_slice(),
                 avg_values.as_slice(),
@@ -98,7 +99,6 @@ where
                 renderer.draw_mesh(self.line_mesh.clone().unwrap());
             });
         }
-
     }
 }
 
@@ -111,7 +111,11 @@ where
     }
 }
 
-fn generate_random_example_data(samples: usize, min_val: f64, max_val: f64) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
+fn generate_random_example_data(
+    samples: usize,
+    min_val: f64,
+    max_val: f64,
+) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
     use rand;
     use rand::RngExt;
 
@@ -170,34 +174,22 @@ fn build_mesh(
 
         // Signal spread (the transparent background area)
         spread_vertices.push(SolidVertex2D {
-            position: [
-                x,
-                physical_to_pixel(max_values[i], minimum, range, height),
-            ],
+            position: [x, physical_to_pixel(max_values[i], minimum, range, height)],
             color: spread_color,
         });
         spread_vertices.push(SolidVertex2D {
-            position: [
-                x,
-                physical_to_pixel(min_values[i], minimum, range, height),
-            ],
+            position: [x, physical_to_pixel(min_values[i], minimum, range, height)],
             color: spread_color,
         });
 
         // Signal line (the opaque foreground line)
         let y = physical_to_pixel(avg_values[i], minimum, range, height);
         line_vertices.push(SolidVertex2D {
-            position: [
-                x,
-               y - 0.5 * LINE_THICKNESS,
-            ],
+            position: [x, y - 0.5 * LINE_THICKNESS],
             color: line_color,
         });
         line_vertices.push(SolidVertex2D {
-            position: [
-                x,
-                y + 0.5 * LINE_THICKNESS,
-            ],
+            position: [x, y + 0.5 * LINE_THICKNESS],
             color: line_color,
         });
     }
@@ -208,7 +200,7 @@ fn build_mesh(
         // |/  |
         // 1---3
         let i_n = i as u32 * 2;
-        let i_p= i_n - 2;
+        let i_p = i_n - 2;
 
         // Signal spread (the transparent background area)
         spread_indices.push(i_p); // 0
@@ -242,7 +234,6 @@ fn build_mesh(
             },
             transformation: Transformation::IDENTITY,
             clip_bounds: clip,
-
         },
         Mesh::Solid {
             buffers: mesh::Indexed {
@@ -251,7 +242,6 @@ fn build_mesh(
             },
             transformation: Transformation::IDENTITY,
             clip_bounds: clip,
-
         },
     )
 }
