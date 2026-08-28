@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod commands;
 mod constants;
+mod core;
 mod logging;
 mod messages;
 mod origins;
@@ -26,6 +27,7 @@ use messages::Message;
 use state::{Modal, ScopeLegend, ScopePlotter, Stage, Window};
 use views::{modal, view_backstage, view_timescape};
 
+use crate::commands::choose_file::choose_file;
 use crate::constants::icons::app_icon;
 use crate::origins::Origin;
 use crate::state::{Run, Scope, Source};
@@ -91,13 +93,10 @@ impl TimescapeViewer {
                 self.modal = Modal::None;
             }
             Message::ChooseFile => {
-                // return Task::perform(choose_file(), |maybe_origin| match maybe_origin {
-                //     Some(origin) => Message::Open(origin),
-                //     None => Message::None,
-                // });
-
-                // TODO: Open a dummy source while developing the UI. Remove later.
-                self.push_source(Source::new_example_sines());
+                return Task::perform(choose_file(), |maybe_origin| match maybe_origin {
+                    Some(origin) => Message::Open(origin),
+                    None => Message::None,
+                });
             }
             Message::GoTo(stage) => {
                 info!("Going to {:?}", stage);

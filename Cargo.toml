@@ -44,6 +44,10 @@ anyhow = "1.0.98"
 # Decode binary data such as TIA's .ttrecx sample data.
 binrw = "0.15.0"
 
+# Implementation of a concurrent associative array/hashmap in Rust. Backing storage for signals and
+# sample cache.
+dashmap = "6.2.1"
+
 # Transform trait objects into concrete compound types
 enum_dispatch = "0.3.13"
 

@@ -1,7 +1,9 @@
+use iced::advanced::graphics::Mesh;
 use iced::{Color, Task};
 use log::info;
 
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
+use crate::core::Bracket;
 use crate::messages::{Message, line_chart::LineChartMessage};
 
 use super::Scope;
@@ -148,4 +150,8 @@ pub struct LineChartPlotter {
 }
 
 #[derive(Debug, Clone)]
-pub struct Line {}
+pub struct Line {
+    brackets: Vec<Bracket>,
+    line: Mesh,
+    spread: Mesh,
+}

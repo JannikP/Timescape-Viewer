@@ -2,6 +2,7 @@ use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Signal {
+    // TODO: Add a signal ID for fast lookup.
     pub name: String,
     pub description: Option<String>,
     pub unit: Option<String>,
@@ -40,3 +41,5 @@ impl Signal {
         Rc::new(self)
     }
 }
+
+pub type SignalId = usize;
