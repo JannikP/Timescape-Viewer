@@ -1,5 +1,6 @@
 mod akasha;
 mod bracket;
+mod implicit_tree;
 mod repository;
 mod span;
 
