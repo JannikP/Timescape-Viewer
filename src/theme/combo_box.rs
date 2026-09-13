@@ -1,5 +1,5 @@
 use iced::widget::combo_box::Catalog;
 
-use super::MakoTheme;
+use crate::theme::MakoTheme;
 
 impl Catalog for MakoTheme {}

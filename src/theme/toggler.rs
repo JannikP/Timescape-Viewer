@@ -1,7 +1,7 @@
 use iced::Color;
 use iced::widget::toggler::{Catalog, Status, Style, StyleFn};
 
-use super::MakoTheme;
+use crate::theme::MakoTheme;
 
 impl Catalog for MakoTheme {
     type Class<'a> = StyleFn<'a, Self>;

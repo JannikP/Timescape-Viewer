@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use super::{LiveMode, Run, Timestamp};
+use crate::state::{LiveMode, Run, Timestamp};
 
 #[derive(Debug, Clone)]
 pub struct Window {

@@ -1,6 +1,6 @@
 use iced::widget::checkbox::{Catalog, Status, Style};
 
-use super::{MakoTheme, NO_BORDER};
+use crate::theme::{MakoTheme, NO_BORDER};
 
 #[derive(Default)]
 pub enum CheckboxClass {

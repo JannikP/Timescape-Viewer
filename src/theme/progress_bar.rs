@@ -1,7 +1,7 @@
 use iced::border::{Border, Radius};
 use iced::widget::progress_bar::{Catalog, Style};
 
-use super::MakoTheme;
+use crate::theme::MakoTheme;
 
 #[derive(Default)]
 pub enum ButtonClass {

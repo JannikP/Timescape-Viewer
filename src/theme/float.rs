@@ -1,6 +1,6 @@
 use iced::widget::float::{Catalog, Style};
 
-use super::{MakoTheme, NO_SHADOW};
+use crate::theme::{MakoTheme, NO_SHADOW};
 
 #[derive(Default)]
 pub enum FloatClass {

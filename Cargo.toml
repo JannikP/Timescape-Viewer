@@ -103,7 +103,8 @@ assert_float_eq = "1.2.0"
 criterion = "0.7.0"
 
 # Tests the application in headless mode.
-iced_test = { git = "https://github.com/iced-rs/iced" }
+iced_test = "0.14.0"
+iced = { version = "0.14.0", default-features = false, features = ["advanced", "wgpu", "debug", "crisp", "thread-pool", "advanced-shaping", "image"] }
 
 # Temporary files, used by tsink benchmark
 tempfile = "3.23.0"
@@ -124,3 +125,7 @@ rpath = false
 [profile.dist]
 inherits = "release"
 lto = "thin"
+
+[[bench]]
+name = "bench"
+harness = false

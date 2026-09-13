@@ -1,7 +1,7 @@
 use iced::Color;
 use iced::widget::slider::{Catalog, Handle, HandleShape, Rail, Status, Style, StyleFn};
 
-use super::{MakoTheme, NO_BORDER};
+use crate::theme::{MakoTheme, NO_BORDER};
 
 /// The default style of a [`iced::widget::Slider`].
 pub fn default(theme: &MakoTheme, status: Status) -> Style {

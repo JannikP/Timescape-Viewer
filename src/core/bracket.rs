@@ -1,6 +1,6 @@
 use std::f64;
 
-use super::span::Span;
+use crate::core::span::Span;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Bracket {

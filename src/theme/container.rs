@@ -1,6 +1,6 @@
 use iced::widget::container::{Catalog, Style};
 
-use super::{MakoTheme, NO_BORDER, NO_SHADOW};
+use crate::theme::{MakoTheme, NO_BORDER, NO_SHADOW};
 
 #[derive(Default)]
 pub enum ContainerClass {

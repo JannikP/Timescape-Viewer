@@ -279,33 +279,6 @@ pub type StyleFn<'a, Theme> = Box<dyn Fn(&Theme) -> Style + 'a>;
 /// All themes that can be used with [`Axis`]
 /// must implement this trait.
 ///
-/// # Example
-/// ```no_run
-/// use crate::widgets::axis::{Catalog, Style, StyleFn};
-///
-/// use super::MakoTheme;
-///
-/// impl Catalog for MakoTheme {
-///     type Class<'a> = StyleFn<'a, Self>;
-///
-///     fn default<'a>() -> Self::Class<'a> {
-///         Box::new(default)
-///     }
-///
-///     fn style(&self, class: &Self::Class<'_>) -> Style {
-///         class(self)
-///     }
-/// }
-///
-/// pub fn default(theme: &MakoTheme) -> Style {
-///     let colors = theme.colors();
-///     Style {
-///         lines: colors.faint,
-///         labels: colors.muted,
-///     }
-/// }
-/// ```
-///
 /// Although, in order to use [`Axis::style`]
 /// with `MyTheme`, [`Catalog::Class`] must implement
 /// `From<StyleFn<'_, MyTheme>>`.

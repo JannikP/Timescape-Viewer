@@ -5,8 +5,7 @@ use log::info;
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
 use crate::core::Bracket;
 use crate::messages::{Message, line_chart::LineChartMessage};
-
-use super::Scope;
+use crate::state::{Scope, ScopePlotter};
 
 #[derive(Debug, Clone)]
 pub struct LineChartLegend {
@@ -92,8 +91,8 @@ impl Scope for LineChartLegend {
         self.height = height.clamp(MINIMUM_SCOPE_HEIGHT, MAXIMUM_SCOPE_HEIGHT);
     }
 
-    fn create_plotter(&self) -> super::ScopePlotter {
-        super::ScopePlotter::LineChart(LineChartPlotter {
+    fn create_plotter(&self) -> ScopePlotter {
+        ScopePlotter::LineChart(LineChartPlotter {
             signals: Vec::new(),
         })
     }

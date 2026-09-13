@@ -1,6 +1,6 @@
 use crate::widgets::axis::{Catalog, Style, StyleFn};
 
-use super::MakoTheme;
+use crate::theme::MakoTheme;
 
 impl Catalog for MakoTheme {
     type Class<'a> = StyleFn<'a, Self>;

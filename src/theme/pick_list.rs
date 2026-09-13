@@ -2,7 +2,7 @@
 
 use iced::widget::pick_list::{Catalog, Status, Style};
 
-use super::{MakoTheme, NO_BORDER};
+use crate::theme::{MakoTheme, NO_BORDER};
 
 #[derive(Default)]
 pub enum PickListClass {

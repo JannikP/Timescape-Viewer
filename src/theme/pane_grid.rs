@@ -2,7 +2,7 @@ use iced::widget::pane_grid::{Catalog, Highlight, Line, Style, StyleFn};
 
 use crate::constants::layout::PANEL_GAP;
 
-use super::{MakoTheme, NO_BORDER};
+use crate::theme::{MakoTheme, NO_BORDER};
 
 /// The default style of a [`iced::widget::PaneGrid`].
 pub fn default(style: &MakoTheme) -> Style {
