@@ -7,7 +7,7 @@ use std::{borrow::Cow, fmt};
 /// International System of Units (SI). Using the provided variants for well-known units improves
 /// the user experience, as tooltips can be localized and unit specific conversions might be
 /// possible.
-#[derive(Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Unit {
     /// No physical unit specified.
@@ -99,8 +99,39 @@ impl Unit {
     }
 }
 
-// TODO: impl From<&str>
-// TODO: impl From<String>
+impl From<&str> for Unit {
+    fn from(value: &str) -> Self {
+        match value {
+            "s" => Unit::Second,
+            "m" => Unit::Metre,
+            "kg" => Unit::Kilogram,
+            "A" => Unit::Ampere,
+            "K" => Unit::Kelvin,
+            "mol" => Unit::Mole,
+            "cd" => Unit::Candela,
+            _ => Unit::Custom(value.to_string())
+        }
+    }
+}
+
+impl From<&Option<&str>> for Unit {
+    fn from(value: &Option<&str>) -> Self {
+        match value {
+            None => Unit::None,
+            Some(inner) => (*inner).into(),
+        }
+    }
+}
+
+impl From<&Option<String>> for Unit {
+    fn from(value: &Option<String>) -> Self {
+        match value {
+            None => Unit::None,
+            Some(inner) => inner.as_str().into(),
+        }
+    }
+}
+
 // TODO: impl sqlx::Type
 
 impl fmt::Display for Unit {

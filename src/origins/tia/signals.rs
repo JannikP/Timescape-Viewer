@@ -60,7 +60,7 @@ impl From<&RecordSignal> for crate::state::signal::Signal {
         Self {
             name: value.configuration.name.clone(),
             description: Some(value.configuration.comment.clone()),
-            unit: value.unit.clone(),
+            unit: (&value.unit).into(),
         }
     }
 }
