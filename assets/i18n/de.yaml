@@ -24,3 +24,25 @@ line_chart:
     add_signal:
         placeholder: Signalname hier eingeben.
         hint: Signalnamen hier eingeben, dann [Enter] drücken um das Signal zu diesem Diagramm hinzuzufügen.
+unit:
+    second:
+        name: Sekunde
+        description: "Die Sekunde (Symbol: s) ist die Basiseinheit der Zeit im Internationalen Einheitensystem (SI)."
+    metre:
+        name: Meter
+        description: "Der Meter (Symbol: m) ist die Basiseinheit der Länge im Internationalen Einheitensystem (SI)."
+    kilogram:
+        name: Kilogramm
+        description: "Das Kilogramm (Symbol: kg) ist die Basiseinheit der Masse im Internationalen Einheitensystem (SI) und entspricht tausend Gramm."
+    ampere:
+        name: Ampere
+        description: "Das Ampere (Symbol: A) ist die Basiseinheit der elektrischen Stromstärke im Internationalen Einheitensystem (SI)."
+    kelvin:
+        name: Kelvin
+        description: "Das Kelvin (Symbol: K) ist die Basiseinheit der thermodynamischen Temperatur im Internationalen Einheitensystem (SI). Die Kelvin-Skala ist eine absolute Temperaturskala, die am tiefstmöglichen Punkt (dem absoluten Nullpunkt bei 0 K) beginnt."
+    mole:
+        name: Mol
+        description: "Das Mol (Symbol: mol) ist die Basiseinheit der Stoffmenge im Internationalen Einheitensystem (SI)."
+    candela:
+        name: Candela
+        description: "Die Candela (Symbol: cd) ist die SI-Einheit der Lichtstärke. Sie misst den Lichtstrom pro Raumwinkeleinheit, der in eine bestimmte Richtung ausgesandt wird."

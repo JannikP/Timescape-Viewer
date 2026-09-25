@@ -41,4 +41,18 @@ impl Span {
         }
         splits
     }
+
+    pub fn trim_start(&self, timestamp: i64) -> Self {
+        Self {
+            begin: self.begin.max(self.end.min(timestamp)),
+            end: self.end,
+        }
+    }
+
+    pub fn trim_end(&self, timestamp: i64) -> Self {
+        Self {
+            begin: self.begin,
+            end: self.end.min(self.begin.max(timestamp)),
+        }
+    }
 }

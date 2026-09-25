@@ -24,3 +24,25 @@ line_chart:
     add_signal:
         placeholder: Enter signal name here...
         hint: Type a signal name here and press [Enter] to add a new signal to this line chart.
+unit:
+    second:
+        name: Second
+        description: "The second (symbol: s) is the unit of time in the International System of Units (SI)."
+    metre:
+        name: Metre
+        description: "The metre (or meter in US spelling; symbol: m) is the base unit of length in the International System of Units (SI)."
+    kilogram:
+        name: Kilogram
+        description: "The kilogram (also spelled kilogramme) is the base unit of mass in the International System of Units (SI), equal to one thousand grams."
+    ampere:
+        name: Ampere
+        description: "The ampere (symbol: A) is the unit of electric current in the International System of Units (SI)."
+    kelvin:
+        name: Kelvin
+        description: "The kelvin (symbol: K) is the base unit for temperature in the International System of Units (SI). The Kelvin scale is an absolute temperature scale that starts at the lowest possible temperature (absolute zero), taken to be 0 K."
+    mole:
+        name: Mole
+        description: "The mole (symbol mol) is a unit of measurement, the base unit in the International System of Units (SI) for amount of substance."
+    candela:
+        name: Candela
+        description: "The Candela (symbol: cd) is the SI unit of luminous intensity. It measures the luminous power per unit solid angle emitted in a particular direction."
