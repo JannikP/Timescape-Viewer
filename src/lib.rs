@@ -108,6 +108,25 @@ impl TimescapeViewer {
                 self.stage = Stage::Timescape;
                 self.modal = Modal::InterpretCsv(**options);
             }
+            Message::Open(ref _origin @ Origin::TiaTraceFile(ref path)) => {
+                info!("Opening TIA trace {:?}", path);
+                self.stage = Stage::Timescape;
+                self.modal = Modal::None;
+                match crate::origins::tia::read_tia_trace_file(path) {
+                    Ok(source) => {
+                        self.push_source(source);
+                    }
+                    Err(err) => {
+                        error!("Failed to open TIA trace file: {}", err);
+                    }
+                };
+            }
+            Message::Open(Origin::Dummy) => {
+                info!("Opening dummy file.");
+                self.stage = Stage::Timescape;
+                self.modal = Modal::None;
+                self.push_source(Source::new_example_sines())
+            }
             Message::AddLineChart => {
                 self.push_scope(ScopeLegend::line_chart("440 Hz sine"));
             }
@@ -127,19 +146,6 @@ impl TimescapeViewer {
                 if let Some(ScopeLegend::LineChart(chart)) = self.scopes.get_mut(index) {
                     return chart.update(inner_message);
                 }
-            }
-            Message::Open(ref _origin @ Origin::TiaTraceFile(ref path)) => {
-                info!("Opening TIA trace {:?}", path);
-                self.stage = Stage::Timescape;
-                self.modal = Modal::None;
-                match crate::origins::tia::read_tia_trace_file(path) {
-                    Ok(source) => {
-                        self.sources.push(source);
-                    }
-                    Err(err) => {
-                        error!("Failed to open TIA trace file: {}", err);
-                    }
-                };
             }
             Message::None => {
                 debug!("Do nothing.");

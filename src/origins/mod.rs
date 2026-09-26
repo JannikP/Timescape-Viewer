@@ -9,4 +9,5 @@ use csv::CsvOptions;
 pub enum Origin {
     CsvFile(PathBuf, Box<CsvOptions>),
     TiaTraceFile(PathBuf),
+    Dummy,
 }

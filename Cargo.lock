@@ -1448,6 +1448,9 @@ name = "glam"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "151665d9be52f9bb40fc7966565d39666f2d1e69233571b71b87791c7e0528b3"
+dependencies = [
+ "bytemuck",
+]
 
 [[package]]
 name = "glob"
@@ -4094,10 +4097,12 @@ dependencies = [
  "anyhow",
  "assert_float_eq",
  "binrw",
+ "bytemuck",
  "criterion",
  "dashmap",
  "enum_dispatch",
  "flexi_logger",
+ "glam",
  "grid",
  "iced",
  "iced_core",

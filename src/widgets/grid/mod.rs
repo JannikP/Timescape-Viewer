@@ -1,21 +1,22 @@
-//! A GPU-accelerated trace/chart renderer backed by Implicit In-order Forests with range queries
-//! performed in the vertex shader.
+//! A GPU-accelerated trace/chart background grid renderer based on
+//! https://observablehq.com/@rreusser/locally-scaled-domain-coloring-part-1-contour-plots
 pub mod pipeline;
 
+use glam::Vec2;
 use iced::widget::shader;
 
-use pipeline::Pipeline;
+use pipeline::{Pipeline, Uniforms};
 
 #[derive(Debug, Clone)]
-pub struct Trace { }
+pub struct Grid { }
 
-impl Trace {
+impl Grid {
     pub fn new() -> Self {
         Self { }
     }
 }
 
-impl<Message> shader::Program<Message> for Trace {
+impl<Message> shader::Program<Message> for Grid {
     type State = ();
 
     type Primitive = Primitive;
@@ -24,18 +25,14 @@ impl<Message> shader::Program<Message> for Trace {
         &self,
         _state: &Self::State,
         _cursor: iced_core::mouse::Cursor,
-        bounds: iced::Rectangle,
+        _bounds: iced::Rectangle,
     ) -> Self::Primitive {
-        Self::Primitive {
-            length: bounds.width as usize
-        }
+        Self::Primitive { }
     }
 }
 
 #[derive(Debug)]
-pub struct Primitive {
-    length: usize,
-}
+pub struct Primitive { }
 
 impl shader::Primitive for Primitive {
     type Pipeline = Pipeline;
@@ -43,17 +40,20 @@ impl shader::Primitive for Primitive {
     fn prepare(
         &self,
         pipeline: &mut Self::Pipeline,
-        device: &iced::wgpu::Device,
+        _device: &iced::wgpu::Device,
         queue: &iced::wgpu::Queue,
-        bounds: &iced::Rectangle,
+        _bounds: &iced::Rectangle,
         viewport: &shader::Viewport,
     ) {
         // Upload data to GPU
         pipeline.update(
-            device,
             queue,
-            viewport.physical_size(),
-            // TODO
+            &Uniforms {
+                resolution: Vec2::new(viewport.physical_width() as f32, viewport.physical_height() as f32),
+                center: Vec2::new(-1.5, 0.0),
+                scale: 1.0 / 800.0,
+                max_iter: 20,
+            },
         );
     }
 

@@ -1,5 +1,5 @@
 use iced::alignment::Vertical;
-use iced::widget::{Column, button, row, space, text, text_input};
+use iced::widget::{Column, button, row, shader, space, stack, text, text_input};
 use iced::{Element, Length};
 use rust_i18n::t;
 
@@ -9,7 +9,7 @@ use crate::state::Scope;
 use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartPlotter};
 use crate::theme::MakoTheme;
 use crate::views::common::scope_handle_bar;
-use crate::widgets::{Axis, Hint, Scaling, chart};
+use crate::widgets::{Axis, Grid, Hint, Scaling, chart};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
@@ -81,5 +81,9 @@ pub fn line_chart_plotter<'a, 'b>(_plotter: &'a LineChartPlotter) -> Element<'b,
 where
     'a: 'b,
 {
-    chart().into()
+    stack!(
+        shader(Grid::new()).width(Length::Fill).height(Length::Fill),
+        //chart(),
+        // TODO: Add overlay with cursor lines and annotations here.
+    ).into()
 }

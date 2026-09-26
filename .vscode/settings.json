@@ -28,13 +28,15 @@
     "cSpell.words": [
         "Akasha",
         "antialiasing",
+        "bytemuck",
         "Fira",
         "flexi",
         "repr",
         "serde",
         "timescape",
         "vsync",
-        "wgpu"
+        "wgpu",
+        "wgsl"
     ],
     "i18n-ally.localesPaths": [
         "./src/messages",
