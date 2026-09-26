@@ -1,4 +1,4 @@
-use glam::Vec2;
+use glam::Vec4;
 use iced::{Rectangle, wgpu};
 use iced::widget::shader;
 use std::borrow::Cow;
@@ -6,10 +6,11 @@ use std::borrow::Cow;
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
 pub struct Uniforms {
-    pub resolution: Vec2,
-    pub center: Vec2,
-    pub scale: f32,
-    pub max_iter: u32,
+    pub background: Vec4,
+    pub antialias_width: f32,
+    pub octave_divisions: f32,
+    pub baseline_spacing: f32,
+    pub ramp_power: f32,
 }
 
 pub struct Pipeline {

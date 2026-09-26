@@ -83,7 +83,7 @@ where
 {
     stack!(
         shader(Grid::new()).width(Length::Fill).height(Length::Fill),
-        //chart(),
+        chart(),
         // TODO: Add overlay with cursor lines and annotations here.
     ).into()
 }

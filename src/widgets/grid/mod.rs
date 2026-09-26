@@ -2,7 +2,7 @@
 //! https://observablehq.com/@rreusser/locally-scaled-domain-coloring-part-1-contour-plots
 pub mod pipeline;
 
-use glam::Vec2;
+use glam::Vec4;
 use iced::widget::shader;
 
 use pipeline::{Pipeline, Uniforms};
@@ -43,16 +43,17 @@ impl shader::Primitive for Primitive {
         _device: &iced::wgpu::Device,
         queue: &iced::wgpu::Queue,
         _bounds: &iced::Rectangle,
-        viewport: &shader::Viewport,
+        _viewport: &shader::Viewport,
     ) {
         // Upload data to GPU
         pipeline.update(
             queue,
             &Uniforms {
-                resolution: Vec2::new(viewport.physical_width() as f32, viewport.physical_height() as f32),
-                center: Vec2::new(-1.5, 0.0),
-                scale: 1.0 / 800.0,
-                max_iter: 20,
+                background: Vec4::new(0.0 / 255.0, 13.0 / 255.0, 24.0 / 255.0, 1.0),
+                antialias_width: 1.0,
+                octave_divisions: 5.0,
+                baseline_spacing: 5.0,
+                ramp_power: 2.45,
             },
         );
     }
