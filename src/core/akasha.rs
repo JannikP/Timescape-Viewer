@@ -162,10 +162,12 @@ impl<'a> AkashaQueryBuilder<'a> {
 
 impl<'a> QueryBuilder for AkashaQueryBuilder<'a> {
     fn start_from(mut self, time: i64) -> Self {
+        self.span = self.span.trim_start(time);
         self
     }
 
     fn end_at(mut self, time: i64) -> Self {
+        self.span = self.span.trim_end(time);
         self
     }
 
@@ -187,5 +189,21 @@ impl<'a> QueryBuilder for AkashaQueryBuilder<'a> {
 
     fn spans(self, min_run_length: i64, hysteresis: impl Fn(f64, bool) -> bool) -> impl Iterator<Item = super::repository::Run> {
         std::iter::empty()
+    }
+}
+
+struct SampleIterator {
+    samples: Box<[f64]>,
+    timestamp: i64,
+    span: Span,
+    // TODO: Reference to the repository's data storage layer for fetching the next block.
+    // TODO: Arc<Block> for the current block to keep it alive while iterating.
+}
+
+impl Iterator for SampleIterator {
+    type Item = super::repository::Sample;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unimplemented!();
     }
 }
