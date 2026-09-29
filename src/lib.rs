@@ -43,7 +43,16 @@ pub fn launch() -> iced::Result {
     )
     .title(TimescapeViewer::title)
     .theme(TimescapeViewer::theme)
-    .settings(Settings {
+    .settings(settings())
+    .window(WindowSettings {
+        icon: app_icon(),
+        ..Default::default()
+    })
+    .run()
+}
+
+pub(crate) fn settings() -> Settings {
+    Settings {
         id: Some("org.timescape-viewer.application".into()),
         fonts: vec![
             include_bytes!("../assets/fonts/FiraSansCondensed-Regular-Expanded.ttf").into(),
@@ -57,12 +66,7 @@ pub fn launch() -> iced::Result {
         default_text_size: 16.into(),
         antialiasing: true,
         vsync: false,
-    })
-    .window(WindowSettings {
-        icon: app_icon(),
-        ..Default::default()
-    })
-    .run()
+    }
 }
 
 #[derive(Default)]
@@ -267,9 +271,11 @@ impl TimescapeViewer {
 
 #[cfg(test)]
 mod tests {
+    use iced_test::Simulator;
+
     use crate::state::{Scope, ScopeLegend, Source};
 
-    use super::TimescapeViewer;
+    use super::{TimescapeViewer, settings};
 
     fn app_with_one_run() -> TimescapeViewer {
         let mut app = TimescapeViewer::default();
@@ -399,4 +405,22 @@ mod tests {
     }
 
     // TODO: Add test if the index of a scope is correct when a scope before it is removed.
+
+    #[test]
+    fn test_screenshot_example_sines_line_chart() {
+        // Arrange
+        let app = app_with_one_run();
+        let mut simulator = Simulator::with_settings(settings(), app.view());
+
+        // Act
+        let snapshot = simulator
+            .snapshot(&app.theme())
+            .expect("The simulator should be able to take a snapshot.");
+
+        // Assert
+        let same = snapshot
+            .matches_image("./src/snapshots/example_sines_line_chart")
+            .expect("iced_test should be able to read the reference image or to create one.");
+        assert!(same, "The snapshot does not match. If that is the intended outcome, delete the reference image and re-run the test.");
+    }
 }
