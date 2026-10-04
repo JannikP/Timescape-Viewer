@@ -154,7 +154,7 @@ where
         .push(legend(scope))
         .extend(windows.iter().zip(plotters).flat_map(|window_plotter| {
             [
-                plotter(window_plotter),
+                plotter(scope, window_plotter),
                 Divider::vertical(0.5, |_| Message::None).into(),
             ]
         }))
@@ -181,15 +181,24 @@ where
 }
 
 fn plotter<'a, 'b>(
+    scope: &'a ScopeLegend,
     (window, plotter): (&'a Window, &'a ScopePlotter),
 ) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
-    let content = match plotter {
-        ScopePlotter::LineChart(line_chart) => line_chart_plotter(line_chart),
-        ScopePlotter::Spectrogram(_spectrogram) => text("TODO: Spectrogram").into(),
-        ScopePlotter::TrailChart(_trail_chart) => text("TODO: Trail Chart").into(),
+    let content = match (scope, plotter) {
+        (ScopeLegend::LineChart(line_legend), ScopePlotter::LineChart(line_plotter)) => {
+            line_chart_plotter(line_legend, window, line_plotter)
+        }
+        (
+            ScopeLegend::Spectrogram(_spectrogram_legend),
+            ScopePlotter::Spectrogram(_spectrogram_plotter),
+        ) => text("TODO: Spectrogram").into(),
+        (ScopeLegend::TrailChart(_trail_legend), ScopePlotter::TrailChart(_trail_plotter)) => {
+            text("TODO: Trail chart").into()
+        }
+        _ => panic!("Invalid combination of legend and plotter!"),
     };
     container(content)
         .width(Length::FillPortion(window.size))

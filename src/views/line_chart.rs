@@ -1,5 +1,5 @@
 use iced::alignment::Vertical;
-use iced::widget::{Column, button, row, shader, space, stack, text, text_input};
+use iced::widget::{Column, Stack, button, row, shader, space, text, text_input};
 use iced::{Element, Length};
 use rust_i18n::t;
 
@@ -7,9 +7,10 @@ use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON, SIGNA
 use crate::messages::Message;
 use crate::state::Scope;
 use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartPlotter};
+use crate::state::window::Window;
 use crate::theme::MakoTheme;
 use crate::views::common::scope_handle_bar;
-use crate::widgets::{Axis, Grid, Hint, Scaling, chart};
+use crate::widgets::{Axis, Grid, Hint, Scaling, Trace};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
@@ -77,13 +78,22 @@ where
     .into()
 }
 
-pub fn line_chart_plotter<'a, 'b>(_plotter: &'a LineChartPlotter) -> Element<'b, Message, MakoTheme>
+pub fn line_chart_plotter<'a, 'b>(
+    legend: &'a LineChartLegend,
+    _window: &'a Window,
+    plotter: &'a LineChartPlotter,
+) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
-    stack!(
-        shader(Grid::new()).width(Length::Fill).height(Length::Fill),
-        //chart(),
-        // TODO: Add overlay with cursor lines and annotations here.
-    ).into()
+    let time = 0i64..4000; // TODO: Get this from the `window`.
+    let values = legend.value_range();
+    let mut stack = Stack::new().push(shader(Grid::new()).width(Length::Fill).height(Length::Fill));
+    for (entry, trace) in legend.iter_signals().zip(plotter.iter_lines()) {
+        let line =
+            shader::<Message, _>(Trace::new(time.clone(), values.clone(), trace, entry.color));
+        stack = stack.push(line);
+    }
+    // stack.push(// TODO: Add overlay with cursor lines and annotations here.)
+    stack.into()
 }

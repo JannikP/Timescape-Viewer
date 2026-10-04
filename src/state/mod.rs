@@ -5,6 +5,7 @@ pub mod line_chart;
 pub mod signal;
 pub mod spectrogram;
 pub mod trail_chart;
+pub mod vocabulary;
 pub mod window;
 
 use std::{f64, rc::Rc};
@@ -13,10 +14,10 @@ use crate::origins::csv::CsvOptions;
 
 use enum_dispatch::enum_dispatch;
 use line_chart::{LineChartLegend, LineChartPlotter};
-use signal::Signal;
 use spectrogram::{SpectrogramLegend, SpectrogramPlotter};
 use trail_chart::{TrailChartLegend, TrailChartPlotter};
 
+pub use signal::{Signal, SignalId};
 pub use window::Window;
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]

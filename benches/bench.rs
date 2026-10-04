@@ -4,8 +4,5 @@ use criterion::{criterion_group, criterion_main};
 
 mod insert;
 
-criterion_group!(
-    benches,
-    insert::register_benches,
-);
+criterion_group!(benches, insert::register_benches,);
 criterion_main!(benches);

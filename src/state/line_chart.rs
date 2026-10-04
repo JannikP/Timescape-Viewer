@@ -1,9 +1,9 @@
-use iced::advanced::graphics::Mesh;
 use iced::{Color, Task};
 use log::info;
+use std::ops::Range;
 
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
-use crate::core::Bracket;
+use crate::core::Trace;
 use crate::messages::{Message, line_chart::LineChartMessage};
 use crate::state::{Scope, ScopePlotter};
 
@@ -80,6 +80,10 @@ impl LineChartLegend {
     pub fn on_signal_input_submit(&self) -> Message {
         Message::LineChartMessage(self.index, LineChartMessage::SignalInputSubmit)
     }
+
+    pub fn value_range(&self) -> Range<f32> {
+        self.minimum as f32..self.maximum as f32
+    }
 }
 
 impl Scope for LineChartLegend {
@@ -145,12 +149,11 @@ impl LineChartLegendEntry {
 
 #[derive(Debug, Clone)]
 pub struct LineChartPlotter {
-    signals: Vec<Line>,
+    signals: Vec<Trace>,
 }
 
-#[derive(Debug, Clone)]
-pub struct Line {
-    brackets: Vec<Bracket>,
-    line: Mesh,
-    spread: Mesh,
+impl LineChartPlotter {
+    pub fn iter_lines(&self) -> impl Iterator<Item = &Trace> {
+        self.signals.iter()
+    }
 }

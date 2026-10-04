@@ -6,6 +6,7 @@ pub mod messages;
 pub mod origins;
 pub mod state;
 pub mod theme;
+pub mod utilities;
 pub mod views;
 pub mod widgets;
 
@@ -70,7 +71,7 @@ pub(crate) fn settings() -> Settings {
 }
 
 #[derive(Default)]
-struct TimescapeViewer {
+pub struct TimescapeViewer {
     stage: Stage,
     modal: Modal,
     scopes: Vec<ScopeLegend>,
@@ -421,6 +422,9 @@ mod tests {
         let same = snapshot
             .matches_image("./src/snapshots/example_sines_line_chart")
             .expect("iced_test should be able to read the reference image or to create one.");
-        assert!(same, "The snapshot does not match. If that is the intended outcome, delete the reference image and re-run the test.");
+        assert!(
+            same,
+            "The snapshot does not match. If that is the intended outcome, delete the reference image and re-run the test."
+        );
     }
 }

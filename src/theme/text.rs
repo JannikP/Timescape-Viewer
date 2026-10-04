@@ -20,6 +20,7 @@ pub fn default(_theme: &MakoTheme) -> Style {
 }
 
 /// Text with the default base color.
+#[allow(unused)]
 pub fn base(theme: &MakoTheme) -> Style {
     Style {
         color: Some(theme.colors().text),
@@ -27,6 +28,7 @@ pub fn base(theme: &MakoTheme) -> Style {
 }
 
 /// Text conveying some important information, like an action.
+#[allow(unused)]
 pub fn primary(theme: &MakoTheme) -> Style {
     Style {
         color: Some(theme.colors().primary),
@@ -34,6 +36,7 @@ pub fn primary(theme: &MakoTheme) -> Style {
 }
 
 /// Text conveying some secondary information, like a footnote.
+#[allow(unused)]
 pub fn secondary(theme: &MakoTheme) -> Style {
     Style {
         color: Some(theme.colors().muted),
@@ -41,6 +44,7 @@ pub fn secondary(theme: &MakoTheme) -> Style {
 }
 
 /// Text conveying some positive information, like a successful event.
+#[allow(unused)]
 pub fn success(theme: &MakoTheme) -> Style {
     Style {
         color: Some(theme.colors().success),
@@ -48,6 +52,7 @@ pub fn success(theme: &MakoTheme) -> Style {
 }
 
 /// Text conveying some mildly negative information, like a warning.
+#[allow(unused)]
 pub fn warning(theme: &MakoTheme) -> Style {
     Style {
         color: Some(theme.colors().warning),
@@ -55,6 +60,7 @@ pub fn warning(theme: &MakoTheme) -> Style {
 }
 
 /// Text conveying some negative information, like an error.
+#[allow(unused)]
 pub fn danger(theme: &MakoTheme) -> Style {
     Style {
         color: Some(theme.colors().danger),

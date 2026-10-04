@@ -24,8 +24,14 @@ impl Span {
     pub fn half(&self) -> (Self, Self) {
         let middle = (self.begin + self.end) / 2;
         (
-            Self { begin: self.begin, end: middle },
-            Self { begin: middle, end: self.end },
+            Self {
+                begin: self.begin,
+                end: middle,
+            },
+            Self {
+                begin: middle,
+                end: self.end,
+            },
         )
     }
 

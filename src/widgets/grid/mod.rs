@@ -8,11 +8,11 @@ use iced::widget::shader;
 use pipeline::{Pipeline, Uniforms};
 
 #[derive(Debug, Clone)]
-pub struct Grid { }
+pub struct Grid {}
 
 impl Grid {
     pub fn new() -> Self {
-        Self { }
+        Self {}
     }
 }
 
@@ -27,12 +27,12 @@ impl<Message> shader::Program<Message> for Grid {
         _cursor: iced_core::mouse::Cursor,
         _bounds: iced::Rectangle,
     ) -> Self::Primitive {
-        Self::Primitive { }
+        Self::Primitive {}
     }
 }
 
 #[derive(Debug)]
-pub struct Primitive { }
+pub struct Primitive {}
 
 impl shader::Primitive for Primitive {
     type Pipeline = Pipeline;
@@ -66,11 +66,6 @@ impl shader::Primitive for Primitive {
         clip_bounds: &iced::Rectangle<u32>,
     ) {
         // Render primitive
-        pipeline.render(
-            target,
-            encoder,
-            *clip_bounds,
-            // TODO
-        );
+        pipeline.render(target, encoder, *clip_bounds);
     }
 }

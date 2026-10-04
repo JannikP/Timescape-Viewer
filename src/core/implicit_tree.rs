@@ -66,14 +66,58 @@ impl From<f32> for Sum {
     }
 }
 
-#[derive(Debug, PartialEq, Hash)]
-pub struct IForestIndex<A> {
-    values: Vec<A>
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct FullStat {
+    pub min: f32,
+    pub max: f32,
+    pub sum: f32,
+    pub count: u32, // FIXME: This should be usize, but u32 is the more efficient layout. Check if this is a problem for large datasets.
 }
 
-impl<A> IForestIndex<A> where A: Aggregate {
+impl Aggregate for FullStat {
+    fn empty() -> Self {
+        Self {
+            min: f32::INFINITY,
+            max: f32::NEG_INFINITY,
+            sum: 0.0,
+            count: 0,
+        }
+    }
+
+    fn combine(&self, other: &Self) -> Self {
+        Self {
+            min: self.min.min(other.min),
+            max: self.max.max(other.max),
+            sum: self.sum + other.sum,
+            count: self.count + other.count,
+        }
+    }
+}
+
+impl From<f32> for FullStat {
+    fn from(value: f32) -> Self {
+        Self {
+            min: value,
+            max: value,
+            sum: value,
+            count: 1,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+pub struct IForestIndex<A> {
+    values: Vec<A>,
+}
+
+impl<A> IForestIndex<A>
+where
+    A: Aggregate,
+{
     pub fn with_capacity(capacity: usize) -> Self {
-        Self { values: Vec::with_capacity(capacity) }
+        Self {
+            values: Vec::with_capacity(capacity),
+        }
     }
 
     pub fn push(&mut self, value: impl Into<A>) {
@@ -82,19 +126,20 @@ impl<A> IForestIndex<A> where A: Aggregate {
         let len = self.values.len();
         // We want to index the first level every 2 nodes, 2nd level every 4 nodes...
         // This happens to correspond to the number of trailing ones in the index
-        let levels_to_index = len.trailing_ones()-1;
+        let levels_to_index = len.trailing_ones() - 1;
 
         // Complete unfinished aggregation nodes which are now ready
-        let mut cur = len-1; // The leaf we just pushed
+        let mut cur = len - 1; // The leaf we just pushed
         for level in 0..levels_to_index {
-            let prev_higher_level = cur-(1 << level); // nodes at a level reach 2^level
+            let prev_higher_level = cur - (1 << level); // nodes at a level reach 2^level
             let combined = A::combine(&self.values[prev_higher_level], &self.values[cur]);
             self.values[prev_higher_level] = combined;
             cur = prev_higher_level;
         }
 
         // Push new aggregation node going back one level further than we aggregated
-        self.values.push(self.values[len-(1 << levels_to_index)].clone());
+        self.values
+            .push(self.values[len - (1 << levels_to_index)].clone());
     }
 
     // TODO: pub fn aggregate(&mut self, index: usize, value: impl Into<A>) { }
@@ -133,15 +178,20 @@ impl<A> IForestIndex<A> where A: Aggregate {
             1usize.reverse_bits() >> x.leading_zeros() // leave the most significant bit
         }
         fn largest_prefix_inside_skip(min: usize, max: usize) -> usize {
-            lsp(min|msp(max-min)) // = usize::min(lsp(min),msp(max-min))
+            lsp(min | msp(max - min)) // = usize::min(lsp(min),msp(max-min))
         }
         fn agg_node(i: usize, offset: usize) -> usize {
             i + (offset >> 1) - 1 //
         }
 
-        let mut ri = (r.start*2)..(r.end*2); // translate underlying to interior indices
+        let mut ri = (r.start * 2)..(r.end * 2); // translate underlying to interior indices
         let len = self.values.len();
-        assert!(ri.start <= len && ri.end <= len, "range {:?} not inside 0..{}", r, len/2);
+        assert!(
+            ri.start <= len && ri.end <= len,
+            "range {:?} not inside 0..{}",
+            r,
+            len / 2
+        );
 
         let mut combined = A::empty();
         while ri.start < ri.end {
@@ -167,7 +217,10 @@ mod tests {
         forest.push(2.0);
 
         // Assert
-        assert_eq!(forest.values, vec![Minium(1.0), Minium(1.0), Minium(2.0), Minium(1.0)]);
+        assert_eq!(
+            forest.values,
+            vec![Minium(1.0), Minium(1.0), Minium(2.0), Minium(1.0)]
+        );
     }
 
     #[test]
@@ -180,7 +233,10 @@ mod tests {
         forest.push(2.0);
 
         // Assert
-        assert_eq!(forest.values, vec![Maximum(1.0), Maximum(2.0), Maximum(2.0), Maximum(2.0)]);
+        assert_eq!(
+            forest.values,
+            vec![Maximum(1.0), Maximum(2.0), Maximum(2.0), Maximum(2.0)]
+        );
     }
 
     #[test]

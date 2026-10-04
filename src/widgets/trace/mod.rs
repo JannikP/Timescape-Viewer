@@ -1,21 +1,36 @@
 //! A GPU-accelerated trace/chart renderer backed by Implicit In-order Forests with range queries
 //! performed in the vertex shader.
+pub mod mesh;
 pub mod pipeline;
 
-use iced::widget::shader;
+use iced::{Color, widget::shader};
+use std::ops::Range;
 
-use pipeline::Pipeline;
+use pipeline::{Pipeline, Uniforms};
 
-#[derive(Debug, Clone)]
-pub struct Trace { }
+use crate::core;
+use crate::utilities::ColorExt;
 
-impl Trace {
-    pub fn new() -> Self {
-        Self { }
+#[derive(Debug, Clone, PartialEq)]
+pub struct Trace<'a> {
+    time: Range<i64>,
+    values: Range<f32>,
+    trace: &'a core::Trace,
+    color: Color,
+}
+
+impl<'a> Trace<'a> {
+    pub fn new(time: Range<i64>, values: Range<f32>, trace: &'a core::Trace, color: Color) -> Self {
+        Self {
+            time,
+            values,
+            trace,
+            color,
+        }
     }
 }
 
-impl<Message> shader::Program<Message> for Trace {
+impl<Message> shader::Program<Message> for Trace<'_> {
     type State = ();
 
     type Primitive = Primitive;
@@ -27,14 +42,24 @@ impl<Message> shader::Program<Message> for Trace {
         bounds: iced::Rectangle,
     ) -> Self::Primitive {
         Self::Primitive {
-            length: bounds.width as usize
+            uniforms: Uniforms {
+                line_color: self.color.to_vec4(),
+                spread_alpha: 0.2,
+                antialias_width: 1.0,
+                stroke: 1.0,
+                min_value: 0.0,
+                max_value: 1.0,
+                begin: 0.0,
+                end: 1.0,
+                range: (1.0 - 0.0) / bounds.width,
+            },
         }
     }
 }
 
 #[derive(Debug)]
 pub struct Primitive {
-    length: usize,
+    uniforms: Uniforms,
 }
 
 impl shader::Primitive for Primitive {
@@ -45,16 +70,11 @@ impl shader::Primitive for Primitive {
         pipeline: &mut Self::Pipeline,
         device: &iced::wgpu::Device,
         queue: &iced::wgpu::Queue,
-        bounds: &iced::Rectangle,
+        _bounds: &iced::Rectangle,
         viewport: &shader::Viewport,
     ) {
         // Upload data to GPU
-        pipeline.update(
-            device,
-            queue,
-            viewport.physical_size(),
-            // TODO
-        );
+        pipeline.update(device, queue, viewport.physical_size(), &self.uniforms);
     }
 
     fn render(
@@ -65,11 +85,6 @@ impl shader::Primitive for Primitive {
         clip_bounds: &iced::Rectangle<u32>,
     ) {
         // Render primitive
-        pipeline.render(
-            target,
-            encoder,
-            *clip_bounds,
-            // TODO
-        );
+        pipeline.render(target, encoder, *clip_bounds);
     }
 }
