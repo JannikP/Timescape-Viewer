@@ -1,11 +1,11 @@
 use std::rc::Rc;
 
+use crate::core::Span;
 use crate::state::{LiveMode, Run, Timestamp};
 
 #[derive(Debug, Clone)]
 pub struct Window {
-    begin: Timestamp,
-    end: Timestamp,
+    span: Span,
     live: LiveMode,
     hover: Option<Timestamp>,
     first_cursor: Option<Timestamp>,
@@ -21,8 +21,7 @@ pub struct Window {
 impl Window {
     pub fn new(run: Rc<Run>) -> Self {
         Self {
-            begin: Timestamp(0),
-            end: Timestamp(4000),
+            span: Span::new(0, 4000),
             live: LiveMode::Off,
             hover: None,
             first_cursor: None,

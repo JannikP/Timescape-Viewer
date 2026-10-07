@@ -1,3 +1,5 @@
+use iced::animation::Interpolable;
+
 /// A span of time with a beginning and an end in nanoseconds since a (undefined) reference point in
 /// time. To have unambiguous assignment of time stamps to spans the beginning is inclusive and the
 /// end is exclusive. A timestamp is considered inside a span if beginning <= sample < end.
@@ -46,5 +48,15 @@ impl Span {
             begin = end;
         }
         splits
+    }
+}
+
+impl Interpolable for Span {
+    fn interpolated(&self, other: Self, ratio: f32) -> Self {
+        const CLICKS: i64 = 0x8000;
+        let step = (ratio * CLICKS as f32) as i64;
+        let begin = (self.begin * (CLICKS - step) + other.begin * step) / CLICKS;
+        let end = (self.end * (CLICKS - step) + other.end * step) / CLICKS;
+        Span::new(begin, end)
     }
 }

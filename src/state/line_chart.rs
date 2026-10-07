@@ -1,9 +1,11 @@
+use iced::animation::Animation;
 use iced::{Color, Task};
 use log::info;
 use std::ops::Range;
 
+use crate::constants::animations::DEFAULT_EASE;
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
-use crate::core::Trace;
+use crate::core::{Domain, Trace};
 use crate::messages::{Message, line_chart::LineChartMessage};
 use crate::state::{Scope, ScopePlotter};
 
@@ -11,8 +13,7 @@ use crate::state::{Scope, ScopePlotter};
 pub struct LineChartLegend {
     index: usize,
     signals: Vec<LineChartLegendEntry>,
-    minimum: f64,
-    maximum: f64,
+    domain: Animation<Domain>,
     height: f32,
     signal_input: String,
 }
@@ -63,6 +64,7 @@ impl LineChartLegend {
                 self.push_signal(self.signal_input.clone());
                 self.signal_input = String::new();
             }
+            _ => {}
         }
         Task::none()
     }
@@ -82,7 +84,7 @@ impl LineChartLegend {
     }
 
     pub fn value_range(&self) -> Range<f32> {
-        self.minimum as f32..self.maximum as f32
+        self.domain.value().into()
     }
 }
 
@@ -115,8 +117,9 @@ impl Default for LineChartLegend {
         Self {
             index: 0,
             signals: Vec::new(),
-            minimum: 0.0,
-            maximum: 1.0,
+            domain: Animation::new(Domain::default())
+                .easing(DEFAULT_EASE)
+                .quick(),
             height: 150.0,
             signal_input: String::new(),
         }

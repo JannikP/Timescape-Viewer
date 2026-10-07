@@ -152,6 +152,9 @@ impl TimescapeViewer {
                     return chart.update(inner_message);
                 }
             }
+            Message::Window(_, _) => {
+                todo!();
+            }
             Message::None => {
                 debug!("Do nothing.");
             }

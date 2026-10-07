@@ -1,4 +1,6 @@
 pub mod line_chart;
+pub mod navigation;
+pub mod window;
 
 use crate::messages::line_chart::LineChartMessage;
 use crate::origins::Origin;
@@ -18,6 +20,7 @@ pub enum Message {
     RemoveScope(usize),
     ResizeScope(usize, f32),
     LineChartMessage(usize, LineChartMessage),
+    Window(usize, window::Message),
 }
 
 #[cfg(test)]
