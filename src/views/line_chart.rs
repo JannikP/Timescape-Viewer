@@ -4,6 +4,7 @@ use iced::{Element, Length};
 use rust_i18n::t;
 
 use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON, SIGNAL_ICON};
+use crate::constants::layout::BUTTON_GAP;
 use crate::messages::Message;
 use crate::state::Scope;
 use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartPlotter};
@@ -26,7 +27,7 @@ where
             )
             .push(signal_chooser_line(legend))
             .push(space::vertical())
-            .spacing(4)
+            .spacing(BUTTON_GAP)
             .width(Length::Fill)
             .height(Length::Fill),
         Axis::new(Scaling::Linear, -5.0..=105.0),
@@ -55,7 +56,7 @@ where
             .hint(t!("line_chart.delete_hint")),
     ]
     .align_y(Vertical::Center)
-    .spacing(4)
+    .spacing(BUTTON_GAP)
     .into()
 }
 
@@ -74,7 +75,7 @@ where
         .hint(t!("line_chart.add_signal.hint")),
     ]
     .align_y(Vertical::Center)
-    .spacing(4)
+    .spacing(BUTTON_GAP)
     .into()
 }
 

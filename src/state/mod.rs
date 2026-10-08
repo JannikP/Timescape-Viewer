@@ -1,8 +1,9 @@
 //! Contains the state and data tree of the entire application.
 #![doc = simple_mermaid::mermaid!("overview.mmd")]
 
+pub mod history;
 pub mod line_chart;
-pub mod navigation;
+pub mod memento;
 pub mod signal;
 pub mod spectrogram;
 pub mod trail_chart;
@@ -18,6 +19,7 @@ use line_chart::{LineChartLegend, LineChartPlotter};
 use spectrogram::{SpectrogramLegend, SpectrogramPlotter};
 use trail_chart::{TrailChartLegend, TrailChartPlotter};
 
+pub use history::History;
 pub use signal::{Signal, SignalId};
 pub use window::Window;
 

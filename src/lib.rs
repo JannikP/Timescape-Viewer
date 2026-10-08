@@ -29,7 +29,7 @@ use views::{modal, view_backstage, view_timescape};
 use crate::commands::choose_file::choose_file;
 use crate::constants::icons::app_icon;
 use crate::origins::Origin;
-use crate::state::{Run, Scope, Source};
+use crate::state::{History, Run, Scope, Source};
 use crate::theme::MakoTheme;
 
 // Load translations with configuration from `[package.metadata.i18n]` section in `Cargo.toml`.
@@ -74,6 +74,7 @@ pub(crate) fn settings() -> Settings {
 pub struct TimescapeViewer {
     stage: Stage,
     modal: Modal,
+    history: History,
     scopes: Vec<ScopeLegend>,
     windows: Vec<Window>,
     plotters: Grid<ScopePlotter>,
@@ -154,6 +155,16 @@ impl TimescapeViewer {
             }
             Message::Window(_, _) => {
                 todo!();
+            }
+            Message::Undo => {
+                if let Some(_memento) = self.history.undo() {
+                    // TODO: Revert memento
+                }
+            }
+            Message::Redo => {
+                if let Some(_memento) = self.history.redo() {
+                    // TODO: Apply memento again
+                }
             }
             Message::None => {
                 debug!("Do nothing.");

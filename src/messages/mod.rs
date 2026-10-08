@@ -21,6 +21,8 @@ pub enum Message {
     ResizeScope(usize, f32),
     LineChartMessage(usize, LineChartMessage),
     Window(usize, window::Message),
+    Undo,
+    Redo,
 }
 
 #[cfg(test)]
