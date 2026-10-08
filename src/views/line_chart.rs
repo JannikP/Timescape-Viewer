@@ -11,7 +11,7 @@ use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartP
 use crate::state::window::Window;
 use crate::theme::MakoTheme;
 use crate::views::common::scope_handle_bar;
-use crate::widgets::{Axis, Grid, Hint, Scaling, Trace};
+use crate::widgets::{Axis, Grid, Hint, Trace};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
@@ -30,7 +30,7 @@ where
             .spacing(BUTTON_GAP)
             .width(Length::Fill)
             .height(Length::Fill),
-        Axis::new(Scaling::Linear, -5.0..=105.0),
+        Axis::new(legend.index(), legend.domain()),
     ]
     .width(Length::Fill)
     .height(Length::Fill)
@@ -88,11 +88,14 @@ where
     'a: 'b,
 {
     let time = 0i64..4000; // TODO: Get this from the `window`.
-    let values = legend.value_range();
     let mut stack = Stack::new().push(shader(Grid::new()).width(Length::Fill).height(Length::Fill));
     for (entry, trace) in legend.iter_signals().zip(plotter.iter_lines()) {
-        let line =
-            shader::<Message, _>(Trace::new(time.clone(), values.clone(), trace, entry.color));
+        let line = shader::<Message, _>(Trace::new(
+            time.clone(),
+            legend.domain(),
+            trace,
+            entry.color,
+        ));
         stack = stack.push(line);
     }
     // stack.push(// TODO: Add overlay with cursor lines and annotations here.)

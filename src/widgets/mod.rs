@@ -4,7 +4,7 @@ mod grid;
 pub mod hint;
 mod trace;
 
-pub use axis::{Axis, Scaling};
+pub use axis::Axis;
 pub use divider::Divider;
 pub use grid::Grid;
 pub use hint::Hint;

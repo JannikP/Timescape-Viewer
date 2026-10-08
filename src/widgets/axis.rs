@@ -1,72 +1,26 @@
-use std::ops::RangeInclusive;
-
 use iced::advanced::layout::{self, Layout};
 use iced::advanced::renderer;
 use iced::advanced::text;
 use iced::advanced::widget::{self, Widget};
 use iced::alignment::Vertical;
-use iced::{Color, Element, Length, Point, Rectangle, Size};
+use iced::{Color, Element, Event, Length, Point, Rectangle, Size, mouse};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Scaling {
-    Linear,
-    Logarithmic,
-}
-
-impl Scaling {
-    pub fn ticks(
-        &self,
-        size: f32,
-        major_tick_spacing: f32,
-        minor_tick_spacing: f32,
-        range: &RangeInclusive<f64>,
-        extra_ticks: &[f64],
-    ) -> Vec<Tick> {
-        match self {
-            Self::Linear => distribute_linear_ticks(
-                size,
-                major_tick_spacing,
-                minor_tick_spacing,
-                range,
-                extra_ticks,
-            ),
-            Self::Logarithmic => distribute_logarithmic_ticks(
-                size,
-                major_tick_spacing,
-                minor_tick_spacing,
-                range,
-                extra_ticks,
-            ),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Significance {
-    Minor,
-    Major,
-    Extra,
-}
+use crate::core::{Domain, Significance};
+use crate::messages::{Message, navigation};
+use crate::utilities::scroll_to_zoom;
 
 pub struct Axis<'a, Theme, Renderer>
 where
     Renderer: text::Renderer,
     Theme: Catalog,
 {
-    range: RangeInclusive<f64>,
-    scaling: Scaling,
+    chart: usize,
+    domain: Domain,
     width: Length,
     height: Length,
     shaping: text::Shaping,
     font: Option<Renderer::Font>,
     class: Theme::Class<'a>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Tick {
-    value: f64,
-    position: f32,
-    significance: Significance,
 }
 
 impl<'a, Theme, Renderer> Axis<'a, Theme, Renderer>
@@ -75,10 +29,10 @@ where
     Theme: Catalog,
 {
     #[must_use]
-    pub fn new(scaling: Scaling, range: RangeInclusive<f64>) -> Self {
+    pub fn new(chart: usize, domain: Domain) -> Self {
         Self {
-            range,
-            scaling,
+            chart,
+            domain,
             width: 70.into(),
             height: Length::Fill,
             shaping: Default::default(),
@@ -128,7 +82,7 @@ where
     }
 }
 
-impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Axis<'a, Theme, Renderer>
+impl<'a, Theme, Renderer> Widget<Message, Theme, Renderer> for Axis<'a, Theme, Renderer>
 where
     Renderer: text::Renderer,
     Theme: Catalog,
@@ -149,6 +103,34 @@ where
         layout::atomic(limits, self.width, self.height)
     }
 
+    fn update(
+        &mut self,
+        _tree: &mut widget::Tree,
+        event: &iced::Event,
+        _layout: Layout<'_>,
+        cursor: iced_core::mouse::Cursor,
+        _renderer: &Renderer,
+        _clipboard: &mut dyn iced_core::Clipboard,
+        shell: &mut iced_core::Shell<'_, Message>,
+        viewport: &Rectangle,
+    ) {
+        match event {
+            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
+                let pivot = if let Some(position) = cursor.position_in(*viewport) {
+                    self.domain
+                        .map_pixel_to_physical(position.y, viewport.height)
+                } else {
+                    self.domain.middle()
+                };
+                let zoom = scroll_to_zoom(delta);
+                let message = navigation::Message::zoom_chart(self.chart, self.domain, pivot, zoom);
+                shell.publish(Message::Navigation(message));
+                shell.capture_event();
+            }
+            _ => {}
+        }
+    }
+
     fn draw(
         &self,
         _tree: &widget::Tree,
@@ -161,10 +143,8 @@ where
     ) {
         let bounds = layout.bounds();
         let style = theme.style(&self.class);
-        let ticks = self
-            .scaling
-            .ticks(bounds.height, 64.0, 16.0, &self.range, &[]);
-        let to_pixels = |value: f64| value_to_pixels(value, &self.range, bounds.height);
+        let ticks = self.domain.ticks(bounds.height, 64.0, 16.0, &[]);
+        let to_pixels = |value: f32| self.domain.map_physical_to_pixel(value, bounds.height);
         let font = self.font.unwrap_or_else(|| renderer.default_font());
         let label_size = 12.0;
 
@@ -247,8 +227,7 @@ where
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<Axis<'a, Theme, Renderer>>
-    for Element<'a, Message, Theme, Renderer>
+impl<'a, Theme, Renderer> From<Axis<'a, Theme, Renderer>> for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a,
     Renderer: text::Renderer + 'a,
@@ -291,220 +270,4 @@ pub trait Catalog {
 
     /// The [`Style`] of a class with the given status.
     fn style(&self, class: &Self::Class<'_>) -> Style;
-}
-
-fn distribute_linear_ticks(
-    size: f32,
-    major_tick_spacing: f32,
-    minor_tick_spacing: f32,
-    range: &RangeInclusive<f64>,
-    extra_ticks: &[f64],
-) -> Vec<Tick> {
-    if range.is_empty() {
-        return Vec::new();
-    }
-
-    // Find nice major ticks
-    let major_ticks = (size / major_tick_spacing).floor() as f64;
-    let ideal_tick = (range.end() - range.start()) / major_ticks;
-    let nice_tick = next_nice_number(ideal_tick);
-    let top = (range.end() / nice_tick).ceil() * nice_tick;
-    let bottom = (range.start() / nice_tick).floor() * nice_tick;
-
-    // How to convert between physical values and pixel coordinates
-    let to_pixels = |value: f64| value_to_pixels(value, range, size);
-
-    // Distributing the major ticks
-    let mut ticks = Vec::new();
-    let mut value = bottom + nice_tick;
-    while value < top {
-        let tick = Tick {
-            value,
-            position: to_pixels(value),
-            significance: Significance::Major,
-        };
-        ticks.push(tick);
-        value += nice_tick;
-    }
-
-    // Distribute the minor ticks
-    let actual_major_tick_spacing =
-        ((value - range.start()) / (range.end() - range.start())) as f32 * size;
-    let minor_tick = nice_minor_ticks(nice_tick, actual_major_tick_spacing, minor_tick_spacing);
-    let mut minor_ticks = Vec::new();
-    let mut previous_major_value = bottom;
-    for major_tick in ticks.iter() {
-        value = previous_major_value + minor_tick;
-        while value < major_tick.value {
-            let position = to_pixels(value);
-            if position >= 0.0 && position < size {
-                let tick = Tick {
-                    value,
-                    position,
-                    significance: Significance::Minor,
-                };
-                minor_ticks.push(tick);
-            }
-            value += minor_tick;
-        }
-        previous_major_value = major_tick.value;
-    }
-    ticks.extend(minor_ticks);
-
-    // Add extra ticks and remove ordinary ticks to close to the extra ones.
-    let spacing = |significance| match significance {
-        Significance::Minor => minor_tick_spacing,
-        Significance::Major | Significance::Extra => major_tick_spacing,
-    };
-    extra_ticks
-        .iter()
-        .map(|value| Tick {
-            value: *value,
-            position: to_pixels(*value),
-            significance: Significance::Extra,
-        })
-        .for_each(|extra| {
-            // Check for close major ticks and remove them.
-            remove_close(&extra, &mut ticks, spacing);
-            // Add the extra tick as major tick
-            ticks.push(extra);
-        });
-
-    ticks
-}
-
-fn distribute_logarithmic_ticks(
-    _size: f32,
-    _major_tick_spacing: f32,
-    _minor_tick_spacing: f32,
-    _range: &RangeInclusive<f64>,
-    _extra_ticks: &[f64],
-) -> Vec<Tick> {
-    Vec::new()
-}
-
-fn next_power_of_ten(number: f64) -> f64 {
-    if number > 0.0 {
-        10f64.powf(number.log10().ceil())
-    } else if number < 0.0 {
-        -1.0 * 10f64.powf((-number).log10().ceil())
-    } else {
-        0.0
-    }
-}
-
-fn next_nice_number(number: f64) -> f64 {
-    let nice_tick = next_power_of_ten(number);
-    if nice_tick > 4.0 * number {
-        nice_tick / 4.0
-    } else if nice_tick > 2.0 * number {
-        nice_tick / 2.0
-    } else {
-        nice_tick
-    }
-}
-
-fn nice_minor_ticks(major_tick: f64, major_tick_spacing: f32, minor_tick_spacing: f32) -> f64 {
-    let ideal_ticks = major_tick_spacing / minor_tick_spacing;
-    let nice_ticks = if ideal_ticks >= 10.0 {
-        10.0
-    } else if ideal_ticks >= 5.0 {
-        5.0
-    } else if ideal_ticks >= 2.0 {
-        2.0
-    } else {
-        1.0
-    };
-    major_tick / nice_ticks
-}
-
-fn value_to_pixels(value: f64, range: &RangeInclusive<f64>, size: f32) -> f32 {
-    let fraction = (value - range.start()) / (range.end() - range.start());
-    size - fraction as f32 * size
-}
-
-fn remove_close<F>(extra: &Tick, ticks: &mut Vec<Tick>, spacing: F)
-where
-    F: Fn(Significance) -> f32,
-{
-    ticks.retain(|tick| {
-        let distance = (extra.position - tick.position).abs();
-        distance > spacing(tick.significance)
-    });
-}
-
-#[cfg(test)]
-mod tests {
-    use assert_float_eq::assert_f64_near;
-
-    use super::{distribute_linear_ticks, next_nice_number, next_power_of_ten, nice_minor_ticks};
-
-    #[test]
-    fn distribute_linear_ticks_simple_example() {
-        let ticks = distribute_linear_ticks(300.0, 64.0, 16.0, &(-5.0..=105.0), &[42.0]);
-        assert_eq!(ticks.len(), 19);
-        // Two major ticks
-        assert_eq!(ticks[0].value, 0.0);
-        assert_eq!(ticks[1].value, 100.0);
-        // One extra tick at the end
-        assert_eq!(ticks[18].value, 42.0);
-    }
-
-    #[test]
-    fn distribute_linear_ticks_default_line_chart() {
-        let ticks = distribute_linear_ticks(150.0, 64.0, 16.0, &(-5.0..=105.0), &[]);
-        assert_eq!(ticks.len(), 11);
-        // Two major ticks
-        assert_eq!(ticks[0].value, 0.0);
-        assert_eq!(ticks[1].value, 100.0);
-        // Many minor ticks
-    }
-
-    #[test]
-    fn next_power_of_ten_positive_numbers() {
-        assert_f64_near!(next_power_of_ten(987.0), 1000.0);
-        assert_f64_near!(next_power_of_ten(99_999.0), 100_000.0);
-        assert_f64_near!(next_power_of_ten(999_999_999.0), 1_000_000_000.0);
-    }
-
-    #[test]
-    fn next_power_of_ten_negative_numbers() {
-        assert_f64_near!(next_power_of_ten(-987.0), -1000.0);
-        assert_f64_near!(next_power_of_ten(-99_999.0), -100_000.0);
-        assert_f64_near!(next_power_of_ten(-999_999_999.0), -1_000_000_000.0);
-    }
-
-    #[test]
-    fn next_power_of_ten_zero() {
-        assert_f64_near!(next_power_of_ten(0.0), 0.0);
-    }
-
-    #[test]
-    fn nice_tick_small() {
-        assert_f64_near!(next_nice_number(9.0), 10.0);
-        assert_f64_near!(next_nice_number(4.0), 5.0);
-        assert_f64_near!(next_nice_number(1.8), 2.5);
-        assert_f64_near!(next_nice_number(0.9), 1.0);
-    }
-
-    #[test]
-    fn ten_nice_minor_ticks() {
-        assert_eq!(nice_minor_ticks(100.0, 160.0, 12.0), 10.0);
-        assert_eq!(nice_minor_ticks(100.0, 160.0, 15.9), 10.0);
-        assert_eq!(nice_minor_ticks(0.1, 160.0, 12.0), 0.01);
-    }
-
-    #[test]
-    fn five_nice_minor_ticks() {
-        assert_eq!(nice_minor_ticks(100.0, 160.0, 18.0), 20.0);
-        assert_eq!(nice_minor_ticks(100.0, 160.0, 31.9), 20.0);
-        assert_eq!(nice_minor_ticks(0.1, 160.0, 18.0), 0.02);
-    }
-
-    #[test]
-    fn two_nice_minor_ticks() {
-        assert_eq!(nice_minor_ticks(100.0, 160.0, 70.0), 50.0);
-        assert_eq!(nice_minor_ticks(100.0, 160.0, 79.9), 50.0);
-        assert_eq!(nice_minor_ticks(0.1, 160.0, 70.0), 0.05);
-    }
 }

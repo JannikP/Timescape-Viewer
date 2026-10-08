@@ -1,7 +1,6 @@
 use iced::animation::Animation;
 use iced::{Color, Task};
 use log::info;
-use std::ops::Range;
 
 use crate::constants::animations::DEFAULT_EASE;
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
@@ -83,8 +82,8 @@ impl LineChartLegend {
         Message::LineChartMessage(self.index, LineChartMessage::SignalInputSubmit)
     }
 
-    pub fn value_range(&self) -> Range<f32> {
-        self.domain.value().into()
+    pub fn domain(&self) -> Domain {
+        self.domain.value()
     }
 }
 

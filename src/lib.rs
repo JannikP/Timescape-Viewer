@@ -11,12 +11,13 @@ pub mod views;
 pub mod widgets;
 
 use std::rc::Rc;
+use std::time::Instant;
 
 use grid::Grid;
 use iced::font::{Family, Stretch, Style, Weight};
 use iced::widget::{center, text};
 use iced::window::settings::Settings as WindowSettings;
-use iced::{Element, Font, Settings, Task};
+use iced::{Element, Font, Settings, Subscription, Task};
 use log::{debug, error, info};
 use rust_i18n::{i18n, t};
 
@@ -29,6 +30,7 @@ use views::{modal, view_backstage, view_timescape};
 use crate::commands::choose_file::choose_file;
 use crate::constants::icons::app_icon;
 use crate::origins::Origin;
+use crate::state::memento::Memento;
 use crate::state::{History, Run, Scope, Source};
 use crate::theme::MakoTheme;
 
@@ -37,9 +39,10 @@ i18n!("assets/i18n");
 
 pub fn launch() -> iced::Result {
     setup_logger();
-    iced::application::application(
+    iced::application::timed(
         TimescapeViewer::new,
         TimescapeViewer::update,
+        TimescapeViewer::subscription,
         TimescapeViewer::view,
     )
     .title(TimescapeViewer::title)
@@ -91,7 +94,7 @@ impl TimescapeViewer {
         MakoTheme::Mako
     }
 
-    fn update(&mut self, message: Message) -> Task<Message> {
+    fn update(&mut self, message: Message, now: Instant) -> Task<Message> {
         match message {
             Message::AbortModal => {
                 self.modal = Modal::None;
@@ -157,14 +160,29 @@ impl TimescapeViewer {
                 todo!();
             }
             Message::Undo => {
-                if let Some(_memento) = self.history.undo() {
-                    // TODO: Revert memento
+                if let Some(memento) = self.history.undo() {
+                    memento.revert(&mut self.scopes, &mut self.windows);
                 }
             }
             Message::Redo => {
-                if let Some(_memento) = self.history.redo() {
-                    // TODO: Apply memento again
+                if let Some(memento) = self.history.redo() {
+                    memento.apply(&mut self.scopes, &mut self.windows);
                 }
+            }
+            Message::Navigation(action) => {
+                let memento = if let Some(memento) = self
+                    .history
+                    .recent()
+                    .filter(|memento| memento.can_merge(&action, &now))
+                {
+                    memento.merge(&action, &now);
+                    memento
+                } else {
+                    let mut memento = Memento::new(now);
+                    memento.merge(&action, &now);
+                    self.history.push(memento)
+                };
+                memento.apply(&mut self.scopes, &mut self.windows);
             }
             Message::None => {
                 debug!("Do nothing.");
@@ -192,6 +210,10 @@ impl TimescapeViewer {
 
     fn title(&self) -> String {
         t!("title").to_string()
+    }
+
+    fn subscription(&self) -> Subscription<Message> {
+        Subscription::none()
     }
 
     /// Adds a new source to the app. If there is no window yet, open one with

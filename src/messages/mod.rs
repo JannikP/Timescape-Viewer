@@ -23,6 +23,7 @@ pub enum Message {
     Window(usize, window::Message),
     Undo,
     Redo,
+    Navigation(navigation::Message),
 }
 
 #[cfg(test)]

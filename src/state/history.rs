@@ -18,13 +18,14 @@ impl History {
         }
     }
 
-    pub fn push(&mut self, item: Memento) {
+    pub fn push<'a>(&'a mut self, item: Memento) -> &'a mut Memento {
         self.undo_stack.push(item);
         self.redo_stack.clear();
         if self.undo_stack.len() > MAXIMUM_HISTORY_LENGTH {
             // If the undo stack grows to large, delete the oldest entry.
             self.undo_stack.remove(0);
         }
+        self.undo_stack.last_mut().unwrap()
     }
 
     #[must_use]

@@ -8,22 +8,22 @@ use std::ops::Range;
 
 use pipeline::{Pipeline, Uniforms};
 
-use crate::core;
+use crate::core::{self, Domain};
 use crate::utilities::ColorExt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Trace<'a> {
-    time: Range<i64>,
-    values: Range<f32>,
+    span: Range<i64>,
+    domain: Domain,
     trace: &'a core::Trace,
     color: Color,
 }
 
 impl<'a> Trace<'a> {
-    pub fn new(time: Range<i64>, values: Range<f32>, trace: &'a core::Trace, color: Color) -> Self {
+    pub fn new(span: Range<i64>, domain: Domain, trace: &'a core::Trace, color: Color) -> Self {
         Self {
-            time,
-            values,
+            span,
+            domain,
             trace,
             color,
         }
