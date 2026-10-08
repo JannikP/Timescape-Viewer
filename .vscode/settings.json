@@ -26,11 +26,11 @@
         }
     ],
     "cSpell.words": [
-        "Akasha",
         "antialiasing",
         "bytemuck",
         "Fira",
         "flexi",
+        "interpolable",
         "repr",
         "serde",
         "timescape",

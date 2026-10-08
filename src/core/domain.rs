@@ -129,12 +129,26 @@ impl Domain {
     /// remain stationary while the range zooms in or out around it. A scaling `factor` of 0.0..1.0
     /// zooms in, so a smaller [Domain] will be visible and a factor larger than 1.0 zooms out.
     /// If the function is called with a `factor` of 1.0, nothing changes.
-    pub fn zoom(&mut self, pivot: f32, factor: f32) {}
+    pub fn zoom(&mut self, _pivot: f32, _factor: f32) {
+        // TODO: Implement zoom
+        todo!()
+    }
 
     /// How much to shift the physical [Domain] (y-axis). A positive value increases
     /// the minimum and maximum values, causing the trace lines to move down on screen.
     /// The translation between mouse motion and physical values is handled by the widget.
-    pub fn pan(&mut self, delta: f32) {}
+    pub fn pan(&mut self, delta: f32) {
+        match self {
+            Domain::Linear { minimum, maximum } => {
+                *minimum += delta;
+                *maximum += delta;
+            }
+            Domain::Logarithmic { minimum, maximum } => {
+                *minimum += delta;
+                *maximum += delta;
+            }
+        }
+    }
 
     /// Returns `true` if the physical `value` is contained by this [Domain].
     #[must_use]
@@ -146,14 +160,30 @@ impl Domain {
     /// in logical pixels is needed.
     #[must_use]
     pub fn map_physical_to_pixel(&self, value: f32, size: f32) -> f32 {
-        todo!()
+        match self {
+            Domain::Linear { minimum, maximum } => (value - minimum) * size / (maximum - minimum),
+            Domain::Logarithmic { minimum, maximum } => {
+                let log_min = minimum.log10();
+                let log_max = maximum.log10();
+                let log_val = value.log10();
+                (log_val - log_min) * size / (log_max - log_min)
+            }
+        }
     }
 
     /// Maps a relative pixel `position` to physical values covered by this range. In order to do
     /// so, the screen `size` in logical pixels is needed.
     #[must_use]
     pub fn map_pixel_to_physical(&self, position: f32, size: f32) -> f32 {
-        todo!()
+        match self {
+            Domain::Linear { minimum, maximum } => position * (maximum - minimum) / size + minimum,
+            Domain::Logarithmic { minimum, maximum } => {
+                let log_min = minimum.log10();
+                let log_max = maximum.log10();
+                let log_val = position * (log_max - log_min) / size + log_min;
+                10.0f32.powf(log_val)
+            }
+        }
     }
 }
 
@@ -291,6 +321,34 @@ mod tests {
     #[test]
     fn can_not_toggle_invalid_domain() {
         assert!(!Domain::linear(-2.0, 4.0).can_toggle())
+    }
+
+    #[test]
+    fn map_physical_to_pixel_linear() {
+        let domain = Domain::linear(2.0, 4.0);
+        let result = domain.map_physical_to_pixel(3.0, 200.0);
+        assert_f32_near!(result, 100.0);
+    }
+
+    #[test]
+    fn map_physical_to_pixel_logarithmic() {
+        let domain = Domain::logarithmic(1.0, 100.0);
+        let result = domain.map_physical_to_pixel(10.0, 200.0);
+        assert_f32_near!(result, 100.0);
+    }
+
+    #[test]
+    fn map_pixel_to_physical_linear() {
+        let domain = Domain::linear(2.0, 4.0);
+        let result = domain.map_pixel_to_physical(100.0, 200.0);
+        assert_f32_near!(result, 3.0);
+    }
+
+    #[test]
+    fn map_pixel_to_physical_logarithmic() {
+        let domain = Domain::logarithmic(1.0, 100.0);
+        let result = domain.map_pixel_to_physical(100.0, 200.0);
+        assert_f32_near!(result, 10.0);
     }
 
     #[test]
