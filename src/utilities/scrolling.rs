@@ -15,7 +15,7 @@ pub fn scroll_to_zoom(delta: &ScrollDelta) -> f32 {
         ScrollDelta::Lines { x: _, y } => *y * PIXELS_PER_LINE,
         ScrollDelta::Pixels { x: _, y } => *y,
     };
-    (normalized_pixels * ZOOM_SPEED).exp()
+    (-1.0 * normalized_pixels * ZOOM_SPEED).exp()
 }
 
 #[cfg(test)]
@@ -26,15 +26,29 @@ mod tests {
 
     #[test]
     fn zoom_out_pixels() {
-        let delta = ScrollDelta::Pixels { x: 0.0, y: 48.0 };
+        let delta = ScrollDelta::Pixels { x: 0.0, y: -48.0 };
         let result = scroll_to_zoom(&delta);
         assert_f32_near!(result, 1.10);
     }
 
     #[test]
     fn zoom_out_lines() {
-        let delta = ScrollDelta::Lines { x: 0.0, y: 3.0 };
+        let delta = ScrollDelta::Lines { x: 0.0, y: -3.0 };
         let result = scroll_to_zoom(&delta);
         assert_f32_near!(result, 1.10);
+    }
+
+    #[test]
+    fn zoom_in_pixels() {
+        let delta = ScrollDelta::Pixels { x: 0.0, y: 48.0 };
+        let result = scroll_to_zoom(&delta);
+        assert_f32_near!(result, 0.9090909);
+    }
+
+    #[test]
+    fn zoom_in_lines() {
+        let delta = ScrollDelta::Lines { x: 0.0, y: 3.0 };
+        let result = scroll_to_zoom(&delta);
+        assert_f32_near!(result, 0.9090909);
     }
 }

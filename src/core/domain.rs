@@ -143,9 +143,24 @@ impl Domain {
     /// remain stationary while the range zooms in or out around it. A scaling `factor` of 0.0..1.0
     /// zooms in, so a smaller [Domain] will be visible and a factor larger than 1.0 zooms out.
     /// If the function is called with a `factor` of 1.0, nothing changes.
-    pub fn zoom(&self, _pivot: f32, _factor: f32) -> Domain {
-        // TODO: Implement zoom
-        todo!()
+    pub fn zoom(&self, pivot: f32, factor: f32) -> Domain {
+        match self {
+            Domain::Linear { minimum, maximum } => {
+                let above = (maximum - pivot) * factor;
+                let below = (minimum - pivot) * factor;
+                Domain::linear(pivot + below, pivot + above)
+            }
+            Domain::Logarithmic { minimum, maximum } => {
+                let log_min = minimum.log10();
+                let log_max = maximum.log10();
+                let log_piv = pivot.log10();
+                let above = (log_max - log_piv) * factor;
+                let below = (log_min - log_piv) * factor;
+                let log_min = log_piv + below;
+                let log_max = log_piv + above;
+                Domain::logarithmic(10f32.powf(log_min), 10f32.powf(log_max))
+            }
+        }
     }
 
     /// How much to shift the physical [Domain] (y-axis). A positive value increases
@@ -170,33 +185,47 @@ impl Domain {
 
     /// Maps a physical `value` to relative pixel coordinates. In order to do so, the screen `size`
     /// in logical pixels is needed.
+    ///
+    /// ```text
+    /// physical maximum ─┰─ pixel 0
+    ///    :              ┃    :
+    /// physical value   ─╂─ return value
+    /// physical minimum ─┸─ pixel size
+    /// ```
     #[must_use]
     pub fn map_physical_to_pixel(&self, value: f32, size: f32) -> f32 {
         match self {
             Domain::Linear { minimum, maximum } => {
-                (maximum - value + minimum) * size / (maximum - minimum)
+                size - (value - minimum) * size / (maximum - minimum)
             }
             Domain::Logarithmic { minimum, maximum } => {
                 let log_min = minimum.log10();
                 let log_max = maximum.log10();
                 let log_val = value.log10();
-                (log_max - log_val + log_min) * size / (log_max - log_min)
+                size - (log_val - log_min) * size / (log_max - log_min)
             }
         }
     }
 
     /// Maps a relative pixel `position` to physical values covered by this range. In order to do
     /// so, the screen `size` in logical pixels is needed.
+    /// ///
+    /// ```text
+    /// pixel 0        ─┰─ physical maximum
+    ///   :             ┃    :
+    /// pixel position ─╂─ return value
+    /// pixel size     ─┸─ physical minimum
+    /// ```
     #[must_use]
     pub fn map_pixel_to_physical(&self, position: f32, size: f32) -> f32 {
         match self {
             Domain::Linear { minimum, maximum } => {
-                minimum + maximum - position * (maximum - minimum) / size
+                (size - position) * (maximum - minimum) / size + minimum
             }
             Domain::Logarithmic { minimum, maximum } => {
                 let log_min = minimum.log10();
                 let log_max = maximum.log10();
-                let log_val = log_min + log_max - position * (log_max - log_min) / size;
+                let log_val = (size - position) * (log_max - log_min) / size + log_min;
                 10.0f32.powf(log_val)
             }
         }
@@ -226,12 +255,15 @@ impl Domain {
         let mut ticks = Vec::with_capacity(naive_count as usize);
         let mut value = bottom + nice_tick;
         while value < top {
-            let tick = Tick {
-                value,
-                position: self.map_physical_to_pixel(value, size),
-                significance: Significance::Major,
-            };
-            ticks.push(tick);
+            let position = self.map_physical_to_pixel(value, size);
+            if position >= 0.0 && position < size {
+                let tick = Tick {
+                    value,
+                    position,
+                    significance: Significance::Major,
+                };
+                ticks.push(tick);
+            }
             value += nice_tick;
         }
 
@@ -477,6 +509,22 @@ mod tests {
     #[test]
     fn can_not_toggle_invalid_domain() {
         assert!(!Domain::linear(-2.0, 4.0).can_toggle())
+    }
+
+    #[test]
+    fn zoom_linear() {
+        let domain = Domain::linear(2.0, 4.0);
+        let result = domain.zoom(3.0, 1.5);
+        assert_f32_near!(result.minimum(), 1.5);
+        assert_f32_near!(result.maximum(), 4.5);
+    }
+
+    #[test]
+    fn zoom_linear_pivot_at_ceiling() {
+        let domain = Domain::linear(2.0, 4.0);
+        let result = domain.zoom(4.0, 1.5);
+        assert_f32_near!(result.minimum(), 1.0);
+        assert_f32_near!(result.maximum(), 4.0);
     }
 
     #[test]

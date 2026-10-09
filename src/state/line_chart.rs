@@ -1,4 +1,5 @@
 use iced::animation::Animation;
+use iced::time::Instant;
 use iced::{Color, Task};
 use log::info;
 
@@ -63,9 +64,12 @@ impl LineChartLegend {
                 self.push_signal(self.signal_input.clone());
                 self.signal_input = String::new();
             }
-            _ => {}
         }
         Task::none()
+    }
+
+    pub fn set_domain(&mut self, domain: Domain, now: Instant) {
+        self.domain.go_mut(domain, now);
     }
 
     pub fn signal_input(&self) -> &str {

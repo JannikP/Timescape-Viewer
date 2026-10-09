@@ -161,28 +161,28 @@ impl TimescapeViewer {
             }
             Message::Undo => {
                 if let Some(memento) = self.history.undo() {
-                    memento.revert(&mut self.scopes, &mut self.windows);
+                    memento.revert(&mut self.scopes, &mut self.windows, now);
                 }
             }
             Message::Redo => {
                 if let Some(memento) = self.history.redo() {
-                    memento.apply(&mut self.scopes, &mut self.windows);
+                    memento.apply(&mut self.scopes, &mut self.windows, now);
                 }
             }
             Message::Navigation(action) => {
                 let memento = if let Some(memento) = self
                     .history
                     .recent()
-                    .filter(|memento| memento.can_merge(&action, &now))
+                    .filter(|memento| memento.can_merge(&action, now))
                 {
-                    memento.merge(&action, &now);
+                    memento.merge(&action, now);
                     memento
                 } else {
                     let mut memento = Memento::new(now);
-                    memento.merge(&action, &now);
+                    memento.merge(&action, now);
                     self.history.push(memento)
                 };
-                memento.apply(&mut self.scopes, &mut self.windows);
+                memento.apply(&mut self.scopes, &mut self.windows, now);
             }
             Message::None => {
                 debug!("Do nothing.");

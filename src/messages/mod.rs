@@ -1,10 +1,9 @@
 pub mod line_chart;
-pub mod navigation;
 pub mod window;
 
 use crate::messages::line_chart::LineChartMessage;
 use crate::origins::Origin;
-use crate::state::Stage;
+use crate::state::{Memento, Stage};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -23,7 +22,7 @@ pub enum Message {
     Window(usize, window::Message),
     Undo,
     Redo,
-    Navigation(navigation::Message),
+    Navigation(Box<Memento>),
 }
 
 #[cfg(test)]

@@ -3,7 +3,7 @@ use iced::animation::Interpolable;
 /// A span of time with a beginning and an end in nanoseconds since a (undefined) reference point in
 /// time. To have unambiguous assignment of time stamps to spans the beginning is inclusive and the
 /// end is exclusive. A timestamp is considered inside a span if beginning <= sample < end.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct Span {
     pub begin: i64,
     pub end: i64,

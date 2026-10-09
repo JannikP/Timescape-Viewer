@@ -20,6 +20,7 @@ use spectrogram::{SpectrogramLegend, SpectrogramPlotter};
 use trail_chart::{TrailChartLegend, TrailChartPlotter};
 
 pub use history::History;
+pub use memento::Memento;
 pub use signal::{Signal, SignalId};
 pub use window::Window;
 

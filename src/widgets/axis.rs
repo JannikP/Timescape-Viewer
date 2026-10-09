@@ -6,7 +6,8 @@ use iced::alignment::Vertical;
 use iced::{Color, Element, Event, Length, Point, Rectangle, Size, mouse};
 
 use crate::core::{Domain, Significance};
-use crate::messages::{Message, navigation};
+use crate::messages::Message;
+use crate::state::Memento;
 use crate::utilities::scroll_to_zoom;
 
 pub struct Axis<'a, Theme, Renderer>
@@ -107,24 +108,24 @@ where
         &mut self,
         _tree: &mut widget::Tree,
         event: &iced::Event,
-        _layout: Layout<'_>,
+        layout: Layout<'_>,
         cursor: iced_core::mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn iced_core::Clipboard,
         shell: &mut iced_core::Shell<'_, Message>,
-        viewport: &Rectangle,
+        _viewport: &Rectangle,
     ) {
         match event {
             Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
-                let pivot = if let Some(position) = cursor.position_in(*viewport) {
+                let pivot = if let Some(position) = cursor.position_in(layout.bounds()) {
                     self.domain
-                        .map_pixel_to_physical(position.y, viewport.height)
+                        .map_pixel_to_physical(position.y, layout.bounds().height)
                 } else {
                     self.domain.middle()
                 };
                 let zoom = scroll_to_zoom(delta);
-                let message = navigation::Message::zoom_chart(self.chart, self.domain, pivot, zoom);
-                shell.publish(Message::Navigation(message));
+                let memento = Box::new(Memento::zoom_chart(self.chart, self.domain, pivot, zoom));
+                shell.publish(Message::Navigation(memento));
                 shell.capture_event();
             }
             _ => {}
@@ -144,7 +145,6 @@ where
         let bounds = layout.bounds();
         let style = theme.style(&self.class);
         let ticks = self.domain.ticks(bounds.height, 64.0, 16.0, &[]);
-        let to_pixels = |value: f32| self.domain.map_physical_to_pixel(value, bounds.height);
         let font = self.font.unwrap_or_else(|| renderer.default_font());
         let label_size = 12.0;
 
@@ -160,7 +160,7 @@ where
                         renderer::Quad {
                             bounds: Rectangle {
                                 x: minor_x,
-                                y: to_pixels(tick.value) - 0.5 + bounds.y,
+                                y: tick.position + bounds.y - 0.5,
                                 width: minor_width,
                                 height: 1.0,
                             },
@@ -175,7 +175,7 @@ where
                         renderer::Quad {
                             bounds: Rectangle {
                                 x: major_x,
-                                y: to_pixels(tick.value) - 1.0 + bounds.y,
+                                y: tick.position + bounds.y - 1.0,
                                 width: major_width,
                                 height: 2.0,
                             },
