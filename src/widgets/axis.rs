@@ -115,20 +115,22 @@ where
         shell: &mut iced_core::Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        match event {
-            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
-                let pivot = if let Some(position) = cursor.position_in(layout.bounds()) {
-                    self.domain
-                        .map_pixel_to_physical(position.y, layout.bounds().height)
-                } else {
-                    self.domain.middle()
-                };
-                let zoom = scroll_to_zoom(delta);
-                let memento = Box::new(Memento::zoom_chart(self.chart, self.domain, pivot, zoom));
-                shell.publish(Message::Navigation(memento));
-                shell.capture_event();
+        if cursor.is_over(layout.bounds()) {
+            match event {
+                Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
+                    let pivot = if let Some(position) = cursor.position_in(layout.bounds()) {
+                        self.domain
+                            .map_pixel_to_physical(position.y, layout.bounds().height)
+                    } else {
+                        self.domain.middle()
+                    };
+                    let zoom = scroll_to_zoom(delta);
+                    let memento = Box::new(Memento::zoom_chart(self.chart, self.domain, pivot, zoom));
+                    shell.publish(Message::Navigation(memento));
+                    shell.capture_event();
+                }
+                _ => {}
             }
-            _ => {}
         }
     }
 
