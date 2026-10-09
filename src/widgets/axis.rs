@@ -109,10 +109,10 @@ where
         _tree: &mut widget::Tree,
         event: &iced::Event,
         layout: Layout<'_>,
-        cursor: iced_core::mouse::Cursor,
+        cursor: iced::mouse::Cursor,
         _renderer: &Renderer,
-        _clipboard: &mut dyn iced_core::Clipboard,
-        shell: &mut iced_core::Shell<'_, Message>,
+        _clipboard: &mut dyn iced::advanced::Clipboard,
+        shell: &mut iced::advanced::Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
         if cursor.is_over(layout.bounds()) {

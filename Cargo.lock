@@ -4105,7 +4105,6 @@ dependencies = [
  "glam",
  "grid",
  "iced",
- "iced_core",
  "iced_test",
  "image",
  "jiff",

@@ -38,7 +38,7 @@ impl<Message> shader::Program<Message> for Trace<'_> {
     fn draw(
         &self,
         _state: &Self::State,
-        _cursor: iced_core::mouse::Cursor,
+        _cursor: iced::mouse::Cursor,
         bounds: iced::Rectangle,
     ) -> Self::Primitive {
         Self::Primitive {
