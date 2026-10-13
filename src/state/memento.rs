@@ -174,9 +174,9 @@ impl Memento {
         }
 
         if let Some(memento) = &self.window
-            && let Some(_window) = windows.get_mut(memento.affected)
+            && let Some(window) = windows.get_mut(memento.affected)
         {
-            // TODO: Set window's span
+            window.set_span(memento.after, now);
         }
     }
 
@@ -194,9 +194,9 @@ impl Memento {
         }
 
         if let Some(memento) = &self.window
-            && let Some(_window) = windows.get_mut(memento.affected)
+            && let Some(window) = windows.get_mut(memento.affected)
         {
-            // TODO: Set window's span
+            window.set_span(memento.before, now);
         }
     }
 }

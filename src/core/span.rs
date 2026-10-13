@@ -1,4 +1,4 @@
-use iced::animation::Interpolable;
+use glam::{Vec4, vec4};
 
 /// A span of time with a beginning and an end in nanoseconds since a (undefined) reference point in
 /// time. To have unambiguous assignment of time stamps to spans the beginning is inclusive and the
@@ -51,12 +51,17 @@ impl Span {
     }
 }
 
-impl Interpolable for Span {
-    fn interpolated(&self, other: Self, ratio: f32) -> Self {
-        const CLICKS: i64 = 0x8000;
-        let step = (ratio * CLICKS as f32) as i64;
-        let begin = (self.begin * (CLICKS - step) + other.begin * step) / CLICKS;
-        let end = (self.end * (CLICKS - step) + other.end * step) / CLICKS;
+impl From<Vec4> for Span {
+    fn from(value: Vec4) -> Self {
+        let begin = value.x.round() as i64;
+        let end = (value.y.round() as i64).max(begin + 1);
         Span::new(begin, end)
+    }
+}
+
+impl Into<Vec4> for &Span {
+    fn into(self) -> Vec4 {
+        // FIXME: There is a significant loss of precision as f32 has only 24 bits of mantissa compared to i64's 63 bits.
+        vec4(self.begin as f32, self.end as f32, 0.0, 0.0)
     }
 }

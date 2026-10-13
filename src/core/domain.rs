@@ -1,5 +1,4 @@
 use glam::{Vec4, vec4};
-use iced::animation::{Float, Interpolable};
 
 /// The [Domain] of an axis with either linear or logarithmic scaling.
 /// This structure is intended to be used for handling the physical axis (y-axis) range of line
@@ -316,77 +315,6 @@ impl Domain {
     }
 }
 
-impl Interpolable for Domain {
-    fn interpolated(&self, other: Self, ratio: f32) -> Self {
-        match (self, other) {
-            (
-                Domain::Linear {
-                    minimum: s_min,
-                    maximum: s_max,
-                },
-                Domain::Linear {
-                    minimum: o_min,
-                    maximum: o_max,
-                },
-            ) => {
-                let minimum = s_min.interpolated(o_min, ratio);
-                let maximum = s_max.interpolated(o_max, ratio);
-                Domain::linear(minimum, maximum)
-            }
-            (
-                Domain::Linear {
-                    minimum: s_min,
-                    maximum: s_max,
-                },
-                Domain::Logarithmic {
-                    minimum: o_min,
-                    maximum: o_max,
-                },
-            ) => {
-                let minimum = s_min.interpolated(o_min, ratio);
-                let maximum = s_max.interpolated(o_max, ratio);
-                if ratio < 0.5 || minimum <= 0.0 {
-                    Domain::linear(minimum, maximum)
-                } else {
-                    Domain::logarithmic(minimum, maximum)
-                }
-            }
-            (
-                Domain::Logarithmic {
-                    minimum: s_min,
-                    maximum: s_max,
-                },
-                Domain::Logarithmic {
-                    minimum: o_min,
-                    maximum: o_max,
-                },
-            ) => {
-                let minimum = s_min.interpolated(o_min, ratio);
-                let maximum = s_max.interpolated(o_max, ratio);
-                Domain::logarithmic(minimum, maximum)
-            }
-            (
-                Domain::Logarithmic {
-                    minimum: s_min,
-                    maximum: s_max,
-                },
-                Domain::Linear {
-                    minimum: o_min,
-                    maximum: o_max,
-                },
-            ) => {
-                let minimum = s_min.interpolated(o_min, ratio);
-                let maximum = s_max.interpolated(o_max, ratio);
-                if ratio > 0.5 || minimum <= 0.0 {
-                    Domain::linear(minimum, maximum)
-                } else {
-                    Domain::logarithmic(minimum, maximum)
-                }
-            }
-        }
-    }
-}
-
 impl From<std::ops::Range<f32>> for Domain {
     fn from(value: std::ops::Range<f32>) -> Self {
         Self::linear(value.start, value.end)
@@ -430,14 +358,6 @@ impl std::fmt::Display for Domain {
             Domain::Linear { minimum, maximum } => write!(f, "{}..{}", minimum, maximum),
             Domain::Logarithmic { minimum, maximum } => write!(f, "{}..{} (log)", minimum, maximum),
         }
-    }
-}
-
-// FIXME: This is absolutely stupid. A domain can't be represented by a single f32, but this is for
-// some reason required by iced::animation::Animation.
-impl Float for Domain {
-    fn float_value(&self) -> f32 {
-        self.minimum()
     }
 }
 
@@ -573,27 +493,6 @@ mod tests {
         let domain = Domain::logarithmic(1.0, 100.0);
         let result = domain.map_pixel_to_physical(100.0, 200.0);
         assert_f32_near!(result, 10.0);
-    }
-
-    #[test]
-    fn interpolate_linear_to_linear() {
-        let a = Domain::linear(2.0, 4.0);
-        let b = Domain::linear(-2.0, 8.0);
-
-        let s1 = a.interpolated(b.clone(), 0.25);
-        assert!(s1.is_linear());
-        assert_f32_near!(s1.minimum(), 1.0);
-        assert_f32_near!(s1.maximum(), 5.0);
-
-        let s2 = a.interpolated(b.clone(), 0.50);
-        assert!(s2.is_linear());
-        assert_f32_near!(s2.minimum(), 0.0);
-        assert_f32_near!(s2.maximum(), 6.0);
-
-        let s3 = a.interpolated(b.clone(), 0.75);
-        assert!(s3.is_linear());
-        assert_f32_near!(s3.minimum(), -1.0);
-        assert_f32_near!(s3.maximum(), 7.0);
     }
 
     #[test]

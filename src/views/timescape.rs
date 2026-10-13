@@ -76,10 +76,14 @@ fn toolbar(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
 }
 
 fn panorama(window: &Window) -> Element<'_, Message, MakoTheme> {
-    text!("Panorama")
-        .width(Length::FillPortion(window.size))
-        .height(Length::Fill)
-        .into()
+    text!(
+        "Window showing {}..{}",
+        window.span().begin,
+        window.span().end
+    )
+    .width(Length::FillPortion(window.size))
+    .height(Length::Fill)
+    .into()
 }
 
 fn content(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {

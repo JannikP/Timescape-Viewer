@@ -99,6 +99,7 @@ impl TimescapeViewer {
         match message {
             Message::Animate => {
                 self.scopes.iter_mut().for_each(|s| s.update(now));
+                self.windows.iter_mut().for_each(|w| w.update(now));
             }
             Message::AbortModal => {
                 self.modal = Modal::None;
@@ -217,7 +218,8 @@ impl TimescapeViewer {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        let animating = self.scopes.iter().any(Scope::is_animating);
+        let animating = self.scopes.iter().any(Scope::is_animating)
+            || self.windows.iter().any(Window::is_animating);
         if animating {
             iced::window::frames().map(|_| Message::Animate)
         } else {

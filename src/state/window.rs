@@ -1,11 +1,13 @@
+use iced::time::Instant;
 use std::rc::Rc;
 
+use crate::animation::Spring;
 use crate::core::Span;
 use crate::state::{LiveMode, Run, Timestamp};
 
 #[derive(Debug, Clone)]
 pub struct Window {
-    span: Span,
+    span: Spring<Span>,
     live: LiveMode,
     hover: Option<Timestamp>,
     first_cursor: Option<Timestamp>,
@@ -21,7 +23,7 @@ pub struct Window {
 impl Window {
     pub fn new(run: Rc<Run>) -> Self {
         Self {
-            span: Span::new(0, 4000),
+            span: Spring::smooth(Span::new(0, 4000)),
             live: LiveMode::Off,
             hover: None,
             first_cursor: None,
@@ -29,5 +31,21 @@ impl Window {
             run,
             size: 1,
         }
+    }
+
+    pub fn is_animating(&self) -> bool {
+        self.span.is_animating()
+    }
+
+    pub fn update(&mut self, now: Instant) {
+        self.span.update(now);
+    }
+
+    pub fn span(&self) -> &Span {
+        self.span.value()
+    }
+
+    pub fn set_span(&mut self, span: Span, now: Instant) {
+        self.span.go(span, now);
     }
 }
