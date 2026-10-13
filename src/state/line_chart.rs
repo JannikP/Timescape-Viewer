@@ -1,9 +1,8 @@
-use iced::animation::Animation;
 use iced::time::Instant;
 use iced::{Color, Task};
 use log::info;
 
-use crate::constants::animations::DEFAULT_EASE;
+use crate::animation::Spring;
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
 use crate::core::{Domain, Trace};
 use crate::messages::{Message, line_chart::LineChartMessage};
@@ -13,7 +12,7 @@ use crate::state::{Scope, ScopePlotter};
 pub struct LineChartLegend {
     index: usize,
     signals: Vec<LineChartLegendEntry>,
-    domain: Animation<Domain>,
+    domain: Spring<Domain>,
     height: f32,
     signal_input: String,
 }
@@ -69,7 +68,7 @@ impl LineChartLegend {
     }
 
     pub fn set_domain(&mut self, domain: Domain, now: Instant) {
-        self.domain.go_mut(domain, now);
+        self.domain.go(domain, now);
     }
 
     pub fn signal_input(&self) -> &str {
@@ -86,7 +85,7 @@ impl LineChartLegend {
         Message::LineChartMessage(self.index, LineChartMessage::SignalInputSubmit)
     }
 
-    pub fn domain(&self) -> Domain {
+    pub fn domain(&self) -> &Domain {
         self.domain.value()
     }
 }
@@ -113,6 +112,14 @@ impl Scope for LineChartLegend {
     fn set_index(&mut self, index: usize) {
         self.index = index;
     }
+
+    fn is_animating(&self) -> bool {
+        self.domain.is_animating()
+    }
+
+    fn update(&mut self, now: Instant) {
+        self.domain.update(now);
+    }
 }
 
 impl Default for LineChartLegend {
@@ -120,9 +127,7 @@ impl Default for LineChartLegend {
         Self {
             index: 0,
             signals: Vec::new(),
-            domain: Animation::new(Domain::default())
-                .easing(DEFAULT_EASE)
-                .quick(),
+            domain: Spring::smooth(Domain::default()),
             height: 150.0,
             signal_input: String::new(),
         }

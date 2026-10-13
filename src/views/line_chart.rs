@@ -30,7 +30,7 @@ where
             .spacing(BUTTON_GAP)
             .width(Length::Fill)
             .height(Length::Fill),
-        Axis::new(legend.index(), legend.domain()),
+        Axis::new(legend.index(), *legend.domain()),
     ]
     .width(Length::Fill)
     .height(Length::Fill)
@@ -92,7 +92,7 @@ where
     for (entry, trace) in legend.iter_signals().zip(plotter.iter_lines()) {
         let line = shader::<Message, _>(Trace::new(
             time.clone(),
-            legend.domain(),
+            *legend.domain(),
             trace,
             entry.color,
         ));

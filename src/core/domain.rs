@@ -1,3 +1,4 @@
+use glam::{Vec4, vec4};
 use iced::animation::{Float, Interpolable};
 
 /// The [Domain] of an axis with either linear or logarithmic scaling.
@@ -395,6 +396,25 @@ impl From<std::ops::Range<f32>> for Domain {
 impl Into<std::ops::Range<f32>> for Domain {
     fn into(self) -> std::ops::Range<f32> {
         self.minimum()..self.maximum()
+    }
+}
+
+impl From<Vec4> for Domain {
+    fn from(value: Vec4) -> Self {
+        let minimum = value.x;
+        let maximum = value.y.max(minimum.next_up());
+        if value.z <= 0.5 || minimum <= 0.0 {
+            Domain::linear(minimum, maximum)
+        } else {
+            Domain::logarithmic(minimum, maximum)
+        }
+    }
+}
+
+impl Into<Vec4> for &Domain {
+    fn into(self) -> Vec4 {
+        let variant = if self.is_logarithmic() { 1.0 } else { 0.0 };
+        vec4(self.minimum(), self.maximum(), variant, 0.0)
     }
 }
 

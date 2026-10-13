@@ -10,7 +10,7 @@ pub mod trail_chart;
 pub mod vocabulary;
 pub mod window;
 
-use std::{f64, rc::Rc};
+use std::{f64, rc::Rc, time::Instant};
 
 use crate::origins::csv::CsvOptions;
 
@@ -49,6 +49,12 @@ pub trait Scope {
     fn index(&self) -> usize;
 
     fn set_index(&mut self, index: usize);
+
+    fn is_animating(&self) -> bool {
+        false
+    }
+
+    fn update(&mut self, now: Instant) {}
 }
 
 #[enum_dispatch]

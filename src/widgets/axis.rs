@@ -125,7 +125,8 @@ where
                         self.domain.middle()
                     };
                     let zoom = scroll_to_zoom(delta);
-                    let memento = Box::new(Memento::zoom_chart(self.chart, self.domain, pivot, zoom));
+                    let memento =
+                        Box::new(Memento::zoom_chart(self.chart, self.domain, pivot, zoom));
                     shell.publish(Message::Navigation(memento));
                     shell.capture_event();
                 }

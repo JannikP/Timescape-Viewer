@@ -1,3 +1,4 @@
+pub mod animation;
 pub mod commands;
 pub mod constants;
 pub mod core;
@@ -96,6 +97,9 @@ impl TimescapeViewer {
 
     fn update(&mut self, message: Message, now: Instant) -> Task<Message> {
         match message {
+            Message::Animate => {
+                self.scopes.iter_mut().for_each(|s| s.update(now));
+            }
             Message::AbortModal => {
                 self.modal = Modal::None;
             }
@@ -213,7 +217,12 @@ impl TimescapeViewer {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        Subscription::none()
+        let animating = self.scopes.iter().any(Scope::is_animating);
+        if animating {
+            iced::window::frames().map(|_| Message::Animate)
+        } else {
+            Subscription::none()
+        }
     }
 
     /// Adds a new source to the app. If there is no window yet, open one with

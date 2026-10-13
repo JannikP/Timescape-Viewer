@@ -8,6 +8,7 @@ use crate::state::{Memento, Stage};
 #[derive(Debug, Clone)]
 pub enum Message {
     None,
+    Animate,
     AbortModal,
     ChooseFile,
     GoTo(Stage),

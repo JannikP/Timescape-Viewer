@@ -1,14 +1,14 @@
 //! A draggable divider between scopes or windows. Dragging it allows the user to resize the
 //! relative sizes of the scopes or windows.
 
-use iced::touch;
-use iced::{Event, Point};
-use iced::advanced::{Clipboard, Layout, Shell, Widget, layout};
-use iced::mouse;
 use iced::advanced::renderer;
 use iced::advanced::widget::tree::{self, Tree};
+use iced::advanced::{Clipboard, Layout, Shell, Widget, layout};
+use iced::mouse;
+use iced::touch;
 use iced::window;
 use iced::{Element, Length, Rectangle, Size};
+use iced::{Event, Point};
 
 use crate::constants::layout::PANEL_GAP;
 
