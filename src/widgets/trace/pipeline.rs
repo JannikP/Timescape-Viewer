@@ -1,7 +1,6 @@
 use glam::Vec4;
 use iced::widget::shader;
 use iced::{Rectangle, Size, wgpu};
-use std::borrow::Cow;
 use std::collections::HashMap;
 
 use super::mesh::Mesh;
@@ -25,15 +24,12 @@ pub struct Pipeline {
     uniform_buffer: wgpu::Buffer,
     uniform_bind_group: wgpu::BindGroup,
     mesh_cache: HashMap<u32, Mesh>,
+    size: u32,
 }
 
 impl Pipeline {
     pub fn new(device: &wgpu::Device, _queue: &wgpu::Queue, format: wgpu::TextureFormat) -> Self {
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("TraceShader"),
-            source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("trace.wgsl"))),
-        });
-
+        let shader = device.create_shader_module(wgpu::include_wgsl!("trace.wgsl"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("TraceShaderPipeline"),
             layout: None,
@@ -85,6 +81,7 @@ impl Pipeline {
             uniform_buffer,
             uniform_bind_group,
             mesh_cache: HashMap::new(),
+            size: 0,
         }
     }
 
@@ -95,9 +92,10 @@ impl Pipeline {
         target_size: Size<u32>,
         uniforms: &Uniforms,
     ) {
+        self.size = target_size.width;
         let mesh = self
             .mesh_cache
-            .entry(target_size.width)
+            .entry(self.size)
             .or_insert_with(|| Mesh::create(device, target_size.width));
         mesh.mark_used();
 
@@ -110,10 +108,9 @@ impl Pipeline {
         encoder: &mut wgpu::CommandEncoder,
         viewport: Rectangle<u32>,
     ) {
-        let key = viewport.width; // FIXME: Ugly workaround for testing. Should be stored in the primitive instead.
         let mesh = self
             .mesh_cache
-            .get(&key)
+            .get(&self.size)
             .expect("The mesh should have been created in the update step.");
         let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("TraceRenderPass"),

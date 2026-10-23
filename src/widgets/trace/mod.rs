@@ -7,23 +7,28 @@ use iced::{Color, widget::shader};
 
 use pipeline::{Pipeline, Uniforms};
 
-use crate::core::{self, Domain, Span};
+use crate::core::{Domain, Span};
 use crate::utilities::ColorExt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Trace<'a> {
     span: &'a Span,
     domain: Domain,
-    trace: &'a core::Trace,
+    //trace: &'a core::Trace,
     color: Color,
 }
 
 impl<'a> Trace<'a> {
-    pub fn new(span: &'a Span, domain: Domain, trace: &'a core::Trace, color: Color) -> Self {
+    pub fn new(
+        span: &'a Span,
+        domain: Domain,
+        //trace: &'a core::Trace,
+        color: Color,
+    ) -> Self {
         Self {
             span,
             domain,
-            trace,
+            //trace,
             color,
         }
     }
@@ -38,21 +43,21 @@ impl<Message> shader::Program<Message> for Trace<'_> {
         &self,
         _state: &Self::State,
         _cursor: iced::mouse::Cursor,
-        bounds: iced::Rectangle,
+        _bounds: iced::Rectangle,
     ) -> Self::Primitive {
         let begin = self.span.begin as f32;
         let end = self.span.end as f32;
         Self::Primitive {
             uniforms: Uniforms {
                 line_color: self.color.to_vec4(),
-                spread_alpha: 0.2,
+                spread_alpha: 0.1,
                 antialias_width: 1.0,
                 stroke: 1.0,
                 min_value: self.domain.minimum(),
                 max_value: self.domain.maximum(),
                 begin,
                 end,
-                range: (end - begin) / bounds.width,
+                range: (end - begin),
             },
         }
     }

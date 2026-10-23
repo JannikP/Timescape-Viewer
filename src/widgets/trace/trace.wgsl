@@ -39,19 +39,19 @@ struct VertexOut {
 @vertex
 fn vs_main(in: VertexIn) -> VertexOut {
     let x = in.position.x;
-    let time = uniforms.range * x + uniforms.begin;
+    let time = uniforms.range * 0.5 * (x + 1.0) + uniforms.begin;
     let min_max_avg = sample(time);
     let value = select(min_max_avg.x, min_max_avg.y, in.position.y > 0.0);
     let y = map_physical_to_normalized(value);
-    let position = vec4(in.position, 0.0, 1.0);
+    let position = vec4(in.position.x, y, 0.0, 1.0);
     let distance = min_max_avg.z - value;
     return VertexOut(position, distance);
 }
 
 fn sample(time: f32) -> vec3f {
     let value = 50.0 * sin(TWO_PI * time / 1000.0) + 50.0;
-    let minimum = value - 0.1;
-    let maximum = value + 0.1;
+    let minimum = value - 5.0;
+    let maximum = value + 5.0;
     let average = value;
     return vec3(minimum, maximum, average);
 }
@@ -65,11 +65,10 @@ fn fs_main(in: VertexOut) -> @location(0) vec4f {
     let line_coverage = line_coverage(in.line_distance);
     let spread_color = vec4f(uniforms.line_color.rgb, uniforms.spread_alpha);
     let color = mix(spread_color, uniforms.line_color, line_coverage);
-    //return color;
-    return vec4(1.0, 0.0, 0.0, 1.0);
+    return color;
 }
 
 fn line_coverage(line_distance: f32) -> f32 {
-    let coverage = 1.0 - smoothstep(abs(line_distance), 0.5, 1.5);
+    let coverage = 1.0 - smoothstep(0.5, 1.5, abs(line_distance));
     return coverage;
 }

@@ -104,8 +104,8 @@ fn trace_vertex_stripe(sample_count: u32) -> Vec<Vec2> {
     let mut vertices = Vec::with_capacity(vertex_count as usize);
     for i in 0..sample_count {
         let x = i as f32 * x_scale - 1.0;
-        vertices.push(Vec2::new(x, -1.0));
         vertices.push(Vec2::new(x, 1.0));
+        vertices.push(Vec2::new(x, -1.0));
     }
     vertices
 }
@@ -167,9 +167,9 @@ mod tests {
         // Assert
         assert_eq!(vertices.len(), 6);
         assert_f32_near!(vertices[0].x, -1.0);
-        assert_f32_near!(vertices[0].y, -1.0);
+        assert_f32_near!(vertices[0].y, 1.0);
         assert_f32_near!(vertices[5].x, 1.0);
-        assert_f32_near!(vertices[5].y, 1.0);
+        assert_f32_near!(vertices[5].y, -1.0);
     }
 
     #[test]

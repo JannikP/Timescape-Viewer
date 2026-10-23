@@ -1,7 +1,6 @@
 use glam::Vec4;
 use iced::widget::shader;
 use iced::{Rectangle, wgpu};
-use std::borrow::Cow;
 
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 #[repr(C)]
@@ -21,11 +20,7 @@ pub struct Pipeline {
 
 impl Pipeline {
     pub fn new(device: &wgpu::Device, _queue: &wgpu::Queue, format: wgpu::TextureFormat) -> Self {
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("GridContourShader"),
-            source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("contour_grid.wgsl"))),
-        });
-
+        let shader = device.create_shader_module(wgpu::include_wgsl!("contour_grid.wgsl"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("GridContourShaderPipeline"),
             layout: None,

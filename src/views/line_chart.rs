@@ -82,7 +82,7 @@ where
 pub fn line_chart_plotter<'a, 'b>(
     legend: &'a LineChartLegend,
     window: &'a Window,
-    plotter: &'a LineChartPlotter,
+    _plotter: &'a LineChartPlotter,
 ) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
@@ -92,14 +92,17 @@ where
         .extend(
             legend
                 .iter_signals()
-                .zip(plotter.iter_lines())
-                .map(|(entry, trace)| {
+                // .zip(plotter.iter_lines())
+                // .map(|(entry, trace)| {
+                .map(|entry| {
                     shader::<Message, _>(Trace::new(
                         window.span(),
                         *legend.domain(),
-                        trace,
+                        //trace,
                         entry.color,
                     ))
+                    .width(Length::Fill)
+                    .height(Length::Fill)
                     .into()
                 }),
         )
