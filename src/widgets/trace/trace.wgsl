@@ -10,6 +10,9 @@
 //! USA: Addison-Wesley Professional, 2005, ch. 22, pp. 345–359. [Online].
 //! Available: https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-22-fast-prefiltered-lines
 
+const PI: f32 = 3.14159265359;
+const TWO_PI: f32 = 6.28318530718;
+
 struct Uniforms {
     line_color: vec4f,
     spread_alpha: f32,
@@ -35,9 +38,26 @@ struct VertexOut {
 
 @vertex
 fn vs_main(in: VertexIn) -> VertexOut {
-    let position = vec4f(in.position, 0.0, 1.0);
-    let distance = in.position.y * 6.0; // Just for testing
+    let x = in.position.x;
+    let time = uniforms.range * x + uniforms.begin;
+    let min_max_avg = sample(time);
+    let value = select(min_max_avg.x, min_max_avg.y, in.position.y > 0.0);
+    let y = map_physical_to_normalized(value);
+    let position = vec4(in.position, 0.0, 1.0);
+    let distance = min_max_avg.z - value;
     return VertexOut(position, distance);
+}
+
+fn sample(time: f32) -> vec3f {
+    let value = 50.0 * sin(TWO_PI * time / 1000.0) + 50.0;
+    let minimum = value - 0.1;
+    let maximum = value + 0.1;
+    let average = value;
+    return vec3(minimum, maximum, average);
+}
+
+fn map_physical_to_normalized(value: f32) -> f32 {
+    return 2.0 * (value - uniforms.min_value) / (uniforms.max_value - uniforms.min_value) - 1.0;
 }
 
 @fragment
@@ -45,7 +65,8 @@ fn fs_main(in: VertexOut) -> @location(0) vec4f {
     let line_coverage = line_coverage(in.line_distance);
     let spread_color = vec4f(uniforms.line_color.rgb, uniforms.spread_alpha);
     let color = mix(spread_color, uniforms.line_color, line_coverage);
-    return color;
+    //return color;
+    return vec4(1.0, 0.0, 0.0, 1.0);
 }
 
 fn line_coverage(line_distance: f32) -> f32 {

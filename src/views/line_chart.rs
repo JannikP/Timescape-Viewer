@@ -81,23 +81,30 @@ where
 
 pub fn line_chart_plotter<'a, 'b>(
     legend: &'a LineChartLegend,
-    _window: &'a Window,
+    window: &'a Window,
     plotter: &'a LineChartPlotter,
 ) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
-    let time = 0i64..4000; // TODO: Get this from the `window`.
-    let mut stack = Stack::new().push(shader(Grid::new()).width(Length::Fill).height(Length::Fill));
-    for (entry, trace) in legend.iter_signals().zip(plotter.iter_lines()) {
-        let line = shader::<Message, _>(Trace::new(
-            time.clone(),
-            *legend.domain(),
-            trace,
-            entry.color,
-        ));
-        stack = stack.push(line);
-    }
-    // stack.push(// TODO: Add overlay with cursor lines and annotations here.)
-    stack.into()
+    Stack::new()
+        .push(shader(Grid::new()).width(Length::Fill).height(Length::Fill))
+        .extend(
+            legend
+                .iter_signals()
+                .zip(plotter.iter_lines())
+                .map(|(entry, trace)| {
+                    shader::<Message, _>(Trace::new(
+                        window.span(),
+                        *legend.domain(),
+                        trace,
+                        entry.color,
+                    ))
+                    .into()
+                }),
+        )
+        // TODO: .push(overlay with cursors)
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .into()
 }
