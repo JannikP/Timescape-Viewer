@@ -52,7 +52,7 @@ impl<Message> shader::Program<Message> for Trace<'_> {
                 line_color: self.color.to_vec4(),
                 spread_alpha: 0.1,
                 antialias_width: 1.0,
-                stroke: 1.0,
+                stroke: 1.5,
                 min_value: self.domain.minimum(),
                 max_value: self.domain.maximum(),
                 begin,
