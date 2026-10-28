@@ -3,15 +3,15 @@ use iced::widget::{Column, Stack, button, row, shader, space, text, text_input};
 use iced::{Element, Length};
 use rust_i18n::t;
 
-use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON, SIGNAL_ICON};
+use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON};
 use crate::constants::layout::BUTTON_GAP;
 use crate::messages::Message;
 use crate::state::Scope;
 use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartPlotter};
 use crate::state::window::Window;
-use crate::theme::MakoTheme;
+use crate::theme::{ButtonClass, MakoTheme};
 use crate::views::common::scope_handle_bar;
-use crate::widgets::{Axis, Grid, Hint, Trace};
+use crate::widgets::{Axis, Flag, Grid, Hint, Trace};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
@@ -45,14 +45,16 @@ where
     'a: 'b,
 {
     row![
-        text(SIGNAL_ICON).color(entry.color),
+        Flag::new(entry.color, entry.index),
         text(entry.signal.as_str()),
         space::horizontal(),
         button(if entry.visible { SHOW_ICON } else { HIDE_ICON })
             .on_press(entry.toggle_visibility_message(scope))
+            .class(ButtonClass::Secondary)
             .hint(t!("line_chart.visibility_hint")),
         button(DELETE_ICON)
             .on_press(entry.delete_message(scope))
+            .class(ButtonClass::Danger)
             .hint(t!("line_chart.delete_hint")),
     ]
     .align_y(Vertical::Center)
@@ -99,7 +101,7 @@ where
                         window.span(),
                         *legend.domain(),
                         //trace,
-                        entry.color,
+                        entry.color.color(&MakoTheme::Mako, entry.index),
                     ))
                     .width(Length::Fill)
                     .height(Length::Fill)

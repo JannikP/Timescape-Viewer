@@ -54,7 +54,7 @@ pub trait Scope {
         false
     }
 
-    fn update(&mut self, now: Instant) {}
+    fn update(&mut self, _now: Instant) {}
 }
 
 #[enum_dispatch]

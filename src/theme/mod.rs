@@ -3,6 +3,7 @@ mod button;
 mod checkbox;
 mod combo_box;
 mod container;
+mod flag;
 mod float;
 mod menu;
 mod pane_grid;
@@ -90,6 +91,17 @@ impl MakoTheme {
                 text: color!(0xdef4e4),
                 muted: color!(0x3479a2),
                 faint: color!(0x023d5a),
+            },
+        }
+    }
+
+    pub fn categorical_color(&self, index: usize) -> Color {
+        match self {
+            Self::Mako => match index {
+                0 => color!(0x49c1ad),
+                1 => color!(0x96dcb5),
+                // TODO: Provide eight colors for crowded charts.
+                _ => color!(0x3479a2),
             },
         }
     }

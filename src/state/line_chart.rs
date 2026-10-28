@@ -7,6 +7,7 @@ use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
 use crate::core::{Domain, Trace};
 use crate::messages::{Message, line_chart::LineChartMessage};
 use crate::state::{Scope, ScopePlotter};
+use crate::theme::MakoTheme;
 
 #[derive(Debug, Clone)]
 pub struct LineChartLegend {
@@ -23,7 +24,7 @@ impl LineChartLegend {
         let entry = LineChartLegendEntry {
             index,
             signal: signal.into(),
-            color: Color::WHITE,
+            color: LineColor::default(),
             visible: true,
         };
         self.signals.push(entry);
@@ -137,7 +138,7 @@ impl Default for LineChartLegend {
 #[derive(Debug, Clone)]
 pub struct LineChartLegendEntry {
     pub signal: String,
-    pub color: Color,
+    pub color: LineColor,
     pub visible: bool,
     pub index: usize,
 }
@@ -166,5 +167,22 @@ pub struct LineChartPlotter {
 impl LineChartPlotter {
     pub fn iter_lines(&self) -> impl Iterator<Item = &Trace> {
         self.signals.iter()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum LineColor {
+    #[default]
+    Automatic,
+
+    UserDefined(Color),
+}
+
+impl LineColor {
+    pub fn color(&self, theme: &MakoTheme, index: usize) -> Color {
+        match self {
+            Self::Automatic => theme.categorical_color(index),
+            Self::UserDefined(color) => *color,
+        }
     }
 }
