@@ -1,6 +1,6 @@
 use iced::widget::{Button, MouseArea, TextInput, mouse_area};
 
-use crate::messages::Message;
+use crate::{messages::Message, theme::MakoTheme, widgets::Flag};
 
 pub trait Hint<'a, Theme> {
     fn hint(self, text: impl Into<String>) -> MouseArea<'a, Message, Theme>;
@@ -11,6 +11,14 @@ where
     Theme: iced::widget::button::Catalog + 'a,
 {
     fn hint(self, hint: impl Into<String>) -> MouseArea<'a, Message, Theme> {
+        mouse_area(self)
+            .on_enter(Message::Hint(hint.into()))
+            .on_exit(Message::Hint(String::new()))
+    }
+}
+
+impl<'a> Hint<'a, MakoTheme> for Flag<'a, Message> {
+    fn hint(self, hint: impl Into<String>) -> MouseArea<'a, Message, MakoTheme> {
         mouse_area(self)
             .on_enter(Message::Hint(hint.into()))
             .on_exit(Message::Hint(String::new()))

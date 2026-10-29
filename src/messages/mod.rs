@@ -3,12 +3,13 @@ pub mod window;
 
 use crate::messages::line_chart::LineChartMessage;
 use crate::origins::Origin;
-use crate::state::{Memento, Stage};
+use crate::state::{Memento, Modal, Stage};
 
 #[derive(Debug, Clone)]
 pub enum Message {
     None,
     Animate,
+    ShowModal(Modal),
     AbortModal,
     ChooseFile,
     GoTo(Stage),

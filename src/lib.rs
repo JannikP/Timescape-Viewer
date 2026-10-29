@@ -30,6 +30,7 @@ use views::{modal, view_backstage, view_timescape};
 
 use crate::commands::choose_file::choose_file;
 use crate::constants::icons::app_icon;
+use crate::constants::layout::DEFAULT_FONT_SIZE;
 use crate::origins::Origin;
 use crate::state::memento::Memento;
 use crate::state::{History, Run, Scope, Source};
@@ -68,7 +69,7 @@ pub(crate) fn settings() -> Settings {
             stretch: Stretch::Condensed,
             style: Style::Normal,
         },
-        default_text_size: 16.into(),
+        default_text_size: DEFAULT_FONT_SIZE.into(),
         antialiasing: true,
         vsync: false,
     }
@@ -100,6 +101,9 @@ impl TimescapeViewer {
             Message::Animate => {
                 self.scopes.iter_mut().for_each(|s| s.update(now));
                 self.windows.iter_mut().for_each(|w| w.update(now));
+            }
+            Message::ShowModal(modal) => {
+                self.modal = modal;
             }
             Message::AbortModal => {
                 self.modal = Modal::None;

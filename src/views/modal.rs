@@ -1,7 +1,7 @@
 use iced::Element;
 use iced::widget::{center, mouse_area, opaque, stack};
 
-use crate::theme::MakoTheme;
+use crate::theme::{ContainerClass, MakoTheme};
 
 pub fn modal<'a, Message>(
     base: impl Into<Element<'a, Message, MakoTheme>>,
@@ -13,7 +13,7 @@ where
 {
     stack![
         base.into(),
-        opaque(mouse_area(center(opaque(content))).on_press(on_blur))
+        opaque(mouse_area(center(opaque(content)).class(ContainerClass::Tinted)).on_press(on_blur))
     ]
     .into()
 }

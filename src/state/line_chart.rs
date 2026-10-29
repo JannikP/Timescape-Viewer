@@ -6,6 +6,7 @@ use crate::animation::Spring;
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
 use crate::core::{Domain, Trace};
 use crate::messages::{Message, line_chart::LineChartMessage};
+use crate::state::color_chooser::ColorChooser;
 use crate::state::{Scope, ScopePlotter};
 use crate::theme::MakoTheme;
 
@@ -47,6 +48,19 @@ impl LineChartLegend {
                 let signal = self.signals.get_mut(signal);
                 if let Some(signal) = signal {
                     signal.visible = visible;
+                }
+            }
+            LineChartMessage::InvokeColorChooser { signal } => {
+                let signal = self.signals.get(signal);
+                if let Some(signal) = signal {
+                    let chooser = ColorChooser::from(self.index, signal, &MakoTheme::Mako);
+                    return Task::done(Message::ShowModal(super::Modal::ChooseColor(chooser)));
+                }
+            }
+            LineChartMessage::Color { signal, color } => {
+                let signal = self.signals.get_mut(signal);
+                if let Some(signal) = signal {
+                    signal.color = color;
                 }
             }
             LineChartMessage::RemoveSignal(index) => {
@@ -144,6 +158,13 @@ pub struct LineChartLegendEntry {
 }
 
 impl LineChartLegendEntry {
+    pub fn invoke_color_chooser_message(&self, scope: &LineChartLegend) -> Message {
+        Message::LineChartMessage(
+            scope.index(),
+            LineChartMessage::InvokeColorChooser { signal: self.index },
+        )
+    }
+
     pub fn toggle_visibility_message(&self, scope: &LineChartLegend) -> Message {
         Message::LineChartMessage(
             scope.index(),

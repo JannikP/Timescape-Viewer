@@ -1,6 +1,7 @@
 //! Contains the state and data tree of the entire application.
 #![doc = simple_mermaid::mermaid!("overview.mmd")]
 
+pub mod color_chooser;
 pub mod history;
 pub mod line_chart;
 pub mod memento;
@@ -14,6 +15,7 @@ use std::{f64, rc::Rc, time::Instant};
 
 use crate::origins::csv::CsvOptions;
 
+use color_chooser::ColorChooser;
 use enum_dispatch::enum_dispatch;
 use line_chart::{LineChartLegend, LineChartPlotter};
 use spectrogram::{SpectrogramLegend, SpectrogramPlotter};
@@ -31,11 +33,22 @@ pub enum Stage {
     Timescape,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]
+#[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub enum Modal {
+    /// No model active. Show the normal UI without overlay.
     #[default]
     None,
+
+    /// Model dialog to choose the settings for how to interpret a .csv file. Triggered by
+    /// attempting to open a .csv file.
     InterpretCsv(CsvOptions),
+
+    /// Model dialog for choosing the color of a signal in a line chart. The generic naming is fine
+    /// as nothing else has user editable colors. There is no signal color in spectrograms and
+    /// trail charts use just two [Theme](crate::MakoTheme)-defined colors for banding.
+    /// This color chooser is opened by clicking the [Flag](crate::widgets::Flag) in front of a
+    /// signal in the line chart legend.
+    ChooseColor(ColorChooser),
 }
 
 #[enum_dispatch(ScopeLegend)]

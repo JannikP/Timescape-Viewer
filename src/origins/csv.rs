@@ -5,7 +5,7 @@
 ///
 /// Compare with [Pandas](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html)
 /// and the csv crate's [ReaderBuilder](https://docs.rs/csv/1.3.1/csv/struct.ReaderBuilder.html).
-#[derive(Debug, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
 pub struct CsvOptions {
     pub delimiter: char,
     pub quote_char: char,

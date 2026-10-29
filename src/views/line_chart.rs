@@ -45,7 +45,9 @@ where
     'a: 'b,
 {
     row![
-        Flag::new(entry.color, entry.index),
+        Flag::new(entry.color, entry.index)
+            .on_press(entry.invoke_color_chooser_message(scope))
+            .hint(t!("line_chart.choose_color_hint")),
         text(entry.signal.as_str()),
         space::horizontal(),
         button(if entry.visible { SHOW_ICON } else { HIDE_ICON })

@@ -7,6 +7,7 @@ pub enum ContainerClass {
     #[default]
     Standard,
     Abyss,
+    Tinted,
 }
 
 impl ContainerClass {
@@ -16,6 +17,7 @@ impl ContainerClass {
             background: match self {
                 ContainerClass::Standard => Some(colors.background.into()),
                 ContainerClass::Abyss => Some(colors.abyss.into()),
+                ContainerClass::Tinted => Some(colors.background.scale_alpha(0.2).into()),
             },
             text_color: Some(colors.text),
             border: NO_BORDER,

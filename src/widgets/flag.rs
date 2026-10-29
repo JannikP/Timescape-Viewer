@@ -12,6 +12,7 @@ use iced::window;
 use iced::{Background, Color, Element, Event, Length, Padding, Rectangle, Shadow, Size};
 
 use crate::constants::icons::SIGNAL_ICON;
+use crate::constants::layout::DEFAULT_FONT_SIZE;
 use crate::state::line_chart::LineColor;
 use crate::theme::MakoTheme;
 
@@ -265,7 +266,7 @@ where
             text::Text {
                 content: SIGNAL_ICON.into(),
                 font: renderer.default_font(),
-                size: 16.0.into(),
+                size: DEFAULT_FONT_SIZE.into(),
                 line_height: Default::default(),
                 bounds: bounds.size(),
                 align_x: text::Alignment::Center,
