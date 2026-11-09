@@ -4,9 +4,10 @@ use crate::theme::{MakoTheme, NO_BORDER, NO_SHADOW};
 
 #[derive(Default)]
 pub enum ContainerClass {
+    Abyss,
     #[default]
     Standard,
-    Abyss,
+    Elevated,
     Tinted,
 }
 
@@ -15,9 +16,10 @@ impl ContainerClass {
         let colors = style.colors();
         Style {
             background: match self {
-                ContainerClass::Standard => Some(colors.background.into()),
                 ContainerClass::Abyss => Some(colors.abyss.into()),
-                ContainerClass::Tinted => Some(colors.background.scale_alpha(0.2).into()),
+                ContainerClass::Standard => Some(colors.background.into()),
+                ContainerClass::Elevated => Some(colors.elevated.into()),
+                ContainerClass::Tinted => Some(colors.background.scale_alpha(0.7).into()),
             },
             text_color: Some(colors.text),
             border: NO_BORDER,

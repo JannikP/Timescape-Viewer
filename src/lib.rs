@@ -26,7 +26,7 @@ use rust_i18n::{i18n, t};
 use logging::setup_logger;
 use messages::Message;
 use state::{Modal, ScopeLegend, ScopePlotter, Stage, Window};
-use views::{modal, view_backstage, view_timescape};
+use views::{modal, view_backstage, view_color_chooser, view_timescape};
 
 use crate::commands::choose_file::choose_file;
 use crate::constants::icons::app_icon;
@@ -206,12 +206,12 @@ impl TimescapeViewer {
             Stage::Timescape => view_timescape(self),
         };
         if self.modal != Modal::None {
-            center(modal(
-                content,
-                text("Some modal dialog"),
-                Message::AbortModal,
-            ))
-            .into()
+            let dialog: Element<'_, Message, MakoTheme> = match &self.modal {
+                Modal::InterpretCsv(_options) => text("TODO: Import .csv file dialog").into(), //view_csv_import_modal(options),
+                Modal::ChooseColor(chooser) => view_color_chooser(chooser).into(),
+                Modal::None => unreachable!("Modal is not None here."),
+            };
+            center(modal(content, dialog, Message::AbortModal)).into()
         } else {
             center(content).into()
         }

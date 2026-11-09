@@ -30,6 +30,10 @@ impl ColorChooser {
         }
     }
 
+    pub fn authority(&self) -> Authority {
+        self.authority
+    }
+
     pub fn choice(&self) -> LineColor {
         match self.authority {
             Authority::Automatic => LineColor::Automatic,

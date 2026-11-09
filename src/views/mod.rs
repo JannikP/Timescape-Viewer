@@ -1,4 +1,5 @@
 mod backstage;
+mod color_chooser;
 mod common;
 mod csv_import_modal;
 mod line_chart;
@@ -8,5 +9,6 @@ mod timescape;
 mod trail_chart;
 
 pub use backstage::view_backstage;
+pub use color_chooser::view_color_chooser;
 pub use modal::modal;
 pub use timescape::view_timescape;

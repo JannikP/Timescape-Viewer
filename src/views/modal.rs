@@ -1,6 +1,7 @@
 use iced::Element;
-use iced::widget::{center, mouse_area, opaque, stack};
+use iced::widget::{center, container, mouse_area, opaque, stack};
 
+use crate::constants::layout::MODAL_PADDING;
 use crate::theme::{ContainerClass, MakoTheme};
 
 pub fn modal<'a, Message>(
@@ -13,7 +14,17 @@ where
 {
     stack![
         base.into(),
-        opaque(mouse_area(center(opaque(content)).class(ContainerClass::Tinted)).on_press(on_blur))
+        opaque(
+            mouse_area(
+                center(opaque(
+                    container(content)
+                        .class(ContainerClass::Elevated)
+                        .padding(MODAL_PADDING)
+                ))
+                .class(ContainerClass::Tinted)
+            )
+            .on_press(on_blur)
+        )
     ]
     .into()
 }
