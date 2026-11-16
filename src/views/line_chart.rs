@@ -11,7 +11,7 @@ use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartP
 use crate::state::window::Window;
 use crate::theme::{ButtonClass, MakoTheme};
 use crate::views::common::scope_handle_bar;
-use crate::widgets::{Axis, Flag, Grid, Hint, Trace};
+use crate::widgets::{Axis, Cursors, Flag, Grid, Hint, Trace};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
@@ -110,7 +110,7 @@ where
                     .into()
                 }),
         )
-        // TODO: .push(overlay with cursors)
+        .push(Cursors::new(window).width(Length::Fill).height(Length::Fill))
         .width(Length::Fill)
         .height(Length::Fill)
         .into()

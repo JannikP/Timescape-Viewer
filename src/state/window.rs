@@ -2,11 +2,12 @@ use iced::time::Instant;
 use std::rc::Rc;
 
 use crate::animation::Spring;
-use crate::core::Span;
+use crate::core::{CursorId, Span};
 use crate::state::{LiveMode, Run, Timestamp};
 
 #[derive(Debug, Clone)]
 pub struct Window {
+    index: usize,
     span: Spring<Span>,
     live: LiveMode,
     hover: Option<Timestamp>,
@@ -21,8 +22,9 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new(run: Rc<Run>) -> Self {
+    pub fn new(run: Rc<Run>, index: usize) -> Self {
         Self {
+            index,
             span: Spring::smooth(Span::new(0, 4000)),
             live: LiveMode::Off,
             hover: None,
@@ -30,6 +32,44 @@ impl Window {
             second_cursor: None,
             run,
             size: 1,
+        }
+    }
+
+    /// The position of this window in the list of windows.
+    pub fn index(&self) -> usize {
+        self.index
+    }
+
+    /// Sets the position of this window in the list of windows. Used when
+    /// windows are pushed or closed to keep the indices in sync.
+    pub fn set_index(&mut self, index: usize) {
+        self.index = index;
+    }
+
+    /// The timestamp of the primary cursor, if shown.
+    pub fn primary_cursor(&self) -> Option<i64> {
+        self.first_cursor.map(Timestamp::value)
+    }
+
+    /// The timestamp of the secondary cursor, if shown.
+    pub fn secondary_cursor(&self) -> Option<i64> {
+        self.second_cursor.map(Timestamp::value)
+    }
+
+    /// Shows the given cursor at the timestamp.
+    pub fn set_cursor(&mut self, cursor: CursorId, position: i64) {
+        let timestamp = Timestamp::from(position);
+        match cursor {
+            CursorId::Primary => self.first_cursor = Some(timestamp),
+            CursorId::Secondary => self.second_cursor = Some(timestamp),
+        }
+    }
+
+    /// Hides the given cursor.
+    pub fn dismiss_cursor(&mut self, cursor: CursorId) {
+        match cursor {
+            CursorId::Primary => self.first_cursor = None,
+            CursorId::Secondary => self.second_cursor = None,
         }
     }
 

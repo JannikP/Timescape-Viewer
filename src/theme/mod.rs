@@ -3,6 +3,7 @@ mod button;
 mod checkbox;
 mod combo_box;
 mod container;
+mod cursor;
 mod flag;
 mod float;
 mod menu;

@@ -25,6 +25,7 @@ use rust_i18n::{i18n, t};
 // use commands::choose_file::choose_file;
 use logging::setup_logger;
 use messages::Message;
+use messages::window;
 use state::{Modal, ScopeLegend, ScopePlotter, Stage, Window};
 use views::{modal, view_backstage, view_color_chooser, view_timescape};
 
@@ -165,9 +166,24 @@ impl TimescapeViewer {
                     return chart.update(inner_message);
                 }
             }
-            Message::Window(_, _) => {
-                todo!();
-            }
+            Message::Window(index, inner_message) => match inner_message {
+                window::Message::Place { cursor, position } => {
+                    if let Some(window) = self.windows.get_mut(index) {
+                        window.set_cursor(cursor, position);
+                    }
+                }
+                window::Message::Dismiss(cursor) => {
+                    if let Some(window) = self.windows.get_mut(index) {
+                        window.dismiss_cursor(cursor);
+                    }
+                }
+                window::Message::Close => self.close_window(index),
+                window::Message::Minimize
+                | window::Message::Restore
+                | window::Message::Maximize => {
+                    debug!("Window controls are not implemented yet.");
+                }
+            },
             Message::Undo => {
                 if let Some(memento) = self.history.undo() {
                     memento.revert(&mut self.scopes, &mut self.windows, now);
@@ -245,7 +261,7 @@ impl TimescapeViewer {
     /// the list, meaning it will be displayed on the right. The user can
     /// reorder them afterwards if desired.
     fn push_window(&mut self, run: Rc<Run>) {
-        let window = Window::new(run);
+        let window = Window::new(run, self.windows.len());
         let plotters: Vec<ScopePlotter> = self
             .scopes
             .iter()
@@ -302,6 +318,9 @@ impl TimescapeViewer {
         }
         self.windows.remove(index);
         self.plotters.remove_col(index);
+        for (index, window) in self.windows.iter_mut().enumerate() {
+            window.set_index(index);
+        }
     }
 
     /// Removes the scope at the given index, removing it from the list of
@@ -325,9 +344,13 @@ impl TimescapeViewer {
 mod tests {
     use iced_test::Simulator;
 
-    use crate::state::{Scope, ScopeLegend, Source};
+    use crate::core::CursorId;
+    use crate::messages::window;
+    use crate::state::{Scope, ScopeLegend, Source, Window};
 
     use super::{TimescapeViewer, settings};
+    use crate::messages::Message;
+    use std::time::Instant;
 
     fn app_with_one_run() -> TimescapeViewer {
         let mut app = TimescapeViewer::default();
@@ -361,6 +384,97 @@ mod tests {
             2,
             "Expected two column of plotters, one per window.",
         );
+    }
+
+    #[test]
+    fn test_push_window_indices() {
+        // Arrange
+        let mut app = app_with_one_run();
+        let run = app
+            .sources
+            .first()
+            .map(Source::first_run)
+            .flatten()
+            .expect("There should be one run added by `app_with_one_run`.");
+
+        // Act
+        app.push_window(run.clone());
+        app.push_window(run);
+
+        // Assert
+        let indices: Vec<usize> = app.windows.iter().map(Window::index).collect();
+        assert_eq!(
+            indices,
+            vec![0, 1, 2],
+            "Each window should know its position in the list of windows.",
+        );
+    }
+
+    #[test]
+    fn test_window_indices_after_closing() {
+        // Arrange
+        let mut app = app_with_one_run();
+        let run = app
+            .sources
+            .first()
+            .map(Source::first_run)
+            .flatten()
+            .expect("There should be one run added by `app_with_one_run`.");
+        app.push_window(run.clone());
+        app.push_window(run);
+
+        // Act
+        app.close_window(1);
+
+        // Assert
+        let indices: Vec<usize> = app.windows.iter().map(Window::index).collect();
+        assert_eq!(
+            indices,
+            vec![0, 1],
+            "Closing a window should renumber the remaining windows.",
+        );
+    }
+
+    #[test]
+    fn test_place_and_dismiss_cursors() {
+        // Arrange
+        let mut app = app_with_one_run();
+
+        // Act: place primary cursor on the first window.
+        app.update(
+            Message::Window(
+                0,
+                window::Message::Place {
+                    cursor: CursorId::Primary,
+                    position: 1000,
+                },
+            ),
+            Instant::now(),
+        );
+        // Act: place secondary cursor on the second window, which does not exist.
+        app.update(
+            Message::Window(
+                1,
+                window::Message::Place {
+                    cursor: CursorId::Secondary,
+                    position: 2000,
+                },
+            ),
+            Instant::now(),
+        );
+
+        // Assert
+        assert_eq!(app.windows[0].primary_cursor(), Some(1000));
+        assert_eq!(app.windows[0].secondary_cursor(), None);
+
+        // Act: dismiss the primary cursor.
+        app.update(
+            Message::Window(0, window::Message::Dismiss(CursorId::Primary)),
+            Instant::now(),
+        );
+
+        // Assert
+        assert_eq!(app.windows[0].primary_cursor(), None);
     }
 
     #[test]

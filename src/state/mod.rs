@@ -106,6 +106,20 @@ pub enum ScopePlotter {
 #[derive(Debug, Default, PartialEq, Copy, Clone, PartialOrd)]
 pub struct Timestamp(i64);
 
+impl Timestamp {
+    /// The underlying value in nanoseconds since the Unix epoch.
+    #[must_use]
+    pub fn value(self) -> i64 {
+        self.0
+    }
+}
+
+impl From<i64> for Timestamp {
+    fn from(value: i64) -> Self {
+        Self(value)
+    }
+}
+
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]
 pub enum LiveMode {
     #[default]
