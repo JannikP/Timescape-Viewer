@@ -193,6 +193,11 @@ impl TimescapeViewer {
                 };
                 memento.apply(&mut self.scopes, &mut self.windows, now);
             }
+            Message::ColorChooserMessage(inner) => {
+                if let Modal::ChooseColor(chooser) = &mut self.modal {
+                    chooser.update(inner);
+                }
+            }
             Message::None => {
                 debug!("Do nothing.");
             }

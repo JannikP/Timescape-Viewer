@@ -1,8 +1,8 @@
-use iced::Color;
-
+use crate::messages::color_chooser::ColorChooserMessage;
 use crate::messages::{Message, line_chart::LineChartMessage};
 use crate::state::line_chart::{LineChartLegendEntry, LineColor};
 use crate::theme::MakoTheme;
+use crate::utilities::{color_to_hsv, hsv_to_color};
 
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct ColorChooser {
@@ -16,17 +16,25 @@ pub struct ColorChooser {
     /// user defined color.
     authority: Authority,
 
-    /// Intermediate state of the user's color choice.
-    user_color: Color,
+    /// Intermediate state of the user's color choice (hue)
+    hue: f32,
+
+    /// Intermediate state of the user's color choice (saturation)
+    saturation: f32,
+
+    value: f32,
 }
 
 impl ColorChooser {
     pub fn from(chart: usize, entry: &LineChartLegendEntry, theme: &MakoTheme) -> Self {
+        let (h, s, v) = color_to_hsv(entry.color.color(theme, entry.index));
         ColorChooser {
             chart,
             entry: entry.index,
             authority: entry.color.into(),
-            user_color: entry.color.color(theme, entry.index),
+            hue: h,
+            saturation: s,
+            value: v,
         }
     }
 
@@ -34,10 +42,35 @@ impl ColorChooser {
         self.authority
     }
 
+    pub fn hue(&self) -> f32 {
+        self.hue
+    }
+
+    pub fn saturation(&self) -> f32 {
+        self.saturation
+    }
+
+    pub fn value(&self) -> f32 {
+        self.value
+    }
+
     pub fn choice(&self) -> LineColor {
         match self.authority {
             Authority::Automatic => LineColor::Automatic,
-            Authority::UserDefined => LineColor::UserDefined(self.user_color),
+            Authority::UserDefined => LineColor::UserDefined(hsv_to_color(self.hue, self.saturation, self.value)),
+        }
+    }
+
+    pub fn update(&mut self, message: ColorChooserMessage) {
+        match message {
+            ColorChooserMessage::ChangeAuthority(authority) => {
+                self.authority = authority;
+            }
+            ColorChooserMessage::ChangeColor { hue, saturation } => {
+                self.authority = Authority::UserDefined;
+                self.hue = hue;
+                self.saturation = saturation;
+            }
         }
     }
 

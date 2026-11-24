@@ -64,7 +64,7 @@ glam = { version="0.25.0", features=[ "bytemuck" ] }
 grid = "0.17.0"
 
 # GUI framework
-iced = { version = "0.14.0", default-features = false, features = ["advanced", "wgpu", "debug", "crisp", "thread-pool", "advanced-shaping", "image"] }
+iced = { version = "0.14.0", default-features = false, features = ["advanced", "canvas", "wgpu", "debug", "crisp", "thread-pool", "advanced-shaping", "image"] }
 
 # Read image files.
 # So far used only to specify the image format of the app icon.

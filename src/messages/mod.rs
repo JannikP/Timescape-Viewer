@@ -1,3 +1,4 @@
+pub mod color_chooser;
 pub mod line_chart;
 pub mod window;
 
@@ -25,6 +26,7 @@ pub enum Message {
     Undo,
     Redo,
     Navigation(Box<Memento>),
+    ColorChooserMessage(color_chooser::ColorChooserMessage),
 }
 
 #[cfg(test)]
