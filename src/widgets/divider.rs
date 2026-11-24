@@ -1,17 +1,14 @@
 //! A draggable divider between scopes or windows. Dragging it allows the user to resize the
 //! relative sizes of the scopes or windows.
 
+use iced::advanced::renderer;
+use iced::advanced::widget::tree::{self, Tree};
+use iced::advanced::{Clipboard, Layout, Shell, Widget, layout};
+use iced::mouse;
 use iced::touch;
+use iced::window;
+use iced::{Element, Length, Rectangle, Size};
 use iced::{Event, Point};
-use iced_core as core;
-use iced_core::Clipboard;
-use iced_core::Shell;
-use iced_core::layout;
-use iced_core::mouse;
-use iced_core::renderer;
-use iced_core::widget::tree::{self, Tree};
-use iced_core::window;
-use iced_core::{Element, Layout, Length, Rectangle, Size, Widget};
 
 use crate::constants::layout::PANEL_GAP;
 
@@ -116,7 +113,7 @@ impl<'a, Message> Divider<'a, Message> {
 impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Divider<'a, Message>
 where
     Message: Clone,
-    Renderer: core::Renderer,
+    Renderer: iced::advanced::renderer::Renderer,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -261,7 +258,7 @@ where
 impl<'a, Message, Theme, Renderer> From<Divider<'a, Message>>
     for Element<'a, Message, Theme, Renderer>
 where
-    Renderer: core::Renderer,
+    Renderer: iced::advanced::renderer::Renderer,
     Message: 'a + Clone,
 {
     fn from(divider: Divider<'a, Message>) -> Element<'a, Message, Theme, Renderer> {

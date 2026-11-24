@@ -1,19 +1,20 @@
-use iced::advanced::graphics::Mesh;
+use iced::time::Instant;
 use iced::{Color, Task};
 use log::info;
 
+use crate::animation::Spring;
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
-use crate::core::Bracket;
+use crate::core::{Domain, Trace};
 use crate::messages::{Message, line_chart::LineChartMessage};
-
-use super::Scope;
+use crate::state::color_chooser::ColorChooser;
+use crate::state::{Scope, ScopePlotter};
+use crate::theme::MakoTheme;
 
 #[derive(Debug, Clone)]
 pub struct LineChartLegend {
     index: usize,
     signals: Vec<LineChartLegendEntry>,
-    minimum: f64,
-    maximum: f64,
+    domain: Spring<Domain>,
     height: f32,
     signal_input: String,
 }
@@ -24,7 +25,7 @@ impl LineChartLegend {
         let entry = LineChartLegendEntry {
             index,
             signal: signal.into(),
-            color: Color::WHITE,
+            color: LineColor::default(),
             visible: true,
         };
         self.signals.push(entry);
@@ -49,6 +50,19 @@ impl LineChartLegend {
                     signal.visible = visible;
                 }
             }
+            LineChartMessage::InvokeColorChooser { signal } => {
+                let signal = self.signals.get(signal);
+                if let Some(signal) = signal {
+                    let chooser = ColorChooser::from(self.index, signal, &MakoTheme::Mako);
+                    return Task::done(Message::ShowModal(super::Modal::ChooseColor(chooser)));
+                }
+            }
+            LineChartMessage::Color { signal, color } => {
+                let signal = self.signals.get_mut(signal);
+                if let Some(signal) = signal {
+                    signal.color = color;
+                }
+            }
             LineChartMessage::RemoveSignal(index) => {
                 self.remove_signal(index);
             }
@@ -68,6 +82,10 @@ impl LineChartLegend {
         Task::none()
     }
 
+    pub fn set_domain(&mut self, domain: Domain, now: Instant) {
+        self.domain.go(domain, now);
+    }
+
     pub fn signal_input(&self) -> &str {
         self.signal_input.as_str()
     }
@@ -81,6 +99,10 @@ impl LineChartLegend {
     pub fn on_signal_input_submit(&self) -> Message {
         Message::LineChartMessage(self.index, LineChartMessage::SignalInputSubmit)
     }
+
+    pub fn domain(&self) -> &Domain {
+        self.domain.value()
+    }
 }
 
 impl Scope for LineChartLegend {
@@ -92,8 +114,8 @@ impl Scope for LineChartLegend {
         self.height = height.clamp(MINIMUM_SCOPE_HEIGHT, MAXIMUM_SCOPE_HEIGHT);
     }
 
-    fn create_plotter(&self) -> super::ScopePlotter {
-        super::ScopePlotter::LineChart(LineChartPlotter {
+    fn create_plotter(&self) -> ScopePlotter {
+        ScopePlotter::LineChart(LineChartPlotter {
             signals: Vec::new(),
         })
     }
@@ -105,6 +127,14 @@ impl Scope for LineChartLegend {
     fn set_index(&mut self, index: usize) {
         self.index = index;
     }
+
+    fn is_animating(&self) -> bool {
+        self.domain.is_animating()
+    }
+
+    fn update(&mut self, now: Instant) {
+        self.domain.update(now);
+    }
 }
 
 impl Default for LineChartLegend {
@@ -112,8 +142,7 @@ impl Default for LineChartLegend {
         Self {
             index: 0,
             signals: Vec::new(),
-            minimum: 0.0,
-            maximum: 1.0,
+            domain: Spring::smooth(Domain::default()),
             height: 150.0,
             signal_input: String::new(),
         }
@@ -123,12 +152,19 @@ impl Default for LineChartLegend {
 #[derive(Debug, Clone)]
 pub struct LineChartLegendEntry {
     pub signal: String,
-    pub color: Color,
+    pub color: LineColor,
     pub visible: bool,
     pub index: usize,
 }
 
 impl LineChartLegendEntry {
+    pub fn invoke_color_chooser_message(&self, scope: &LineChartLegend) -> Message {
+        Message::LineChartMessage(
+            scope.index(),
+            LineChartMessage::InvokeColorChooser { signal: self.index },
+        )
+    }
+
     pub fn toggle_visibility_message(&self, scope: &LineChartLegend) -> Message {
         Message::LineChartMessage(
             scope.index(),
@@ -146,12 +182,28 @@ impl LineChartLegendEntry {
 
 #[derive(Debug, Clone)]
 pub struct LineChartPlotter {
-    signals: Vec<Line>,
+    signals: Vec<Trace>,
 }
 
-#[derive(Debug, Clone)]
-pub struct Line {
-    brackets: Vec<Bracket>,
-    line: Mesh,
-    spread: Mesh,
+impl LineChartPlotter {
+    pub fn iter_lines(&self) -> impl Iterator<Item = &Trace> {
+        self.signals.iter()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum LineColor {
+    #[default]
+    Automatic,
+
+    UserDefined(Color),
+}
+
+impl LineColor {
+    pub fn color(&self, theme: &MakoTheme, index: usize) -> Color {
+        match self {
+            Self::Automatic => theme.categorical_color(index),
+            Self::UserDefined(color) => *color,
+        }
+    }
 }

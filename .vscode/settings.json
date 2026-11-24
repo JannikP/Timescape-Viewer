@@ -26,15 +26,20 @@
         }
     ],
     "cSpell.words": [
-        "Akasha",
         "antialiasing",
+        "bytemuck",
+        "dpdx",
+        "dpdy",
         "Fira",
         "flexi",
+        "interpolable",
         "repr",
         "serde",
+        "smoothstep",
         "timescape",
         "vsync",
-        "wgpu"
+        "wgpu",
+        "wgsl"
     ],
     "i18n-ally.localesPaths": [
         "./src/messages",

@@ -1,7 +1,7 @@
 use iced::Border;
 use iced::widget::text_input::{Catalog, Status, Style};
 
-use super::MakoTheme;
+use crate::theme::MakoTheme;
 
 #[derive(Default)]
 pub enum TextInputClass {

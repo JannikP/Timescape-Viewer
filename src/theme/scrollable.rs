@@ -2,7 +2,7 @@ use iced::widget::container;
 use iced::widget::scrollable::{AutoScroll, Catalog, Rail, Scroller, Status, Style, StyleFn};
 use iced::{Color, Shadow, Vector};
 
-use super::{MakoTheme, NO_BORDER};
+use crate::theme::{MakoTheme, NO_BORDER};
 
 impl Catalog for MakoTheme {
     type Class<'a> = StyleFn<'a, Self>;

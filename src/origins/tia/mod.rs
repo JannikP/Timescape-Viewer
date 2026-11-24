@@ -93,8 +93,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::read_tia_trace;
     use std::{fs::File, path::PathBuf};
+
+    use super::read_tia_trace;
 
     #[test]
     fn read_example_tia_trace() {

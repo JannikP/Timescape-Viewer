@@ -1,6 +1,6 @@
 use iced::widget::radio::{Catalog, Status, Style};
 
-use super::MakoTheme;
+use crate::theme::MakoTheme;
 
 #[derive(Default)]
 pub enum RadioClass {

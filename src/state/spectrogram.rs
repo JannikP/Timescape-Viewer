@@ -1,6 +1,5 @@
 use crate::constants::layout::{MAXIMUM_SCOPE_HEIGHT, MINIMUM_SCOPE_HEIGHT};
-
-use super::Scope;
+use crate::state::{Scope, ScopePlotter};
 
 #[derive(Debug)]
 pub struct SpectrogramLegend {
@@ -26,8 +25,8 @@ impl Scope for SpectrogramLegend {
         self.height = height.clamp(MINIMUM_SCOPE_HEIGHT, MAXIMUM_SCOPE_HEIGHT);
     }
 
-    fn create_plotter(&self) -> super::ScopePlotter {
-        super::ScopePlotter::Spectrogram(SpectrogramPlotter {})
+    fn create_plotter(&self) -> ScopePlotter {
+        ScopePlotter::Spectrogram(SpectrogramPlotter {})
     }
 
     fn index(&self) -> usize {

@@ -1,4 +1,4 @@
-use super::Scope;
+use crate::state::{Scope, ScopePlotter};
 
 #[derive(Debug, Default, Clone)]
 pub struct TrailChartLegend {
@@ -15,8 +15,8 @@ impl Scope for TrailChartLegend {
 
     fn resize(&mut self, _height: f32) {}
 
-    fn create_plotter(&self) -> super::ScopePlotter {
-        super::ScopePlotter::TrailChart(TrailChartPlotter { tracks: Vec::new() })
+    fn create_plotter(&self) -> ScopePlotter {
+        ScopePlotter::TrailChart(TrailChartPlotter { tracks: Vec::new() })
     }
 
     fn index(&self) -> usize {

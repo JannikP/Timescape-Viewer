@@ -1,12 +1,16 @@
+pub mod color_chooser;
 pub mod line_chart;
+pub mod window;
 
 use crate::messages::line_chart::LineChartMessage;
 use crate::origins::Origin;
-use crate::state::Stage;
+use crate::state::{Memento, Modal, Stage};
 
 #[derive(Debug, Clone)]
 pub enum Message {
     None,
+    Animate,
+    ShowModal(Modal),
     AbortModal,
     ChooseFile,
     GoTo(Stage),
@@ -18,6 +22,11 @@ pub enum Message {
     RemoveScope(usize),
     ResizeScope(usize, f32),
     LineChartMessage(usize, LineChartMessage),
+    Window(usize, window::Message),
+    Undo,
+    Redo,
+    Navigation(Box<Memento>),
+    ColorChooserMessage(color_chooser::ColorChooserMessage),
 }
 
 #[cfg(test)]

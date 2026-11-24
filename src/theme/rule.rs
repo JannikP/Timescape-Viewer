@@ -1,7 +1,7 @@
 use iced::border::Radius;
 use iced::widget::rule::{Catalog, FillMode, Style};
 
-use super::MakoTheme;
+use crate::theme::MakoTheme;
 
 #[derive(Default)]
 pub enum RuleClass {

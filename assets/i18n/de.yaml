@@ -19,6 +19,7 @@ timescape:
     maximize_scope_hint: Diagramm auf die Größe des Fensters maximieren
     remove_scope_hint: Diagramm schließen
 line_chart:
+    choose_color_hint: Klicken um die Signalfarbe zu ändern.
     visibility_hint: Schaltet die Sichtbarkeit des Signals um.
     delete_hint: Löscht dieses Signal.
     add_signal:

@@ -1,15 +1,17 @@
 use iced::alignment::Vertical;
-use iced::widget::{Column, button, row, space, text, text_input};
+use iced::widget::{Column, Stack, button, row, shader, space, text, text_input};
 use iced::{Element, Length};
 use rust_i18n::t;
 
-use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON, SIGNAL_ICON};
+use crate::constants::icons::{ADD_ICON, DELETE_ICON, HIDE_ICON, SHOW_ICON};
+use crate::constants::layout::BUTTON_GAP;
 use crate::messages::Message;
 use crate::state::Scope;
 use crate::state::line_chart::{LineChartLegend, LineChartLegendEntry, LineChartPlotter};
-use crate::theme::MakoTheme;
+use crate::state::window::Window;
+use crate::theme::{ButtonClass, MakoTheme};
 use crate::views::common::scope_handle_bar;
-use crate::widgets::{Axis, Hint, Scaling, chart};
+use crate::widgets::{Axis, Flag, Grid, Hint, Trace};
 
 pub fn line_chart_legend<'a, 'b>(legend: &'a LineChartLegend) -> Element<'b, Message, MakoTheme>
 where
@@ -25,10 +27,10 @@ where
             )
             .push(signal_chooser_line(legend))
             .push(space::vertical())
-            .spacing(4)
+            .spacing(BUTTON_GAP)
             .width(Length::Fill)
             .height(Length::Fill),
-        Axis::new(Scaling::Linear, -5.0..=105.0),
+        Axis::new(legend.index(), *legend.domain()),
     ]
     .width(Length::Fill)
     .height(Length::Fill)
@@ -43,18 +45,22 @@ where
     'a: 'b,
 {
     row![
-        text(SIGNAL_ICON).color(entry.color),
+        Flag::new(entry.color, entry.index)
+            .on_press(entry.invoke_color_chooser_message(scope))
+            .hint(t!("line_chart.choose_color_hint")),
         text(entry.signal.as_str()),
         space::horizontal(),
         button(if entry.visible { SHOW_ICON } else { HIDE_ICON })
             .on_press(entry.toggle_visibility_message(scope))
+            .class(ButtonClass::Secondary)
             .hint(t!("line_chart.visibility_hint")),
         button(DELETE_ICON)
             .on_press(entry.delete_message(scope))
+            .class(ButtonClass::Danger)
             .hint(t!("line_chart.delete_hint")),
     ]
     .align_y(Vertical::Center)
-    .spacing(4)
+    .spacing(BUTTON_GAP)
     .into()
 }
 
@@ -73,13 +79,39 @@ where
         .hint(t!("line_chart.add_signal.hint")),
     ]
     .align_y(Vertical::Center)
-    .spacing(4)
+    .spacing(BUTTON_GAP)
     .into()
 }
 
-pub fn line_chart_plotter<'a, 'b>(_plotter: &'a LineChartPlotter) -> Element<'b, Message, MakoTheme>
+pub fn line_chart_plotter<'a, 'b>(
+    legend: &'a LineChartLegend,
+    window: &'a Window,
+    _plotter: &'a LineChartPlotter,
+) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
-    chart().into()
+    Stack::new()
+        .push(shader(Grid::new()).width(Length::Fill).height(Length::Fill))
+        .extend(
+            legend
+                .iter_signals()
+                // .zip(plotter.iter_lines())
+                // .map(|(entry, trace)| {
+                .map(|entry| {
+                    shader::<Message, _>(Trace::new(
+                        window.span(),
+                        *legend.domain(),
+                        //trace,
+                        entry.color.color(&MakoTheme::Mako, entry.index),
+                    ))
+                    .width(Length::Fill)
+                    .height(Length::Fill)
+                    .into()
+                }),
+        )
+        // TODO: .push(overlay with cursors)
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .into()
 }

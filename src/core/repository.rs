@@ -95,7 +95,11 @@ pub trait QueryBuilder {
     fn resampled(self, interval: std::time::Duration) -> impl Iterator<Item = Sample>;
 
     ///
-    fn spans(self, min_run_length: i64, hysteresis: impl Fn(f64, bool) -> bool) -> impl Iterator<Item = Run>;
+    fn spans(
+        self,
+        min_run_length: i64,
+        hysteresis: impl Fn(f64, bool) -> bool,
+    ) -> impl Iterator<Item = Run>;
 }
 
 pub struct Sample {

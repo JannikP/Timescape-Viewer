@@ -1,22 +1,29 @@
 //! Contains the state and data tree of the entire application.
 #![doc = simple_mermaid::mermaid!("overview.mmd")]
 
+pub mod color_chooser;
+pub mod history;
 pub mod line_chart;
+pub mod memento;
 pub mod signal;
 pub mod spectrogram;
 pub mod trail_chart;
+pub mod vocabulary;
 pub mod window;
 
-use std::{f64, rc::Rc};
+use std::{f64, rc::Rc, time::Instant};
 
 use crate::origins::csv::CsvOptions;
 
+use color_chooser::ColorChooser;
 use enum_dispatch::enum_dispatch;
 use line_chart::{LineChartLegend, LineChartPlotter};
-use signal::Signal;
 use spectrogram::{SpectrogramLegend, SpectrogramPlotter};
 use trail_chart::{TrailChartLegend, TrailChartPlotter};
 
+pub use history::History;
+pub use memento::Memento;
+pub use signal::{Signal, SignalId};
 pub use window::Window;
 
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]
@@ -26,11 +33,22 @@ pub enum Stage {
     Timescape,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]
+#[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub enum Modal {
+    /// No model active. Show the normal UI without overlay.
     #[default]
     None,
+
+    /// Model dialog to choose the settings for how to interpret a .csv file. Triggered by
+    /// attempting to open a .csv file.
     InterpretCsv(CsvOptions),
+
+    /// Model dialog for choosing the color of a signal in a line chart. The generic naming is fine
+    /// as nothing else has user editable colors. There is no signal color in spectrograms and
+    /// trail charts use just two [Theme](crate::MakoTheme)-defined colors for banding.
+    /// This color chooser is opened by clicking the [Flag](crate::widgets::Flag) in front of a
+    /// signal in the line chart legend.
+    ChooseColor(ColorChooser),
 }
 
 #[enum_dispatch(ScopeLegend)]
@@ -44,6 +62,12 @@ pub trait Scope {
     fn index(&self) -> usize;
 
     fn set_index(&mut self, index: usize);
+
+    fn is_animating(&self) -> bool {
+        false
+    }
+
+    fn update(&mut self, _now: Instant) {}
 }
 
 #[enum_dispatch]

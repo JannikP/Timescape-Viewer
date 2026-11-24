@@ -19,6 +19,7 @@ timescape:
     maximize_scope_hint: Maximize this scope to fill the entire window
     remove_scope_hint: Remove this scope
 line_chart:
+    choose_color_hint: Click to choose the signal's color.
     visibility_hint: Toggle the visibility of this signal.
     delete_hint: Delete this signal.
     add_signal:

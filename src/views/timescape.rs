@@ -1,18 +1,19 @@
 use std::iter::StepBy;
 
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{
-    Column, Row, Space, button, center, column, container, row, scrollable, space, text,
-};
+use iced::widget::{Column, Row, button, center, column, container, row, scrollable, space, text};
 use iced::{Element, Length};
 use rust_i18n::t;
 
 use crate::TimescapeViewer;
-use crate::constants::icons::{LINE_CHART_ICON, MENU_ICON, SPECTROGRAM_ICON, TRAIL_CHART_ICON};
-use crate::constants::layout::PANEL_GAP;
+use crate::constants::icons::{
+    LINE_CHART_ICON, MENU_ICON, SKIP_BACK_ICON, SKIP_FORWARD_ICON, SPECTROGRAM_ICON,
+    TRAIL_CHART_ICON,
+};
+use crate::constants::layout::{BUTTON_GAP, LEGEND_WIDTH, PANEL_GAP};
 use crate::messages::Message;
 use crate::state::{Scope, ScopeLegend, ScopePlotter, Stage, Window};
-use crate::theme::{ContainerClass, MakoTheme};
+use crate::theme::{ButtonClass, ContainerClass, MakoTheme};
 use crate::views::line_chart::{line_chart_legend, line_chart_plotter};
 use crate::views::spectrogram::spectrogram_legend;
 use crate::views::trail_chart::trail_chart_legend;
@@ -47,15 +48,41 @@ pub fn view_timescape(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> 
     .into()
 }
 
-fn header(_app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
+fn header(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
+    Row::new()
+        .push(toolbar(app))
+        .extend(app.windows.iter().map(panorama))
+        .push(space().width(12)) // TODO: Put a button to create windows here.
+        .spacing(PANEL_GAP)
+        .width(Length::Fill)
+        .height(Length::Shrink)
+        .into()
+}
+
+fn toolbar(app: &TimescapeViewer) -> Element<'_, Message, MakoTheme> {
     row![
         button(MENU_ICON).on_press(Message::GoTo(Stage::Backstage)),
-        Space::new().width(Length::Fill),
-        Space::new().width(12), // TODO: Replace this with a button to add more windows
+        button(SKIP_BACK_ICON) // TODO: Replace with proper undo icon.
+            .on_press_maybe(app.history.undo_message())
+            .class(ButtonClass::Secondary),
+        button(SKIP_FORWARD_ICON) // TODO: Replace with proper redo icon.
+            .on_press_maybe(app.history.redo_message())
+            .class(ButtonClass::Secondary),
     ]
-    .spacing(PANEL_GAP)
-    .width(Length::Fill)
+    .spacing(BUTTON_GAP)
+    .width(LEGEND_WIDTH)
     .height(Length::Shrink)
+    .into()
+}
+
+fn panorama(window: &Window) -> Element<'_, Message, MakoTheme> {
+    text!(
+        "Window showing {}..{}",
+        window.span().begin,
+        window.span().end
+    )
+    .width(Length::FillPortion(window.size))
+    .height(Length::Fill)
     .into()
 }
 
@@ -154,7 +181,7 @@ where
         .push(legend(scope))
         .extend(windows.iter().zip(plotters).flat_map(|window_plotter| {
             [
-                plotter(window_plotter),
+                plotter(scope, window_plotter),
                 Divider::vertical(0.5, |_| Message::None).into(),
             ]
         }))
@@ -173,23 +200,32 @@ where
         ScopeLegend::TrailChart(trail_chart) => trail_chart_legend(trail_chart),
     };
     container(content)
-        .padding(8)
-        .width(350)
+        .padding(8) // TODO: Make this a constant
+        .width(LEGEND_WIDTH)
         .height(Length::Fill)
         .class(ContainerClass::Standard)
         .into()
 }
 
 fn plotter<'a, 'b>(
+    scope: &'a ScopeLegend,
     (window, plotter): (&'a Window, &'a ScopePlotter),
 ) -> Element<'b, Message, MakoTheme>
 where
     'a: 'b,
 {
-    let content = match plotter {
-        ScopePlotter::LineChart(line_chart) => line_chart_plotter(line_chart),
-        ScopePlotter::Spectrogram(_spectrogram) => text("TODO: Spectrogram").into(),
-        ScopePlotter::TrailChart(_trail_chart) => text("TODO: Trail Chart").into(),
+    let content = match (scope, plotter) {
+        (ScopeLegend::LineChart(line_legend), ScopePlotter::LineChart(line_plotter)) => {
+            line_chart_plotter(line_legend, window, line_plotter)
+        }
+        (
+            ScopeLegend::Spectrogram(_spectrogram_legend),
+            ScopePlotter::Spectrogram(_spectrogram_plotter),
+        ) => text("TODO: Spectrogram").into(),
+        (ScopeLegend::TrailChart(_trail_legend), ScopePlotter::TrailChart(_trail_plotter)) => {
+            text("TODO: Trail chart").into()
+        }
+        _ => panic!("Invalid combination of legend and plotter!"),
     };
     container(content)
         .width(Length::FillPortion(window.size))

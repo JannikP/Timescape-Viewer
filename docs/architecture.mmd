@@ -1,0 +1,25 @@
+---
+title: Timescape-Viewer Data Flow & Architecture
+---
+flowchart TD
+    %%source@{ shape: doc, label: File }
+    source[File like .csv]
+    subgraph Repository
+        direction LR
+        repository[In memory representation and cache]
+        db[(SQLite database)]
+
+        repository -- Persisted and off-loaded --> db
+        db -- Queried --> repository
+    end
+    tree[Implicit In-order Forests]
+    buffer[GPU copy of the Forests]
+    vertices[Trace vertices]
+    screen[Screen]
+
+    source -- Parsed in `iced::Task` --> repository
+    repository -- Resampled and aggregated<br/>in `iced::Task` on window change --> tree
+    tree -- Copied to GPU by `Pipeline::update` --> buffer
+    buffer -- Vertex shader performs range queries<br/>and converts from physical to pixel values --> vertices
+    vertices -- Fragment shader renders a smooth pre-filtered line --> screen
+

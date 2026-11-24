@@ -1,0 +1,283 @@
+//! A circular HSV color wheel widget for Iced.
+//!
+//! Renders a hue/saturation wheel (angle = hue, distance = saturation) with
+//! click-and-drag interaction. Pair with a brightness slider for full HSV control.
+//!
+//! # Usage
+//!
+//! ```rust,no_run
+//! use iced::widget::canvas;
+//! use iced_color_wheel::WheelProgram;
+//!
+//! // In your view function:
+//! let wheel = canvas(WheelProgram::new(hue, saturation, value, |h, s| {
+//!     MyMessage::HueSatChanged(h, s)
+//! }))
+//! .width(250)
+//! .height(250);
+//! ```
+
+use iced::widget::canvas::{self, Action, Frame, Geometry, Path};
+use iced::{mouse, Color, Event, Point, Rectangle, Renderer, Size};
+use std::cell::Cell;
+use std::f32::consts::PI;
+
+use crate::theme::MakoTheme;
+use crate::utilities::hsv_to_color;
+
+// Rendering resolution
+const HUE_STEPS: usize = 360;
+const SAT_STEPS: usize = 128;
+
+// ---------------------------------------------------------------------------
+// Canvas program — the wheel rendering + interaction
+// ---------------------------------------------------------------------------
+
+/// A circular HSV color wheel canvas program for Iced.
+///
+/// Generic over any message type. Provide a callback that maps `(hue, saturation)`
+/// to your app's message type.
+///
+/// - `hue`: 0-360 degrees
+/// - `saturation`: 0.0-1.0
+/// - `value`: 0.0-1.0 (brightness, controls wheel appearance)
+pub struct WheelProgram<Message> {
+    pub hue: f32,
+    pub saturation: f32,
+    pub value: f32,
+    on_change: Box<dyn Fn(f32, f32) -> Message>,
+}
+
+impl<Message> WheelProgram<Message> {
+    /// Create a new wheel program.
+    ///
+    /// `on_change` is called with `(hue, saturation)` when the user clicks or drags.
+    pub fn new(
+        hue: f32,
+        saturation: f32,
+        value: f32,
+        on_change: impl Fn(f32, f32) -> Message + 'static,
+    ) -> Self {
+        Self {
+            hue,
+            saturation,
+            value,
+            on_change: Box::new(on_change),
+        }
+    }
+}
+
+/// Internal canvas state (persists across frames).
+pub struct WheelState {
+    is_dragging: bool,
+    wheel_cache: canvas::Cache,
+    last_value: Cell<f32>,
+}
+
+impl Default for WheelState {
+    fn default() -> Self {
+        Self {
+            is_dragging: false,
+            wheel_cache: canvas::Cache::new(),
+            last_value: Cell::new(f32::NAN),
+        }
+    }
+}
+
+impl<Message: Clone> canvas::Program<Message, MakoTheme> for WheelProgram<Message> {
+    type State = WheelState;
+
+    fn update(
+        &self,
+        state: &mut WheelState,
+        event: &Event,
+        bounds: Rectangle,
+        cursor: mouse::Cursor,
+    ) -> Option<Action<Message>> {
+        match event {
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
+                if let Some(pos) = cursor.position_in(bounds) {
+                    if let Some((h, s)) = wheel_hit_test(pos, bounds.size()) {
+                        state.is_dragging = true;
+                        return Some(Action::publish((self.on_change)(h, s)).and_capture());
+                    }
+                }
+                None
+            }
+            Event::Mouse(mouse::Event::CursorMoved { .. }) => {
+                if state.is_dragging {
+                    if let Some(pos) = cursor.position_in(bounds) {
+                        let (h, s) = wheel_position_to_hs(pos, bounds.size());
+                        return Some(Action::publish((self.on_change)(h, s)).and_capture());
+                    }
+                }
+                None
+            }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)) => {
+                if state.is_dragging {
+                    state.is_dragging = false;
+                    return Some(Action::capture());
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    fn draw(
+        &self,
+        state: &WheelState,
+        renderer: &Renderer,
+        _theme: &MakoTheme,
+        bounds: Rectangle,
+        _cursor: mouse::Cursor,
+    ) -> Vec<Geometry> {
+        // Invalidate wheel cache when brightness changes
+        if state.last_value.get() != self.value {
+            state.wheel_cache.clear();
+            state.last_value.set(self.value);
+        }
+
+        // Draw the wheel (cached — only recomputed when value or size changes)
+        let wheel = state.wheel_cache.draw(renderer, bounds.size(), |frame| {
+            draw_wheel(frame, bounds.size(), self.value);
+        });
+
+        // Draw the selector (lightweight — just 2 circles, always fresh)
+        let mut selector_frame = Frame::new(renderer, bounds.size());
+        draw_selector(
+            &mut selector_frame,
+            bounds.size(),
+            self.hue,
+            self.saturation,
+        );
+
+        vec![wheel, selector_frame.into_geometry()]
+    }
+
+    fn mouse_interaction(
+        &self,
+        state: &WheelState,
+        bounds: Rectangle,
+        cursor: mouse::Cursor,
+    ) -> mouse::Interaction {
+        if state.is_dragging {
+            return mouse::Interaction::Grabbing;
+        }
+        if let Some(pos) = cursor.position_in(bounds) {
+            if wheel_hit_test(pos, bounds.size()).is_some() {
+                return mouse::Interaction::Pointer;
+            }
+        }
+        mouse::Interaction::default()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Geometry helpers
+// ---------------------------------------------------------------------------
+
+fn wheel_geometry(size: Size) -> (f32, f32, f32) {
+    let side = size.width.min(size.height);
+    let radius = side / 2.0 - 4.0;
+    let cx = size.width / 2.0;
+    let cy = size.height / 2.0;
+    (cx, cy, radius)
+}
+
+fn wheel_hit_test(pos: Point, size: Size) -> Option<(f32, f32)> {
+    let (cx, cy, radius) = wheel_geometry(size);
+    let dx = pos.x - cx;
+    let dy = pos.y - cy;
+    let dist = (dx * dx + dy * dy).sqrt();
+    if dist <= radius {
+        let hue = (dy.atan2(dx).to_degrees() + 360.0) % 360.0;
+        let sat = (dist / radius).min(1.0);
+        Some((hue, sat))
+    } else {
+        None
+    }
+}
+
+fn wheel_position_to_hs(pos: Point, size: Size) -> (f32, f32) {
+    let (cx, cy, radius) = wheel_geometry(size);
+    let dx = pos.x - cx;
+    let dy = pos.y - cy;
+    let hue = (dy.atan2(dx).to_degrees() + 360.0) % 360.0;
+    let dist = (dx * dx + dy * dy).sqrt();
+    let sat = (dist / radius).clamp(0.0, 1.0);
+    (hue, sat)
+}
+
+// ---------------------------------------------------------------------------
+// Drawing
+// ---------------------------------------------------------------------------
+
+fn draw_wheel(frame: &mut Frame, size: Size, value: f32) {
+    let (cx, cy, radius) = wheel_geometry(size);
+
+    let angle_step = 2.0 * PI / HUE_STEPS as f32;
+    let r_step = radius / SAT_STEPS as f32;
+
+    for h_idx in 0..HUE_STEPS {
+        let a0 = h_idx as f32 * angle_step;
+        let a1 = (h_idx + 1) as f32 * angle_step;
+        let hue = h_idx as f32 * (360.0 / HUE_STEPS as f32);
+
+        let cos0 = a0.cos();
+        let sin0 = a0.sin();
+        let cos1 = a1.cos();
+        let sin1 = a1.sin();
+
+        for s_idx in 0..SAT_STEPS {
+            let r_inner = s_idx as f32 * r_step;
+            let r_outer = (s_idx + 1) as f32 * r_step;
+            let sat = (s_idx as f32 + 0.5) / SAT_STEPS as f32;
+
+            let color = hsv_to_color(hue, sat, value);
+
+            let path = Path::new(|b| {
+                b.move_to(Point::new(cx + r_inner * cos0, cy + r_inner * sin0));
+                b.line_to(Point::new(cx + r_inner * cos1, cy + r_inner * sin1));
+                b.line_to(Point::new(cx + r_outer * cos1, cy + r_outer * sin1));
+                b.line_to(Point::new(cx + r_outer * cos0, cy + r_outer * sin0));
+                b.close();
+            });
+
+            frame.fill(&path, color);
+        }
+    }
+
+    let border = Path::circle(Point::new(cx, cy), radius);
+    frame.stroke(
+        &border,
+        canvas::Stroke::default()
+            .with_color(Color::from_rgb(0.4, 0.4, 0.4))
+            .with_width(1.0),
+    );
+}
+
+fn draw_selector(frame: &mut Frame, size: Size, hue: f32, saturation: f32) {
+    let (cx, cy, radius) = wheel_geometry(size);
+
+    let angle = hue.to_radians();
+    let dist = saturation * radius;
+    let sx = cx + dist * angle.cos();
+    let sy = cy + dist * angle.sin();
+
+    let outer = Path::circle(Point::new(sx, sy), 7.0);
+    frame.stroke(
+        &outer,
+        canvas::Stroke::default()
+            .with_color(Color::from_rgb(0.1, 0.1, 0.1))
+            .with_width(2.0),
+    );
+
+    let inner = Path::circle(Point::new(sx, sy), 5.0);
+    frame.stroke(
+        &inner,
+        canvas::Stroke::default()
+            .with_color(Color::WHITE)
+            .with_width(2.0),
+    );
+}

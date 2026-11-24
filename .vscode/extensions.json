@@ -4,7 +4,7 @@
         "davidanson.vscode-markdownlint",
         "editorconfig.edit",
         "iuyoy.highlight-string-code",
-        "polymeilex.wgsl",
+        "wgsl-analyzer.wgsl-analyzer",
         "rust-lang.rust-analyzer",
         "streetsidesoftware.code-spell-checker",
         "yzhang.markdown-all-in-one",
